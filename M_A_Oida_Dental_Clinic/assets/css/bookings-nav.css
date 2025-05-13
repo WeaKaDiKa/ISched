@@ -1,0 +1,110 @@
+/* Custom styles for bookings page navigation */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    background-color: #8fbaf3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
+/* Reset body padding to ensure navbar extends full width */
+body {
+    padding: 0 !important;
+    margin: 0 !important;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Adjust container margin to account for navbar */
+.container {
+    margin-top: 30px !important;
+}
+
+/* Override any conflicting styles */
+.navbar .nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar .nav-links li {
+    margin: 0 15px;
+}
+
+.navbar .nav-links a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.navbar .nav-links a:hover {
+    color: #14427a;
+}
+
+.navbar .nav-links a.active {
+    color: #14427a;
+    font-weight: 600;
+}
+
+.navbar .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #14427a;
+}
+
+/* Book Now button */
+.book-now {
+    background-color: #14427a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.book-now:hover {
+    background-color: #0d2d5e;
+}
+
+.book-now.active {
+    background-color: #0d2d5e;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Welcome message */
+.welcome-message {
+    margin-left: 50px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.welcome-message strong {
+    font-weight: 700;
+    color: black;
+    margin-left: 4px;
+}
+
+/* Logo */
+.logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    object-fit: contain;
+    background-color: white;
+    display: block;
+}

@@ -1,0 +1,742 @@
+/* Mobile-specific styles for all modules */
+
+/* Common mobile styles */
+@media (max-width: 768px) {
+    /* General layout */
+    .container {
+        padding: 10px !important;
+        width: 100% !important;
+        padding-top: 60px !important; /* Add space for fixed header */
+    }
+
+    /* Mobile Header */
+    #sidebarToggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0 !important;
+        margin: 0;
+        border-radius: 8px;
+        z-index: 60;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #sidebarToggle:active {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Sidebar */
+    #sidebar {
+        position: fixed !important;
+        left: -100% !important;
+        top: 0 !important;
+        height: 100vh !important;
+        width: 85% !important;
+        max-width: 320px !important;
+        z-index: 50 !important;
+        transition: left 0.3s ease !important;
+        background: white !important;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.1) !important;
+        overflow-y: auto !important;
+        padding-top: 60px !important; /* Add space for fixed header */
+    }
+
+    #sidebar.show {
+        left: 0 !important;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 45;
+        transition: opacity 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    /* Typography */
+    h1 { font-size: 1.5rem !important; }
+    h2 { font-size: 1.25rem !important; }
+    h3 { font-size: 1.125rem !important; }
+    
+    /* Forms */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px !important;
+        font-size: 16px !important;
+        margin-bottom: 10px;
+    }
+
+    /* Tables */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -15px;
+        padding: 0 15px;
+    }
+
+    .table {
+        min-width: 100%;
+        font-size: 14px;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px !important;
+        white-space: nowrap;
+    }
+
+    /* Cards and Panels */
+    .card {
+        margin-bottom: 15px;
+        padding: 15px !important;
+    }
+
+    .panel {
+        padding: 15px !important;
+    }
+
+    /* Buttons */
+    .btn {
+        width: 100%;
+        padding: 12px !important;
+        margin-bottom: 10px;
+        font-size: 16px !important;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    /* Navigation */
+    .nav-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-tabs .nav-item {
+        flex: none;
+    }
+
+    /* Modals */
+    .modal-content {
+        margin: 10px;
+        width: calc(100% - 20px) !important;
+    }
+
+    .modal-header {
+        padding: 15px !important;
+    }
+
+    .modal-body {
+        padding: 15px !important;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 15px !important;
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+/* Module-specific mobile styles */
+
+/* Appointments module */
+@media (max-width: 768px) {
+    /* Container adjustments */
+    .appointments-container {
+        padding: 10px !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Tab navigation */
+    .appointments-tabs {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        padding: 10px 0;
+        gap: 8px;
+    }
+
+    .appointments-tabs button {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        min-width: 100px !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+
+    .appointments-tabs button:active {
+        transform: scale(0.95);
+    }
+
+    .appointments-tabs button.active {
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .appointments-tabs button.active::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40%;
+        height: 3px;
+        background-color: currentColor;
+        border-radius: 3px;
+    }
+
+    /* Table adjustments */
+    .appointments-sections {
+        margin-top: 1rem;
+    }
+
+    .appointments-table-container {
+        margin: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+    }
+
+    .appointments-table {
+        width: 100%;
+        min-width: 600px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+    }
+
+    .appointments-table thead {
+        background-color: #f9fafb;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .appointments-table th {
+        padding: 12px 16px;
+        font-weight: 600;
+        text-align: left;
+        border-bottom: 2px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .appointments-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .appointments-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Message when no appointments */
+    .no-appointments {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+        font-style: italic;
+    }
+
+    /* Account Settings Styles */
+    @media (max-width: 768px) {
+        .settings-container {
+            padding: 1rem !important;
+        }
+
+        .settings-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start !important;
+        }
+
+        .settings-tabs {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .settings-tabs button {
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .settings-form {
+            padding: 1rem !important;
+        }
+
+        .settings-form .grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+
+        .profile-photo-container {
+            width: 120px !important;
+            height: 120px !important;
+            margin: 0 auto 1rem auto;
+        }
+
+        .profile-photo-overlay {
+            opacity: 1 !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            font-size: 1rem;
+        }
+
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            padding: 0.5rem;
+            color: #6b7280;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 0.875rem !important;
+            font-size: 1rem !important;
+            margin-top: 1rem;
+        }
+
+        /* Success Modal */
+        .success-modal {
+            padding: 1rem !important;
+        }
+
+        .success-modal-content {
+            width: 90% !important;
+            max-width: 400px;
+            padding: 1.5rem !important;
+        }
+    }
+
+    /* Appointment cards */
+    .appointment-card {
+        flex-direction: column !important;
+        padding: 15px !important;
+        margin: 10px 0 !important;
+        border-radius: 12px !important;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+    }
+
+    .appointment-details {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .appointment-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .appointment-info span {
+        display: block;
+        font-size: 14px !important;
+    }
+
+    .appointment-actions {
+        width: 100% !important;
+        margin-top: 15px !important;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .appointment-actions button,
+    .action-button {
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        outline: none;
+        margin: 4px 0;
+    }
+
+    .appointment-actions button:active,
+    .action-button:active {
+        transform: scale(0.95);
+    }
+
+    .appointment-actions button:focus,
+    .action-button:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
+    /* Calendar adjustments */
+    .calendar-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 0;
+        margin: 0 -10px;
+    }
+
+    .fc {
+        max-width: 100% !important;
+    }
+
+    .fc-toolbar {
+        flex-direction: column !important;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.25rem !important;
+        text-align: center;
+    }
+
+    .fc-button {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+
+    .fc-dayGrid-view {
+        min-width: 600px;
+        font-size: 14px !important;
+    }
+
+    .fc-daygrid-event {
+        padding: 4px 6px !important;
+        font-size: 12px !important;
+        margin: 1px 0 !important;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px !important;
+        border-radius: 12px;
+        font-size: 12px !important;
+        font-weight: 500;
+        text-align: center;
+        min-width: 80px;
+    }
+}
+
+/* Patient Records module */
+@media (max-width: 768px) {
+    .patient-info {
+        flex-direction: column !important;
+        padding: 15px !important;
+        gap: 15px;
+    }
+
+    .patient-photo {
+        width: 120px !important;
+        height: 120px !important;
+        margin: 0 auto !important;
+        border-radius: 60px !important;
+        object-fit: cover !important;
+    }
+
+    .patient-details {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .patient-details h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 10px !important;
+        text-align: center;
+    }
+
+    .medical-history {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 0;
+        margin: 0 -15px;
+    }
+
+    .medical-history table {
+        font-size: 14px !important;
+        min-width: 600px;
+    }
+
+    .medical-history td,
+    .medical-history th {
+        padding: 10px 8px !important;
+        white-space: nowrap;
+    }
+}
+
+/* Patient Feedback module */
+@media (max-width: 768px) {
+    .feedback-card {
+        flex-direction: column !important;
+    }
+
+    .feedback-content {
+        width: 100% !important;
+    }
+
+    .feedback-actions {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    .rating-stars {
+        justify-content: center;
+    }
+}
+
+/* Account Settings module */
+@media (max-width: 768px) {
+    .settings-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .profile-section {
+        flex-direction: column !important;
+    }
+
+    .profile-photo {
+        width: 120px !important;
+        height: 120px !important;
+        margin: 0 auto 15px !important;
+    }
+
+    .profile-info {
+        width: 100% !important;
+    }
+}
+
+/* Walk-in Appointment module */
+@media (max-width: 768px) {
+    .walk-in-form {
+        grid-template-columns: 1fr !important;
+    }
+
+    .service-selection {
+        overflow-x: auto;
+    }
+
+    .time-slots {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Request Access module */
+@media (max-width: 768px) {
+    .request-form {
+        grid-template-columns: 1fr !important;
+    }
+
+    .document-upload {
+        flex-direction: column;
+    }
+
+    .upload-preview {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+}
+
+/* Staff Management module */
+@media (max-width: 768px) {
+    .staff-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+        padding: 10px !important;
+    }
+
+    .staff-card {
+        flex-direction: column !important;
+        padding: 15px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    .staff-photo {
+        width: 120px !important;
+        height: 120px !important;
+        margin: 0 auto 15px !important;
+        border-radius: 60px !important;
+        object-fit: cover !important;
+    }
+
+    .staff-info {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .staff-info h3 {
+        font-size: 1.125rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .staff-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-top: 15px !important;
+    }
+
+    .staff-actions button {
+        width: 100% !important;
+        padding: 10px !important;
+        font-size: 14px !important;
+        border-radius: 6px !important;
+    }
+}
+
+/* Dark mode support for all modules */
+@media (prefers-color-scheme: dark) {
+    .card, .panel {
+        background-color: #2d2d2d !important;
+        border-color: #404040 !important;
+    }
+
+    .table {
+        color: #ffffff !important;
+    }
+
+    .table th,
+    .table td {
+        border-color: #404040 !important;
+    }
+
+    .modal-content {
+        background-color: #2d2d2d !important;
+        color: #ffffff !important;
+    }
+
+    input, select, textarea {
+        background-color: #1a1a1a !important;
+        border-color: #404040 !important;
+        color: #ffffff !important;
+    }
+}
+
+/* Loading states */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Touch-friendly improvements */
+@media (max-width: 768px) {
+    /* Increase touch targets */
+    a, button, 
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Add spacing between touch targets */
+    li, .nav-item {
+        margin: 8px 0;
+    }
+
+    /* Improve form element touch targets */
+    select {
+        height: 44px;
+    }
+
+    /* Better scrolling */
+    .scroll-container {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+} 
