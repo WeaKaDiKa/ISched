@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $remember_me = isset($_POST['rememberMe']) ? true : false;
 
-    $sql = "SELECT id, admin_id, password, name FROM admin_logins WHERE admin_id = ?";
+    $sql = "SELECT id, admin_id, type, password, name FROM admin_logins WHERE admin_id = ?";
     $stmt = $conn->prepare($sql);
     if ($stmt) {
         $stmt->bind_param('s', $admin_id);
@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             mobile = '+639123456789',
                             email = 'admin@example.com',
                             gender = 'Other',
+                            type = 'admin', 
                             profile_photo = 'assets/photo/default_avatar.png'
                             WHERE id = ?";
                     $stmt = $conn->prepare($sql);
@@ -61,15 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt->close();
                     }
                 }
-                
+
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['admin_id'] = $user['admin_id'];
-                
+                $_SESSION['admin_type'] = $user['type'];
                 // Handle Remember Me functionality
                 if ($remember_me) {
                     $token = bin2hex(random_bytes(32));
                     $expiry = time() + (86400 * 30); // 30 days
-                    
+
                     // Store token in database
                     $sql = "INSERT INTO remember_tokens (admin_id, token, expiry) VALUES (?, ?, ?) 
                             ON DUPLICATE KEY UPDATE token = ?, expiry = ?";
@@ -79,11 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt->execute();
                         $stmt->close();
                     }
-                    
+
                     // Set cookie
                     setcookie('admin_token', $token, $expiry, '/', '', false, true);
                 }
-                
+
                 header('Location: dashboard.php');
                 exit;
             } else {
@@ -101,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -108,36 +110,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-blue-100 min-h-screen flex items-center justify-center">
     <div class="flex flex-col md:flex-row w-full min-h-screen items-center justify-center">
         <!-- Left Illustration -->
         <div class="relative flex justify-center items-center w-full md:w-1/2 p-8">
-            <div class="w-full max-w-xl mx-auto bg-white bg-opacity-40 rounded-2xl shadow-lg p-10 flex items-center justify-center">
-                <img src="assets/photo/dentist_patient.png" alt="Hospital Illustration" class="w-full h-auto select-none pointer-events-none">
+            <div
+                class="w-full max-w-xl mx-auto bg-white bg-opacity-40 rounded-2xl shadow-lg p-10 flex items-center justify-center">
+                <img src="assets/photo/dentist_patient.png" alt="Hospital Illustration"
+                    class="w-full h-auto select-none pointer-events-none">
             </div>
         </div>
         <!-- Right Login Card -->
         <div class="flex justify-center items-center w-full md:w-1/2 p-8">
             <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-10 border border-blue-300">
                 <div class="flex items-center mb-6">
-                    <img src="assets/photo/logo.jpg" alt="Logo" class="w-12 h-12 rounded-full mr-3 border-2 border-blue-200">
+                    <img src="assets/photo/logo.jpg" alt="Logo"
+                        class="w-12 h-12 rounded-full mr-3 border-2 border-blue-200">
                     <span class="text-2xl font-bold text-gray-900 tracking-tight">M&A Oida Dental Clinic</span>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Login</h2>
                 <p class="text-gray-500 mb-6">Sign in to your admin account</p>
                 <?php if ($error): ?>
-                    <p class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm text-center"><?= htmlspecialchars($error) ?></p>
+                    <p class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm text-center">
+                        <?= htmlspecialchars($error) ?>
+                    </p>
                 <?php endif; ?>
                 <form action="admin_login.php" method="POST" class="space-y-6">
                     <div class="relative">
-                        <input type="text" name="admin_id" id="admin_id" value="<?= htmlspecialchars($_POST['admin_id'] ?? '') ?>" required class="peer block w-full appearance-none border border-gray-300 rounded-lg bg-gray-50 px-4 pt-6 pb-2 pl-12 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder=" " />
-                        <label for="admin_id" class="absolute left-12 top-2 text-gray-500 text-sm transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Admin ID</label>
-                        <span class="absolute left-4 top-0 flex items-center h-full text-gray-400 pointer-events-none"><i class="fa-solid fa-id-card"></i></span>
+                        <input type="text" name="admin_id" id="admin_id"
+                            value="<?= htmlspecialchars($_POST['admin_id'] ?? '') ?>" required
+                            class="peer block w-full appearance-none border border-gray-300 rounded-lg bg-gray-50 px-4 pt-6 pb-2 pl-12 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            placeholder=" " />
+                        <label for="admin_id"
+                            class="absolute left-12 top-2 text-gray-500 text-sm transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Admin
+                            ID</label>
+                        <span
+                            class="absolute left-4 top-0 flex items-center h-full text-gray-400 pointer-events-none"><i
+                                class="fa-solid fa-id-card"></i></span>
                     </div>
                     <div class="relative">
-                        <input type="password" name="password" id="password" required class="peer block w-full appearance-none border border-gray-300 rounded-lg bg-gray-50 px-4 pt-6 pb-2 pl-12 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder=" " />
-                        <label for="password" class="absolute left-12 top-2 text-gray-500 text-sm transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Password</label>
-                        <span class="absolute left-4 top-0 flex items-center h-full text-gray-400 pointer-events-none"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" name="password" id="password" required
+                            class="peer block w-full appearance-none border border-gray-300 rounded-lg bg-gray-50 px-4 pt-6 pb-2 pl-12 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            placeholder=" " />
+                        <label for="password"
+                            class="absolute left-12 top-2 text-gray-500 text-sm transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Password</label>
+                        <span
+                            class="absolute left-4 top-0 flex items-center h-full text-gray-400 pointer-events-none"><i
+                                class="fa-solid fa-lock"></i></span>
                     </div>
                     <div class="flex items-center justify-between text-sm">
                         <label class="flex items-center">
@@ -146,28 +166,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
                         <a href="forgotpassword.php" class="text-blue-600 hover:underline">Forgot password?</a>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-sm transition">Login</button>
-                    <button type="button" onclick="window.location.href='admin_signup.php'" class="w-full mt-3 bg-gray-200 text-gray-800 font-semibold py-2 rounded-lg shadow-sm transition cursor-pointer">Not registered? Signup</button>
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-sm transition">Login</button>
+                    <button type="button" onclick="window.location.href='admin_signup.php'"
+                        class="w-full mt-3 bg-gray-200 text-gray-800 font-semibold py-2 rounded-lg shadow-sm transition cursor-pointer">Not
+                        registered? Signup</button>
                 </form>
             </div>
         </div>
     </div>
     <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const loginButton = document.querySelector(".login-button, button[type='submit']");
-        if (loginButton) {
-            loginButton.addEventListener("click", (e) => {
-                // Basic front-end validation
-                const adminId = document.querySelector("#admin_id").value.trim();
-                const password = document.querySelector("#password").value.trim();
-                if (!adminId || !password) {
-                    e.preventDefault();
-                    alert("All fields are required!");
-                    return;
-                }
-            });
-        }
-    });
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginButton = document.querySelector(".login-button, button[type='submit']");
+            if (loginButton) {
+                loginButton.addEventListener("click", (e) => {
+                    // Basic front-end validation
+                    const adminId = document.querySelector("#admin_id").value.trim();
+                    const password = document.querySelector("#password").value.trim();
+                    if (!adminId || !password) {
+                        e.preventDefault();
+                        alert("All fields are required!");
+                        return;
+                    }
+                });
+            }
+        });
     </script>
 </body>
+
 </html>

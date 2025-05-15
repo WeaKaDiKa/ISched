@@ -1,21 +1,10 @@
 <?php
 // filepath: c:\xampp\htdocs\M_A_Oida_Dental_Clinic\db.php
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "dental_clinic";
 
-// Create connection
-//$conn = new mysqli($servername, $username, $password, $dbname,3318);
-
-$servername = "sql213.infinityfree.com";
-$username = "if0_38975384"; // Baguhin kung may ibang username
-$password = "2qHptzN96wi4"; // Baguhin kung may password
-$dbname = "if0_38975384_dental_clinic";
-
+require_once '../dbinfo.php';
 // Gumawa ng database connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
