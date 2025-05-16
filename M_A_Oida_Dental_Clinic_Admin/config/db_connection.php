@@ -1,10 +1,21 @@
 <?php
+require_once '../dbinfo.php';
+
 class Database {
-    private $host = "localhost";
-    private $username = "root";
-    private $password = "";
-    private $database = "dental_clinic";
+    private $host;
+    private $username;
+    private $password;
+    private $database;
     private $conn;
+
+    public function __construct() {
+        global $servername, $username, $password, $dbname;
+
+        $this->host = $servername;
+        $this->username = $username;
+        $this->password = $password;
+        $this->database = $dbname;
+    }
 
     public function connect() {
         try {
@@ -21,4 +32,4 @@ class Database {
         }
     }
 }
-?> 
+?>

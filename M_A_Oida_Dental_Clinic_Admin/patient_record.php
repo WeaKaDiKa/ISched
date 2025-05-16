@@ -14,133 +14,26 @@ $patients = $patientModel->getAllPatients();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Patient Records - M&A Oida Dental Clinic</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
         }
-        #sidebar.collapsed {
-            width: 4.5rem !important;
-            min-width: 0 !important;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-        #sidebar.collapsed .sidebar-label,
-        #sidebar.collapsed .text-center,
-        #sidebar.collapsed .text-xs,
-        #sidebar.collapsed nav span,
-        #sidebar.collapsed .mt-auto,
-        #sidebar.collapsed .flex.flex-col.items-center.mb-8 > h3,
-        #sidebar.collapsed .flex.flex-col.items-center.mb-8 > p {
-            display: none !important;
-        }
-        #sidebar.collapsed .flex.flex-col.items-center.mb-8 {
-            align-items: flex-start !important;
-        }
-        #sidebar.collapsed img.w-24 {
-            margin-bottom: 0 !important;
-        }
-        .active-sidebar-link {
-            background-color: #f4f6f8; /* light gray */
-            color: #1e3a8a !important; /* dark blue text */
-            font-weight: bold;
-            position: relative;
-        }
-        .active-sidebar-link::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 8px;
-            bottom: 8px;
-            width: 4px;
-            background: #2563eb; /* blue-600 */
-            border-radius: 8px;
-        }
     </style>
 </head>
+
 <body class="bg-white text-gray-900">
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="flex flex-col bg-white border-r border-gray-200 w-64 min-w-[256px] py-6 px-4 transition-all duration-300">
-            <div class="flex items-center justify-between mb-10">
-                <div class="flex items-center space-x-2">
-                    <img alt="M&A Oida Dental Clinic logo" class="w-8 h-8" src="assets/photo/logo.jpg"/>
-                    <span class="sidebar-label text-sm font-semibold text-gray-900 whitespace-nowrap">
-                        M&A Oida Dental Clinic
-                    </span>
-                </div>
-                <button id="sidebarToggle" aria-label="Toggle menu" class="text-blue-600 hover:text-blue-700 focus:outline-none">
-                    <i class="fas fa-bars fa-lg"></i>
-                </button>
-            </div>
-            <!-- Profile Section -->
-            <div class="flex flex-col items-center mb-8">
-                <img alt="Profile photo" class="rounded-full w-24 h-24 object-cover mb-2" src="<?php echo (!empty($_SESSION['profile_photo']) && file_exists($_SESSION['profile_photo'])) ? htmlspecialchars($_SESSION['profile_photo']) : 'assets/photo/default_avatar.png'; ?>"/>
-                <h3 class="text-center text-sm font-semibold text-gray-900 leading-tight">
-                    <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>
-                </h3>
-                <p class="text-center text-xs text-gray-500 mt-1">
-                    Professional Dentist
-                </p>
-            </div>
-            <nav class="flex flex-col space-y-2 text-gray-700 text-sm font-medium">
-                <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'dashboard.php' ? 'active-sidebar-link' : ''; ?>" href="dashboard.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <span>Dashboard</span>
-                </a>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'appointments.php' ? 'active-sidebar-link' : ''; ?>" href="appointments.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <span>Appointments</span>
-                </a>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'patient_record.php' ? 'active-sidebar-link' : ''; ?>" href="patient_record.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-user-injured"></i>
-                    </div>
-                    <span>Patient Records</span>
-                </a>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'patient_feedback.php' ? 'active-sidebar-link' : ''; ?>" href="patient_feedback.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-comment-alt"></i>
-                    </div>
-                    <span>Patient Feedback</span>
-                </a>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'account_settings.php' ? 'active-sidebar-link' : ''; ?>" href="account_settings.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-cog"></i>
-                    </div>
-                    <span>Account Settings</span>
-                </a>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'request_access.php' ? 'active-sidebar-link' : ''; ?>" href="request_access.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <span>Request for Access</span>
-                </a>
-                <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'help_support.php' ? 'active-sidebar-link' : ''; ?>" href="help_support.php">
-                    <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                        <i class="fas fa-question-circle"></i>
-                    </div>
-                    <span>Help & Support</span>
-                </a>
-            </nav>
-            <a href="admin_login.php" class="mt-auto flex justify-center items-center space-x-2 text-red-600 hover:text-red-700 font-semibold text-sm">
-                <i class="fas fa-sign-out-alt fa-lg"></i>
-                <span>Logout</span>
-            </a>
-        </aside>
-
+        <?php require_once 'nav.php' ?>
         <!-- Main content -->
         <main class="flex-1 flex flex-col overflow-hidden">
             <!-- Top bar -->
@@ -149,15 +42,16 @@ $patients = $patientModel->getAllPatients();
                     <span class="font-semibold">North Fairview Branch</span>
                 </div>
                 <div class="flex items-center space-x-4 ml-auto">
-                    <button class="bg-purple-700 text-white text-xs font-semibold rounded-md px-4 py-1 hover:bg-purple-800">
+                    <button
+                        class="bg-purple-700 text-white text-xs font-semibold rounded-md px-4 py-1 hover:bg-purple-800">
                         Walk-in Appointment Form
                     </button>
                     <button aria-label="Notifications" class="text-gray-900 hover:text-gray-700 focus:outline-none">
                         <i class="fas fa-bell fa-lg"></i>
                     </button>
-                    <img alt="Profile photo of <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>" 
-                         class="rounded-full w-10 h-10 object-cover" 
-                         src="<?php echo (!empty($_SESSION['profile_photo']) && file_exists($_SESSION['profile_photo'])) ? htmlspecialchars($_SESSION['profile_photo']) : 'assets/photo/default_avatar.png'; ?>" />
+                    <img alt="Profile photo of <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>"
+                        class="rounded-full w-10 h-10 object-cover"
+                        src="<?php echo (!empty($_SESSION['profile_photo']) && file_exists($_SESSION['profile_photo'])) ? htmlspecialchars($_SESSION['profile_photo']) : 'assets/photo/default_avatar.png'; ?>" />
                 </div>
             </header>
 
@@ -185,10 +79,8 @@ $patients = $patientModel->getAllPatients();
                         <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
                         <div class="flex items-center space-x-4">
                             <div class="relative">
-                                <input type="text" 
-                                       id="searchInput"
-                                       placeholder="Search patients..." 
-                                       class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="text" id="searchInput" placeholder="Search patients..."
+                                    class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                             </div>
                         </div>
@@ -196,61 +88,62 @@ $patients = $patientModel->getAllPatients();
 
                     <!-- Patient Cards Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <?php foreach ($patients as $patient): 
+                        <?php foreach ($patients as $patient):
                             $patientAppointments = $appointmentModel->getPatientAppointments($patient['id']);
-                        ?>
-                        <div class="patient-card bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all">
-                            <div class="flex items-center space-x-3 mb-3">
-                                <img src="<?php echo !empty($patient['profile_photo']) ? htmlspecialchars($patient['profile_photo']) : 'assets/photo/default_avatar.png'; ?>" 
-                                     alt="<?php echo htmlspecialchars($patient['name']); ?>" 
-                                     class="w-12 h-12 rounded-full object-cover">
-                                <div>
-                                    <h3 class="text-gray-900 font-medium">
-                                        <?php echo htmlspecialchars($patient['name']); ?>
-                                    </h3>
-                                    <p class="text-sm text-gray-500">
-                                        Patient ID: <?php echo htmlspecialchars($patient['id']); ?>
-                                    </p>
+                            ?>
+                            <div
+                                class="patient-card bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <img src="<?php echo !empty($patient['profile_photo']) ? htmlspecialchars($patient['profile_photo']) : 'assets/photo/default_avatar.png'; ?>"
+                                        alt="<?php echo htmlspecialchars($patient['name']); ?>"
+                                        class="w-12 h-12 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="text-gray-900 font-medium">
+                                            <?php echo htmlspecialchars($patient['name']); ?>
+                                        </h3>
+                                        <p class="text-sm text-gray-500">
+                                            Patient ID: <?php echo htmlspecialchars($patient['id']); ?>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <?php if (!empty($patientAppointments)): ?>
-                            <div class="mt-3">
-                                <h4 class="text-sm font-medium text-gray-700 mb-2">Approved Appointments:</h4>
-                                <div class="space-y-2">
-                                    <?php foreach ($patientAppointments as $apt): ?>
-                                    <div class="bg-green-50 rounded-md p-2 border border-green-200">
-                                        <div class="flex justify-between items-center">
-                                            <div class="text-sm">
-                                                <div class="font-medium text-green-800">
-                                                    <?php echo date('M j, Y', strtotime($apt['appointment_date'])); ?>
+                                <?php if (!empty($patientAppointments)): ?>
+                                    <div class="mt-3">
+                                        <h4 class="text-sm font-medium text-gray-700 mb-2">Approved Appointments:</h4>
+                                        <div class="space-y-2">
+                                            <?php foreach ($patientAppointments as $apt): ?>
+                                                <div class="bg-green-50 rounded-md p-2 border border-green-200">
+                                                    <div class="flex justify-between items-center">
+                                                        <div class="text-sm">
+                                                            <div class="font-medium text-green-800">
+                                                                <?php echo date('M j, Y', strtotime($apt['appointment_date'])); ?>
+                                                            </div>
+                                                            <div class="text-green-700">
+                                                                <?php echo date('g:i A', strtotime($apt['start_time'])); ?>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-right text-sm">
+                                                            <div class="text-green-800">
+                                                                <?php echo htmlspecialchars($apt['service_name']); ?>
+                                                            </div>
+                                                            <div class="text-green-700">
+                                                                Dr. <?php echo htmlspecialchars($apt['doctor_name']); ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="text-green-700">
-                                                    <?php echo date('g:i A', strtotime($apt['start_time'])); ?>
-                                                </div>
-                                            </div>
-                                            <div class="text-right text-sm">
-                                                <div class="text-green-800">
-                                                    <?php echo htmlspecialchars($apt['service_name']); ?>
-                                                </div>
-                                                <div class="text-green-700">
-                                                    Dr. <?php echo htmlspecialchars($apt['doctor_name']); ?>
-                                                </div>
-                                            </div>
+                                            <?php endforeach; ?>
                                         </div>
                                     </div>
-                                    <?php endforeach; ?>
+                                <?php endif; ?>
+
+                                <div class="mt-4 flex justify-end">
+                                    <button onclick="viewPatientDetails(<?php echo htmlspecialchars($patient['id']); ?>)"
+                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                        View Details <i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <?php endif; ?>
-
-                            <div class="mt-4 flex justify-end">
-                                <button onclick="viewPatientDetails(<?php echo htmlspecialchars($patient['id']); ?>)" 
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                    View Details <i class="fas fa-chevron-right ml-1"></i>
-                                </button>
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -267,7 +160,7 @@ $patients = $patientModel->getAllPatients();
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <!-- Patient Info Header -->
             <div class="flex items-center space-x-4 mb-6">
                 <img id="modalPatientImage" class="h-16 w-16 rounded-full object-cover" src="" alt="Patient Photo">
@@ -280,10 +173,14 @@ $patients = $patientModel->getAllPatients();
             <!-- Tabs -->
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button class="tab-button active border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="dental">
+                    <button
+                        class="tab-button active border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-tab="dental">
                         Dental History
                     </button>
-                    <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="medical">
+                    <button
+                        class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-tab="medical">
                         Medical History
                     </button>
                 </nav>
@@ -330,7 +227,7 @@ $patients = $patientModel->getAllPatients();
 
         // Make sure all sidebar links are clickable
         document.querySelectorAll('#sidebar a').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 if (this.getAttribute('href') === 'admin_login.php') {
                     e.preventDefault();
                     if (confirm('Are you sure you want to logout?')) {
@@ -344,7 +241,7 @@ $patients = $patientModel->getAllPatients();
         const searchInput = document.getElementById('searchInput');
         const patientCards = document.querySelectorAll('.patient-card');
 
-        searchInput.addEventListener('input', function(e) {
+        searchInput.addEventListener('input', function (e) {
             const searchTerm = e.target.value.toLowerCase();
             patientCards.forEach(card => {
                 const patientName = card.querySelector('h3').textContent.toLowerCase();
@@ -391,4 +288,5 @@ $patients = $patientModel->getAllPatients();
         });
     </script>
 </body>
-</html> 
+
+</html>
