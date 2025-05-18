@@ -1,13 +1,10 @@
 <?php
-session_start();
+require_once('db.php');
 if (!isset($_SESSION['admin_id'])) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;
 }
-
-require_once('db.php');
-
 header('Content-Type: application/json');
 
 // Get POST data
@@ -39,7 +36,8 @@ try {
     ) VALUES (?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('isssss', 
+    $stmt->bind_param(
+        'isssss',
         $patient_id,
         $services,
         $appointment_date,
@@ -70,7 +68,7 @@ try {
     $conn->commit();
 
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'Appointment created successfully',
         'appointment_id' => $appointment_id,
         'reference_number' => $reference_number
@@ -83,4 +81,4 @@ try {
 }
 
 $conn->close();
-?> 
+?>

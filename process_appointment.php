@@ -1,8 +1,4 @@
 <?php
-// Disable error display for API endpoints
-ini_set('display_errors', 0);
-error_reporting(E_ERROR);
-
 // Start output buffering to capture any unexpected output
 ob_start();
 

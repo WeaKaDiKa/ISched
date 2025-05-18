@@ -1,5 +1,5 @@
 // Add loading animation handlers
-document.addEventListener('DOMContentLoaded', function() {
+/* document.addEventListener('DOMContentLoaded', function() {
     const menuItems = document.querySelectorAll('.sidebar-menu a');
     const loader = document.querySelector('.loader-overlay');
 
@@ -14,4 +14,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500); // Adjust this time as needed (1.5 seconds)
         });
     });
-}); 
+});  */

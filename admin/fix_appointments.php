@@ -1,10 +1,8 @@
 <?php
-session_start();
+require_once('db.php');
 if (!isset($_SESSION['admin_id'])) {
     die("Unauthorized access");
 }
-
-require_once('db.php');
 
 // Check and fix table structure
 $sql = "SHOW TABLES LIKE 'appointments'";

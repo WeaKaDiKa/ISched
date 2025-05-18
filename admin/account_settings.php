@@ -178,7 +178,6 @@ if ($admin_id) {
         .icon-circle {
             @apply w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl transition-all duration-200 ease-in-out shadow-sm;
         }
-
     </style>
 </head>
 

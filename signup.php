@@ -1,10 +1,9 @@
 <?php
 
-session_start();
-require 'db.php'; // Include database connection
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
+require_once 'db.php'; // Include database connection
+require_once 'admin/vendor/phpmailer/src/PHPMailer.php';
+require_once 'admin/vendor/phpmailer/src/SMTP.php';
+require_once 'admin/vendor/phpmailer/src/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 

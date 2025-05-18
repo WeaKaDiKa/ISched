@@ -27,20 +27,20 @@ try {
               WHERE appointment_date = ? 
               AND clinic_branch = ? 
               AND status != 'cancelled'";
-    
+
     $stmt = $conn->prepare($query);
     if (!$stmt) {
         throw new Exception("Error preparing statement: " . $conn->error);
     }
-    
+
     $stmt->bind_param("ss", $date, $branch);
-    
+
     if (!$stmt->execute()) {
         throw new Exception("Error executing statement: " . $stmt->error);
     }
-    
+
     $result = $stmt->get_result();
-    
+
     // Collect all booked times
     $booked_times = [];
     while ($row = $result->fetch_assoc()) {
@@ -50,10 +50,10 @@ try {
             $booked_times[] = $time;
         }
     }
-    
+
     // Determine available slots (all slots minus booked slots)
     $available_slots = array_diff($all_time_slots, $booked_times);
-    
+
     // Return the available slots
     echo json_encode([
         'success' => true,
@@ -61,7 +61,7 @@ try {
         'branch' => $branch,
         'available_slots' => array_values($available_slots) // Reset array keys
     ]);
-    
+
 } catch (Exception $e) {
     // Log the error and return an empty result
     error_log("Error in check_availability.php: " . $e->getMessage());
@@ -70,4 +70,4 @@ try {
         'message' => $e->getMessage(),
         'available_slots' => $all_time_slots // Fallback to all slots available
     ]);
-} 
+}

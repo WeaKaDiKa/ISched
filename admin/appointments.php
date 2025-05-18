@@ -11,10 +11,6 @@ if (!isset($_SESSION['admin_id'])) {
 // Load admin data
 load_admin_data($conn);
 
-// Debug information
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // Fetch pending appointments with debug info
 $sql = "SELECT a.id, a.services, a.appointment_date, a.appointment_time, a.status,
                CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,

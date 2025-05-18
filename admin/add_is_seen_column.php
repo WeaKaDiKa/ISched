@@ -1,10 +1,10 @@
 <?php
-session_start();
+require_once('db.php');
 if (!isset($_SESSION['admin_id'])) {
     die("Unauthorized access");
 }
 
-require_once('db.php');
+
 
 // Check if the script has already been run
 $sql = "SHOW COLUMNS FROM appointments LIKE 'is_seen'";
@@ -19,7 +19,7 @@ if ($result->num_rows == 0) {
         echo "Error adding is_seen column: " . $conn->error . "<br>";
         exit;
     }
-    
+
     echo "Finished updating appointments table<br>";
 } else {
     echo "is_seen column already exists<br>";
@@ -29,4 +29,4 @@ $conn->close();
 
 // Add a link to go back to appointments page
 echo '<br><a href="appointments.php">Go back to appointments</a>';
-?> 
+?>

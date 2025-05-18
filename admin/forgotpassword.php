@@ -1,8 +1,8 @@
 <?php
 // Include PHPMailer (siguraduhin na tama ang path)
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/phpmailer/src/PHPMailer.php';
 
-require_once __DIR__ . '/db.php';
+require_once 'db.php';
 
 // Use PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;

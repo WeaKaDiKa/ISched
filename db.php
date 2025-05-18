@@ -1,5 +1,8 @@
 <?php
 require_once 'dbinfo.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Gumawa ng database connection
 $conn = new mysqli($servername, $username, $password, $dbname, $port);

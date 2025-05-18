@@ -1,6 +1,3 @@
-<?php
-// breadcrumb.php
-?>
 <style>
     .breadcrumb {
         display: flex;

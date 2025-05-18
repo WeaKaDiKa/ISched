@@ -25,4 +25,3 @@ function load_admin_data($conn) {
         $_SESSION['profile_photo'] = 'assets/photo/default_avatar.png';
     }
 }
-?> 

@@ -1,4 +1,5 @@
 <!-- Sidebar -->
+
 <style>
     .sidebar-icon {
         @apply transition-all duration-200 ease-in-out;
@@ -88,55 +89,84 @@
             <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>
         </h3>
         <p class="text-center text-xs text-gray-500 mt-1">
-            Professional Dentist
+            <?= ucfirst($role); ?>
         </p>
     </div>
 
     <!-- Navigation -->
     <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+    <?php
+    $role = $_SESSION['admin_type'] ?? '';
+    ?>
+    <script>alert('<?= $role; ?>');</script>
     <nav class="flex flex-col space-y-2 text-gray-700 text-sm font-medium">
-        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'dashboard.php' ? 'active-sidebar-link' : ''; ?>"
-            href="dashboard.php">
-            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-home"></i>
-            </div>
-            <span>Dashboard</span>
-        </a>
-        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'appointments.php' ? 'active-sidebar-link' : ''; ?>"
-            href="appointments.php">
-            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <span>Appointments</span>
-        </a>
-        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'patient_record.php' ? 'active-sidebar-link' : ''; ?>"
-            href="patient_record.php">
-            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-user-injured"></i>
-            </div>
-            <span>Patient Records</span>
-        </a>
-        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'patient_feedback.php' ? 'active-sidebar-link' : ''; ?>"
-            href="patient_feedback.php">
-            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-comment-alt"></i>
-            </div>
-            <span>Patient Feedback</span>
-        </a>
-        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'account_settings.php' ? 'active-sidebar-link' : ''; ?>"
-            href="account_settings.php">
-            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-cog"></i>
-            </div>
-            <span>Account Settings</span>
-        </a>
-        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'request_access.php' ? 'active-sidebar-link' : ''; ?>"
-            href="request_access.php">
-            <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-lock"></i>
-            </div>
-            <span>Request for Access</span>
-        </a>
+        <!-- Dashboard: Admin only -->
+        <?php if ($role === 'admin'): ?>
+            <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'dashboard.php' ? 'active-sidebar-link' : ''; ?>"
+                href="dashboard.php">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
+                    <i class="fas fa-home"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+        <?php endif; ?>
+
+        <!-- Appointments: Admin & Dentist -->
+        <?php if (in_array($role, ['admin', 'dentist'])): ?>
+            <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'appointments.php' ? 'active-sidebar-link' : ''; ?>"
+                href="appointments.php">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <span>Appointments</span>
+            </a>
+        <?php endif; ?>
+
+        <!-- Patient Records: All -->
+        <?php if (in_array($role, ['admin', 'dentist', 'helper'])): ?>
+            <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'patient_record.php' ? 'active-sidebar-link' : ''; ?>"
+                href="patient_record.php">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <span>Patient Records</span>
+            </a>
+        <?php endif; ?>
+
+        <!-- Patient Feedback: Admin & Dentist -->
+        <?php if (in_array($role, ['admin', 'dentist'])): ?>
+            <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'patient_feedback.php' ? 'active-sidebar-link' : ''; ?>"
+                href="patient_feedback.php">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+                <span>Patient Feedback</span>
+            </a>
+        <?php endif; ?>
+
+        <!-- Account Settings: All -->
+        <?php if (in_array($role, ['admin', 'dentist', 'helper'])): ?>
+            <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'account_settings.php' ? 'active-sidebar-link' : ''; ?>"
+                href="account_settings.php">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <span>Account Settings</span>
+            </a>
+        <?php endif; ?>
+
+        <!-- Roles: Admin only -->
+        <?php if ($role === 'admin'): ?>
+            <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'roles.php' ? 'active-sidebar-link' : ''; ?>"
+                href="roles.php">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <span>Roles</span>
+            </a>
+        <?php endif; ?>
+
+        <!-- Help & Support: All -->
         <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'help_support.php' ? 'active-sidebar-link' : ''; ?>"
             href="help_support.php">
             <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
@@ -146,7 +176,8 @@
         </a>
     </nav>
 
-    <a href="admin_login.php"
+
+    <a href="../login.php"
         class="mt-auto flex justify-center items-center space-x-2 text-red-600 hover:text-red-700 font-semibold text-sm">
         <i class="fas fa-sign-out-alt fa-lg"></i>
         <span>Logout</span>

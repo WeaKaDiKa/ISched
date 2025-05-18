@@ -30,4 +30,3 @@ if ($result) {
 }
 
 $conn->close();
-?> 

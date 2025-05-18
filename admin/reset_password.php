@@ -1,5 +1,6 @@
 <?php
-session_start();
+
+require_once 'db.php';
 
 $error = '';
 $success = '';
@@ -11,7 +12,6 @@ if (!isset($_GET['token'])) {
 
 $token = $_GET['token'];
 
-require_once 'db.php';
 // Verify token and check expiry
 $stmt = $conn->prepare("SELECT id FROM admin_users WHERE reset_token = ? AND reset_token_expiry > NOW()");
 $stmt->bind_param("s", $token);

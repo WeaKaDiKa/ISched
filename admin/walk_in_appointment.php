@@ -1,11 +1,10 @@
 <?php
-session_start();
+
+require_once 'db.php';
 if (!isset($_SESSION['admin_id'])) {
     header('Location: admin_login.php');
     exit;
 }
-
-require_once('db.php');
 
 // Fetch all patients for the dropdown
 $sql = "SELECT id, CONCAT(first_name, ' ', middle_name, ' ', last_name) as full_name 

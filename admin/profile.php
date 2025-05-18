@@ -1,4 +1,5 @@
 <?php
+require_once('db.php');
 $name = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 'Unknown';
 ?>
 <!DOCTYPE html>
