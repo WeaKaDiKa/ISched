@@ -184,29 +184,12 @@ if ($admin_id) {
 <body class="bg-white text-gray-900">
     <div class="flex h-screen overflow-hidden">
         <?php require_once 'nav.php' ?>
-      
-      
+
+
         <!-- Main content -->
         <main class="flex-1 flex flex-col overflow-hidden">
             <!-- Top bar -->
-            <header class="flex items-center justify-between bg-blue-300 px-6 py-3 border-b border-gray-300">
-                <div class="text-gray-900 text-sm font-normal">
-                    <span class="font-semibold">North Fairview Branch</span>
-                </div>
-                <div class="flex items-center space-x-4 ml-auto">
-                    <button
-                        class="bg-purple-700 text-white text-xs font-semibold rounded-md px-4 py-1 hover:bg-purple-800">
-                        Walk-in Appointment Form
-                    </button>
-                    <button aria-label="Notifications" class="text-gray-900 hover:text-gray-700 focus:outline-none">
-                        <i class="fas fa-bell fa-lg"></i>
-                    </button>
-                    <img alt="Profile photo of <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>"
-                        class="rounded-full w-10 h-10 object-cover"
-                        src="<?php echo !empty($_SESSION['profile_photo']) ? htmlspecialchars($_SESSION['profile_photo']) : 'assets/photo/default_avatar.png'; ?>" />
-                </div>
-            </header>
-
+            <?php require_once 'header.php'; ?>
             <!-- Content area -->
             <div class="flex flex-1 overflow-hidden">
                 <!-- Main content -->
@@ -237,7 +220,8 @@ if ($admin_id) {
                                         </div>
                                         <div>
                                             <div class="text-2xl font-bold text-gray-900">
-                                                <?php echo $appointmentCount; ?></div>
+                                                <?php echo $appointmentCount; ?>
+                                            </div>
                                             <div class="text-base text-gray-700 font-semibold">Appointments</div>
                                             <div class="text-sm text-gray-500 mt-1">
                                                 +<?php echo $appointmentThisMonth; ?></div>

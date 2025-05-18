@@ -66,6 +66,10 @@
         font-weight: bold;
     }
 </style>
+<?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+<?php
+$role = $_SESSION['admin_type'] ?? '';
+?>
 <aside id="sidebar"
     class="flex flex-col bg-white border-r border-gray-200 w-64 min-w-[256px] py-6 px-4 transition-all duration-300">
     <div class="flex items-center justify-between mb-10">
@@ -94,11 +98,6 @@
     </div>
 
     <!-- Navigation -->
-    <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
-    <?php
-    $role = $_SESSION['admin_type'] ?? '';
-    ?>
-    <script>alert('<?= $role; ?>');</script>
     <nav class="flex flex-col space-y-2 text-gray-700 text-sm font-medium">
         <!-- Dashboard: Admin only -->
         <?php if ($role === 'admin'): ?>
@@ -162,7 +161,7 @@
                 <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
                     <i class="fas fa-lock"></i>
                 </div>
-                <span>Roles</span>
+                <span>Add Account</span>
             </a>
         <?php endif; ?>
 
