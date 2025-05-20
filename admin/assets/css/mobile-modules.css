@@ -659,7 +659,7 @@
 }
 
 /* Dark mode support for all modules */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .card, .panel {
         background-color: #2d2d2d !important;
         border-color: #404040 !important;
@@ -684,7 +684,7 @@
         border-color: #404040 !important;
         color: #ffffff !important;
     }
-}
+} */
 
 /* Loading states */
 .loading-overlay {
