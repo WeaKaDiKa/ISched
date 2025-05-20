@@ -49,8 +49,7 @@ $all_requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Access Requests - M&A Oida Dental Clinic</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <?php require_once 'head.php' ?>
     <style>
         .request-card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);

@@ -1,6 +1,7 @@
 <?php
-require_once('session_handler.php');
 require_once('db.php');
+require_once('session_handler.php');
+
 
 // Check if user is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -53,16 +54,7 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
     $pendingAppointments = $rowPending['total'];
 }
 
-// Dynamic greeting based on time of day (Asia/Manila)
-date_default_timezone_set('Asia/Manila');
-$hour = (int) date('G');
-if ($hour >= 5 && $hour < 12) {
-    $greeting = 'Good Morning,';
-} elseif ($hour >= 12 && $hour < 18) {
-    $greeting = 'Good Afternoon,';
-} else {
-    $greeting = 'Good Evening,';
-}
+
 ?>
 
 <!DOCTYPE html>
@@ -72,13 +64,9 @@ if ($hour >= 5 && $hour < 12) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Appointments - M&amp;A Oida Dental Clinic</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/mobile-modules.css">
-    <script src="assets/js/mobile.js"></script>
+
+    <?php require_once 'head.php' ?>
+
     <style>
         /* Mobile optimizations */
         @media (max-width: 768px) {
@@ -96,13 +84,7 @@ if ($hour >= 5 && $hour < 12) {
                 gap: 10px;
             }
 
-            /* Make buttons more touch-friendly */
-            .action-button {
-                min-height: 44px;
-                width: 100%;
-                margin: 5px 0;
-                justify-content: center;
-            }
+
 
             /* Improve filter section */
             .filter-section {
@@ -195,6 +177,10 @@ if ($hour >= 5 && $hour < 12) {
                 scroll-behavior: smooth;
             }
         }
+
+        .action-button {
+            padding: 5px;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -260,18 +246,18 @@ if ($hour >= 5 && $hour < 12) {
             <!-- Content area -->
             <div class="flex-1 overflow-hidden bg-gray-100">
                 <!-- Appointments Table Section -->
-                <section class="w-full max-w-5xl mx-auto bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+                <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
                     <div class="flex justify-between items-center mb-3">
                         <h1 class="text-blue-900 font-bold text-lg select-none">
                             Appointments
                         </h1>
-                        <div class="relative">
+                        <!--    <div class="relative">
                             <input aria-label="Search"
                                 class="border border-gray-400 rounded text-sm pl-7 pr-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-600"
                                 placeholder="Search appointments..." type="text" />
                             <i aria-hidden="true"
                                 class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-gray-600 text-xs"></i>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="appointments-tabs mb-6">
@@ -295,8 +281,9 @@ if ($hour >= 5 && $hour < 12) {
 
                     <div class="appointments-sections relative w-full">
                         <div id="pending-section" class="w-full" style="display:block;">
-                            <div class="appointments-table-container" style="max-height: 500px; overflow-y: auto;">
-                                <table class="appointments-table">
+                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                                <table id="appointmentsTable1" class="appointments-table display">
+
                                     <thead>
                                         <tr class="bg-gray-50 border-b border-gray-300">
                                             <th
@@ -321,7 +308,7 @@ if ($hour >= 5 && $hour < 12) {
                                         <?php
                                         // Fetch pending appointments
                                         $sql = "SELECT a.id, a.services, a.appointment_date, a.appointment_time, a.status,
-               CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
+                                         CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
                p.first_name, p.middle_name, p.last_name, p.id as patient_id 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
@@ -379,29 +366,26 @@ if ($hour >= 5 && $hour < 12) {
                                                 </tr>
                                                 <?php
                                             endwhile;
-
-                                            // If no pending appointments were found after checking all rows
-                                            if ($result->num_rows == 0):
-                                                ?>
-                                                <tr>
-                                                    <td colspan="6" class="text-center py-2">No pending appointments found.</td>
-                                                </tr>
-                                                <?php
-                                            endif;
-                                        else:
-                                            ?>
-                                            <tr>
-                                                <td colspan="6" class="text-center py-2">No appointments found.</td>
-                                            </tr>
-                                        <?php endif; ?>
+                                        endif; ?>
                                     </tbody>
                                 </table>
+                                <script>
+                                    $(document).ready(function () {
+                                        $('#appointmentsTable1').DataTable({
+                                            responsive: true,
+                                            pageLength: 10,
+                                            order: [[3, 'asc']], // Sort by Date (column index 3)
+                                        });
+                                    });
+                                </script>
+
                             </div>
                         </div>
 
                         <div id="upcoming-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" style="max-height: 500px; overflow-y: auto;">
-                                <table class="appointments-table">
+                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                                <table id="appointmentsTable" class="appointments-table display">
+
                                     <thead>
                                         <tr class="bg-gray-50 border-b border-gray-300">
                                             <th
@@ -462,21 +446,26 @@ if ($hour >= 5 && $hour < 12) {
                                                 </tr>
                                                 <?php
                                             endwhile;
-                                        else:
-                                            ?>
-                                            <tr>
-                                                <td colspan="6" class="text-center py-2">No upcoming appointments found.
-                                                </td>
-                                            </tr>
-                                        <?php endif; ?>
+                                        endif; ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+                        <script>
+                            $(document).ready(function () {
+                                $('#appointmentsTable').DataTable({
+                                    responsive: true,
+                                    pageLength: 10,
+                                    order: [[3, 'asc']], // Sort by Date (column index 3)
+                                });
+                            });
+                        </script>
+
 
                         <div id="rescheduled-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" style="max-height: 500px; overflow-y: auto;">
-                                <table class="appointments-table">
+                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                                <table id="appointmentsTable2" class="appointments-table display">
+
                                     <thead>
                                         <tr class="bg-gray-50 border-b border-gray-300">
                                             <th
@@ -562,21 +551,26 @@ if ($hour >= 5 && $hour < 12) {
                                                 </tr>
                                                 <?php
                                             endwhile;
-                                        else:
-                                            ?>
-                                            <tr>
-                                                <td colspan="6" class="text-center py-2">No rescheduled appointments found.
-                                                </td>
-                                            </tr>
-                                        <?php endif; ?>
+                                        endif; ?>
                                     </tbody>
                                 </table>
+                                <script>
+                                    $(document).ready(function () {
+                                        $('#appointmentsTable2').DataTable({
+                                            responsive: true,
+                                            pageLength: 10,
+                                            order: [[3, 'asc']], // Sort by Date (column index 3)
+                                        });
+                                    });
+                                </script>
+
                             </div>
                         </div>
 
                         <div id="canceled-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" style="max-height: 500px; overflow-y: auto;">
-                                <table class="appointments-table">
+                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                                <table id="appointmentsTable3" class="appointments-table display">
+
                                     <thead>
                                         <tr class="bg-gray-50 border-b border-gray-300">
                                             <th
@@ -648,15 +642,19 @@ if ($hour >= 5 && $hour < 12) {
                                                 </tr>
                                                 <?php
                                             endwhile;
-                                        else:
-                                            ?>
-                                            <tr>
-                                                <td colspan="6" class="text-center py-2">No canceled appointments found.
-                                                </td>
-                                            </tr>
-                                        <?php endif; ?>
+                                        endif; ?>
                                     </tbody>
                                 </table>
+                                <script>
+                                    $(document).ready(function () {
+                                        $('#appointmentsTable3').DataTable({
+                                            responsive: true,
+                                            pageLength: 10,
+                                            order: [[3, 'asc']], // Sort by Date (column index 3)
+                                        });
+                                    });
+                                </script>
+
                             </div>
                         </div>
                     </div>

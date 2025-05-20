@@ -45,16 +45,6 @@ if ($resultFeedback && $rowFeedback = $resultFeedback->fetch_assoc()) {
     $unseenFeedback = $rowFeedback['total'];
 }
 
-$greeting = 'Good Morning,';
-date_default_timezone_set('Asia/Manila');
-$hour = (int) date('G');
-if ($hour >= 5 && $hour < 12) {
-    $greeting = 'Good Morning,';
-} elseif ($hour >= 12 && $hour < 18) {
-    $greeting = 'Good Afternoon,';
-} else {
-    $greeting = 'Good Evening,';
-}
 
 // Get current year for appointments chart
 $currentYear = isset($_GET['year']) ? (int) $_GET['year'] : date('Y');
@@ -141,14 +131,10 @@ if ($admin_id) {
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
+
     <title>M&amp;A Oida Dental Clinic Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet" />
-    <script src="assets/js/mobile.js"></script>
+       <?php require_once 'head.php' ?>
+
     <style>
         @media (max-width: 768px) {
             #sidebar {

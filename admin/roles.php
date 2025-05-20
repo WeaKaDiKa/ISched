@@ -15,20 +15,8 @@ if (!isset($_SESSION['admin_id'])) {
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Account Roles - M&A Oida Dental Clinic</title>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <?php require_once 'head.php' ?>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
 </head>
 
 <body class="bg-white text-gray-900">
@@ -60,7 +48,8 @@ if (!isset($_SESSION['admin_id'])) {
                 <div class="w-full max-w-6xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-[#0B2E61] text-xl font-semibold">Account Roles</h1>
-                        <a href="newrole.php" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Account</a>
+                        <a href="newrole.php"
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Account</a>
 
                     </div>
                     <table id="example" class="display">

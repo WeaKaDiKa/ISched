@@ -4,11 +4,13 @@ $name = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 'Unknown';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Profile - <?php echo $name; ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <?php require_once 'head.php' ?>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="max-w-xl w-full mx-4">
         <div class="bg-white rounded-lg shadow-lg p-8">
@@ -16,7 +18,8 @@ $name = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 'Unknown';
                 <img src="assets/photo/logo.jpg" alt="Profile photo" class="w-24 h-24 rounded-full mr-6">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 mb-1"><?php echo $name; ?></h2>
-                    <p class="text-gray-600">Specialty / Role: <span class="font-semibold">Professional Dentist / Dental Helper</span></p>
+                    <p class="text-gray-600">Specialty / Role: <span class="font-semibold">Professional Dentist / Dental
+                            Helper</span></p>
                     <p class="text-gray-600">Years of Experience: <span class="font-semibold">(sample)</span></p>
                 </div>
             </div>
@@ -36,4 +39,5 @@ $name = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 'Unknown';
         </div>
     </div>
 </body>
-</html> 
+
+</html>

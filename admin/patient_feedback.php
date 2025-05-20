@@ -36,13 +36,8 @@ if ($hour >= 5 && $hour < 12) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patient Feedback - M&amp;A Oida Dental Clinic</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/mobile-modules.css">
-    <script src="assets/js/mobile.js"></script>
+
+    <?php require_once 'head.php' ?>
     <style>
         /* Mobile optimizations for patient feedback */
         @media (max-width: 768px) {
