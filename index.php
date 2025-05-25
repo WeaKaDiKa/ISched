@@ -26,61 +26,13 @@ if (isset($_SESSION['user_id'])) {
   <title>Home - ISched of M&A Oida Dental Clinic</title>
   <link rel="stylesheet" href="assets/css/homepage.css">
   <link rel="stylesheet" href="assets/css/profile-icon.css">
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/notification.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script src="assets/js/homepage.js" defer></script>
 </head>
 <body>
 <header>
-  <nav class="navbar">
-    <a href="index.php" class="logo-link">
-      <img src="assets/photos/logo.jpg" alt="Logo" class="logo">
-    </a>
-
-    <!-- hamburger toggle -->
-    <input type="checkbox" id="nav-toggle" class="nav-toggle">
-    <label for="nav-toggle" class="nav-toggle-label">
-      <span></span>
-    </label>
-
-    <!-- only show welcome if logged in -->
-    <?php if ($user !== null): ?>
-      <div class="welcome-message">
-        Welcome, <strong><?= htmlspecialchars($user['first_name']) ?>!</strong>
-      </div>
-    <?php endif; ?>
-
-    <div class="nav-menu">
-      <ul class="nav-links">
-        <li><a href="index.php" <?php if(basename($_SERVER['PHP_SELF'])=='index.php') echo 'class="active"'; ?>>Home</a></li>
-        <li><a href="services.php" <?php if(basename($_SERVER['PHP_SELF'])=='services.php') echo 'class="active"'; ?>>Services</a></li>
-        <li><a href="about.php" <?php if(basename($_SERVER['PHP_SELF'])=='about.php') echo 'class="active"'; ?>>About</a></li>
-        <li><a href="reviews.php" <?php if(basename($_SERVER['PHP_SELF'])=='reviews.php') echo 'class="active"'; ?>>Reviews</a></li>
-        <li><a href="contact.php" <?php if(basename($_SERVER['PHP_SELF'])=='contact.php') echo 'class="active"'; ?>>Contact Us</a></li>
-      </ul>
-
-      <div class="nav-right">
-        <a href="<?= $user !== null ? 'bookings.php' : 'login.php'; ?>" <?= $user === null ? "onclick=\"alert('Please login to book an appointment.');\"" : '' ?>>
-          <button class="book-now">Book Now</button>
-        </a>
-        <?php if ($user !== null): ?>
-          <div class="notification-wrapper">
-            <div class="notification-toggle"><i class="fa-solid fa-bell"></i></div>
-            <div class="notification-dropdown"><p class="empty-message">No notifications yet</p></div>
-          </div>
-        <?php endif; ?>
-        <a href="<?= $user !== null ? 'profile.php' : 'login.php'; ?>" <?= $user === null ? "onclick=\"alert('Please login to view profile.');\"" : '' ?>>
-          <div class="user-icon">
-            <?php if ($user): ?>
-              <img src="<?= get_profile_image_url($_SESSION['user_id'] ?? null) ?>?<?= time() ?>" alt="Profile Picture" class="profile-pic">
-            <?php else: ?>
-              <img src="assets/photos/default_avatar.png" alt="Profile Icon" class="profile-pic">
-            <?php endif; ?>
-          </div>
-        </a>
-      </div> <!-- .nav-right -->
-    </div> <!-- .nav-menu -->
-  </nav>
+  <?php include_once('includes/navbar.php'); ?>
 </header>
 
 <section id="home" class="hero">
@@ -105,6 +57,7 @@ if (isset($_SESSION['user_id'])) {
     <img src="assets/photos/regalado_branch.png" alt="Dentists at Work">
     <img src="assets/photos/clinics/veneers.png" alt="Dental Veneers">
   </div>
+  <!-- Notification bell is already included in the navbar -->
 </section>
 
 <footer>
