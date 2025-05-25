@@ -114,7 +114,7 @@ $sampleNotifications = [
         'sender_id' => 6,
         'sender_name' => 'Dr. Michael Tan',
         'sender_photo' => 'assets/photo/doctor3.jpg',
-        'message' => 'I've reviewed your dental X-rays. Everything looks good! Keep up the excellent oral hygiene.',
+        'message' => 'I\'ve reviewed your dental X-rays. Everything looks good! Keep up the excellent oral hygiene.',
         'type' => 'message',
         'reference_id' => 106
     ]

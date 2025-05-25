@@ -187,12 +187,12 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
         }
 
         /* DataTables input and select to white background */
-.dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select {
-    background-color: #fff !important;
-    color: #222 !important;
-    border: 1px solid #ccc !important;
-}
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+            background-color: #fff !important;
+            color: #222 !important;
+            border: 1px solid #ccc !important;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -320,14 +320,14 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                         <?php
                                         // Fetch pending appointments with debug info
 // Simplified query to get ALL appointments regardless of status for debugging
-$sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
+                                        $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
                 p.first_name, p.middle_name, p.last_name, p.id as patient_id
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
         ORDER BY a.id DESC LIMIT 10";
-        
-// Debug SQL query
-echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
+
+                                        // Debug SQL query
+                                        echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
                                         $result = $conn->query($sql);
 
                                         if (!$result) {
@@ -344,7 +344,7 @@ echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
                                             }
                                             echo " -->";
                                         }
-                                        
+
                                         if ($result && $result->num_rows > 0):
                                             // Debug count
                                             echo "<!-- Found " . $result->num_rows . " pending appointments -->";
@@ -734,7 +734,8 @@ echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
             <div class="mb-6">
                 <textarea id="reasonText"
                     class="w-full h-32 p-3 border border-gray-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
-                    placeholder="State your reason.." maxlength="500" style="background-color: white !important; color: #333 !important;"></textarea>
+                    placeholder="State your reason.." maxlength="500"
+                    style="background-color: white !important; color: #333 !important;"></textarea>
                 <div class="text-right text-sm text-gray-500">
                     <span id="charCount">0</span>/500
                 </div>
