@@ -6,6 +6,22 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 
 require_once('session.php');
 require_once('db.php');
+require_once('includes/profile_functions.php');
+
+// 1) INITIALIZE
+$user = null;
+
+// 2) FETCH LOGGED-IN USER
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("
+      SELECT first_name, profile_picture 
+        FROM patients 
+       WHERE id = ?
+    ");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc() ?: null;
+}
 
 // Check if it's an AJAX request for form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
@@ -69,9 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
             
             $total = 0;
             if (!empty($allData['services']) && is_array($allData['services'])) {
-                // Check if more than 4 services are selected
-                if (count($allData['services']) > 4) {
-                    $errors['services'] = 'You can only select up to 4 services';
+                // Check if more than 3 services are selected
+                if (count($allData['services']) > 3) {
+                    $errors['services'] = 'You can only select up to 3 services';
                     $response['success'] = false;
                     $response['errors'] = $errors;
                     echo json_encode($response);
@@ -90,11 +106,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
             }
 
             // Prevent double booking for same doctor, branch, date, time (robust, label-insensitive)
+            // Modified to exclude cancelled appointments so users can rebook after cancellation
             $checkStmt = $conn->prepare(
                 "SELECT COUNT(*) as cnt FROM appointments a " .
                 "JOIN timeslots t1 ON a.appointment_time = t1.slot_label " .
                 "JOIN timeslots t2 ON t2.slot_label = ? " .
-                "WHERE a.appointment_date = ? AND a.clinic_branch = ? AND a.doctor_id = ? AND t1.slot_time = t2.slot_time AND (a.status = 'booked' OR a.status = 'pending')"
+                "WHERE a.appointment_date = ? AND a.clinic_branch = ? AND a.doctor_id = ? AND t1.slot_time = t2.slot_time " .
+                "AND (a.status = 'booked' OR a.status = 'pending') " .
+                "AND a.status != 'cancelled'"
             );
             $checkStmt->bind_param('ssss', $allData['appointment_time'], $allData['appointment_date'], $allData['clinic_branch'], $allData['doctor_id']);
             $checkStmt->execute();
@@ -116,6 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
             // Set default values if not provided
             $doctorId = !empty($allData['doctor_id']) ? $allData['doctor_id'] : null;
             $status = 'pending'; // Matches the enum options: 'booked','completed','cancelled'
+            // Debug status value
+            error_log("Setting appointment status to: $status");
             $services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
             $consent = isset($allData['consent']) ? 1 : 0;
             $health = !empty($allData['health']) ? $allData['health'] : 'yes';
@@ -125,11 +146,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
             // Ensure patient_id is an integer
             $patientId = (int)$_SESSION['user_id'];
             
+            // Debug the data being inserted
+            error_log("Inserting appointment with data: " . print_r($allData, true));
+            
             // Simplified SQL with only required fields if other fields are causing issues
             $sql = "INSERT INTO appointments (
                 patient_id, doctor_id, clinic_branch, appointment_date, appointment_time,
                 services, status, consent, blood_type, medical_history, allergies
-            ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $conn->prepare($sql);
             
@@ -138,13 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
             }
             
             $stmt->bind_param(
-                "issssisss",
+                "issssissss",
                 $patientId,
                 $doctorId,
                 $allData['clinic_branch'],
                 $allData['appointment_date'],
                 $allData['appointment_time'],
                 $services_list,
+                $status,
                 $consent,
                 $blood_type,
                 $medical_history,
@@ -158,6 +183,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
                 // Get the appointment ID for reference number
                 $appointmentId = $conn->insert_id;
                 $referenceNumber = 'OIDA-' . str_pad($appointmentId, 8, '0', STR_PAD_LEFT);
+                
+                // Create admin notification about the new appointment
+                try {
+                    $tableCheckResult = $conn->query("SHOW TABLES LIKE 'admin_notifications'");
+                    if ($tableCheckResult->num_rows == 0) {
+                        // Create admin_notifications table if it doesn't exist
+                        $createTableSql = "CREATE TABLE IF NOT EXISTS admin_notifications (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            message VARCHAR(255) NOT NULL,
+                            type VARCHAR(50) NOT NULL,
+                            reference_id INT,
+                            is_read TINYINT(1) DEFAULT 0,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )";
+                        $conn->query($createTableSql);
+                    }
+                    
+                    // Get patient name for the notification message
+                    $patientQuery = "SELECT first_name, last_name FROM patients WHERE id = ?";
+                    $patientStmt = $conn->prepare($patientQuery);
+                    $patientStmt->bind_param("i", $patientId);
+                    $patientStmt->execute();
+                    $patientResult = $patientStmt->get_result();
+                    $patientData = $patientResult->fetch_assoc();
+                    $patientName = $patientData['first_name'] . ' ' . $patientData['last_name'];
+                    
+                    // Create notification message
+                    $notificationMessage = "New appointment booked by {$patientName} for {$allData['appointment_date']} at {$allData['appointment_time']}.";
+                    
+                    // Insert admin notification
+                    $notifStmt = $conn->prepare("INSERT INTO admin_notifications (message, type, reference_id) VALUES (?, 'new_appointment', ?)");
+                    $notifStmt->bind_param("si", $notificationMessage, $appointmentId);
+                    $notifStmt->execute();
+                } catch (Exception $e) {
+                    // Log error but don't stop the process
+                    error_log("Error creating admin notification: " . $e->getMessage());
+                }
                 
                 // Clear form data
                 unset($_SESSION['form_data']);
@@ -532,7 +594,11 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Booking - M&A Oida Dental Clinic</title>
     <link rel="stylesheet" href="assets/css/bookings.css?v=1.4">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/homepage.css">
+    <link rel="stylesheet" href="assets/css/profile-icon.css">
+    <link rel="stylesheet" href="assets/css/notification.css">
+    <link rel="stylesheet" href="assets/css/calendar.css?v=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <!-- Pass PHP data to JavaScript -->
   <script>
@@ -541,8 +607,76 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
 </script>
     <script src="assets/js/bookings.js?v=1.1" defer></script>
     <script src="assets/js/appointment_schedule.js?v=1.1" defer></script>
+    <script>
+    // Notification bell functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const bellBtn = document.getElementById('notificationBellBtn');
+      const dropdown = document.querySelector('.notification-dropdown');
+      const wrapper = document.querySelector('.notification-wrapper');
+      const markAllReadBtn = document.getElementById('markAllReadBtn');
+      
+      // Toggle dropdown when bell is clicked
+      if (bellBtn) {
+        bellBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          dropdown.classList.toggle("show");
+        });
+      }
+      
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (e) {
+        if (wrapper && !wrapper.contains(e.target)) {
+          dropdown.classList.remove("show");
+        }
+      });
+      
+      // Mark individual notification as read
+      document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const notificationId = this.getAttribute('data-id');
+          markAsRead(notificationId);
+          this.classList.remove('unread');
+        });
+      });
+      
+      // Mark all notifications as read
+      if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          markAsRead(0); // 0 means mark all as read
+          document.querySelectorAll('.notification-item').forEach(item => {
+            item.classList.remove('unread');
+          });
+          document.querySelector('.notification-badge')?.remove();
+        });
+      }
+      
+      // Function to mark notification as read
+      function markAsRead(notificationId) {
+        fetch('mark_notification_read.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: 'action=mark_read&notification_id=' + notificationId
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error('Failed to mark notification as read');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+    });
+    </script>
 </head>
 <body>
+<header>
+  <?php include_once('includes/navbar.php'); ?>
+</header>
 <div class="container">
     <h1>Online Appointment Form</h1>
         
@@ -627,14 +761,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <div class="form-group">
                     <label class="required">Clinic Branch:</label>
                     <select id="clinic" name="clinic_branch" required>
-            <option value="">Select Branch</option>
-                        <option value="Commonwealth Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'Commonwealth Branch') ? 'selected' : ''; ?>>Commonwealth Branch</option>
-                        <option value="North Fairview Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'North Fairview Branch') ? 'selected' : ''; ?>>North Fairview Branch</option>
-                        <option value="Maligaya Park Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'Maligaya Park Branch') ? 'selected' : ''; ?>>Maligaya Park Branch</option>
-                        <option value="San Isidro Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'San Isidro Branch') ? 'selected' : ''; ?>>San Isidro Branch</option>
-                        <option value="Quiapo Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'Quiapo Branch') ? 'selected' : ''; ?>>Quiapo Branch</option>
-                        <option value="Kiko Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'Kiko Branch') ? 'selected' : ''; ?>>Kiko Branch</option>
-                        <option value="Bagong Silang Branch" <?php echo (isset($postData['clinic_branch']) && $postData['clinic_branch'] === 'Bagong Silang Branch') ? 'selected' : ''; ?>>Bagong Silang Branch</option>
+                        <option value="North Fairview Branch" selected>North Fairview Branch</option>
         </select>
                     <?php if (isset($errors['clinic_branch'])): ?>
                         <div class="error"><?php echo $errors['clinic_branch']; ?></div>
