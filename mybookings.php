@@ -17,6 +17,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
+// Handle accept booking requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'accept') {
+    $appointmentId = intval($_POST['appointment_id']);
+    
+    // Verify this appointment belongs to the current user
+    $verifyStmt = $conn->prepare("SELECT id FROM appointments WHERE id = ? AND patient_id = ? AND status = 'pending'");
+    $verifyStmt->bind_param("ii", $appointmentId, $_SESSION['user_id']);
+    $verifyStmt->execute();
+    $result = $verifyStmt->get_result();
+    
+    if ($result->num_rows === 1) {
+        // Update appointment status to booked
+        $updateStmt = $conn->prepare("UPDATE appointments SET status = 'booked' WHERE id = ?");
+        $updateStmt->bind_param("i", $appointmentId);
+        
+        if ($updateStmt->execute()) {
+            $acceptMessage = "Your appointment has been accepted successfully.";
+        } else {
+            $acceptError = "Failed to accept appointment. Please try again.";
+        }
+    } else {
+        $acceptError = "Invalid appointment or appointment is not in pending status.";
+    }
+}
+
 // Handle cancellation requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel') {
     $appointmentId = intval($_POST['appointment_id']);
@@ -91,6 +116,7 @@ $userData = $userResult->fetch_assoc();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Bookings - M&A Oida Dental Clinic</title>
     <!-- Include your common CSS files -->
+    <link rel="stylesheet" href="assets/css/notification.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Basic reset and common styles */
@@ -225,6 +251,19 @@ $userData = $userResult->fetch_assoc();
         .btn-cancel {
             background-color: #f44336;
             color: white;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #d32f2f;
+        }
+        
+        .btn-accept {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-accept:hover {
+            background-color: #388E3C;
         }
         
         .btn-reschedule {
@@ -386,9 +425,19 @@ $userData = $userResult->fetch_assoc();
         <a href="profile.php" class="back-btn">Back</a>
         <h1>My Bookings</h1>
         <p>View and manage your dental appointments</p>
+        
+        <!-- Notification bell removed as requested -->
     </header>
     
     <div class="container">
+        <?php if (isset($acceptMessage)): ?>
+            <div class="message success"><?php echo $acceptMessage; ?></div>
+        <?php endif; ?>
+        
+        <?php if (isset($acceptError)): ?>
+            <div class="message error"><?php echo $acceptError; ?></div>
+        <?php endif; ?>
+        
         <?php if (isset($cancelMessage)): ?>
             <div class="message success"><?php echo $cancelMessage; ?></div>
         <?php endif; ?>
@@ -517,7 +566,17 @@ $userData = $userResult->fetch_assoc();
                             <?php endif; ?>
                         </div>
                         
-                        <?php if ($booking['status'] === 'booked'): ?>
+                        <?php if ($booking['status'] === 'pending'): ?>
+                            <div class="booking-actions">
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="action" value="accept">
+                                    <input type="hidden" name="appointment_id" value="<?php echo $booking['id']; ?>">
+                                    <button type="submit" class="btn btn-accept">Accept Booking</button>
+                                </form>
+                                
+                                <button class="btn btn-cancel" onclick="openCancelModal(<?php echo $booking['id']; ?>)">Cancel Appointment</button>
+                            </div>
+                        <?php elseif ($booking['status'] === 'booked'): ?>
                             <div class="booking-actions">
                                 <form method="POST" style="display: inline;">
                                     <input type="hidden" name="action" value="reschedule">
@@ -587,3 +646,4 @@ $userData = $userResult->fetch_assoc();
     </script>
 </body>
 </html>
+
