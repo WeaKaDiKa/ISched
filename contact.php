@@ -27,6 +27,7 @@ if (isset($_SESSION['user_id'])) {
   <link rel="stylesheet" href="assets/css/contact.css">
   <link rel="stylesheet" href="assets/css/homepage.css">
   <link rel="stylesheet" href="assets/css/profile-icon.css">
+  <link rel="stylesheet" href="assets/css/notification.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script src="assets/js/contact.js" defer></script>
 </head>
@@ -65,12 +66,7 @@ if (isset($_SESSION['user_id'])) {
 
       <!-- NOTIFICATIONS -->
       <?php if ($user !== null): ?>
-        <div class="notification-wrapper">
-          <div class="notification-toggle"><i class="fa-solid fa-bell"></i></div>
-          <div class="notification-dropdown">
-            <p class="empty-message">No notifications yet</p>
-          </div>
-        </div>
+        <?php include('user_notification_bell.php'); ?>
       <?php endif; ?>
 
       <!-- PROFILE ICON -->
