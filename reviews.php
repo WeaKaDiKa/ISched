@@ -103,8 +103,8 @@ $servicesList = [
   <link rel="stylesheet" href="assets/css/reviews.css">
   <link rel="stylesheet" href="assets/css/homepage.css">
   <link rel="stylesheet" href="assets/css/profile-icon.css">
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/notification.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
   <script>
     window.isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
@@ -140,13 +140,8 @@ $servicesList = [
         <button class="book-now">Book Now</button>
       </a>
 
-      <?php if ($user): ?>
-        <div class="notification-wrapper">
-          <div class="notification-toggle"><i class="fa-solid fa-bell"></i></div>
-          <div class="notification-dropdown">
-            <p class="empty-message">No notifications yet</p>
-          </div>
-        </div>
+      <?php if ($user !== null): ?>
+        <?php include('user_notification_bell.php'); ?>
       <?php endif; ?>
 
       <a href="<?= $user ? 'profile.php' : 'login.php' ?>"
@@ -254,22 +249,8 @@ $servicesList = [
   const isLoggedIn = <?= $user ? 'true' : 'false' ?>;
 </script>
 
-<script>  document.addEventListener("DOMContentLoaded", function () {
-    const bellToggle = document.querySelector(".notification-toggle");
-    const wrapper = document.querySelector(".notification-wrapper");
-
-    bellToggle.addEventListener("click", function (e) {
-        e.stopPropagation();
-        wrapper.classList.toggle("show");
-    });
-
-    document.addEventListener("click", function (e) {
-        if (!wrapper.contains(e.target)) {
-            wrapper.classList.remove("show");
-        }
-    });
-});
-  </script>
+<!-- Notification script is now included in user_notification_bell.php -->
 
 </body>
 </html>
+
