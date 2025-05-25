@@ -8,3 +8,6 @@ $dbname = "if0_36164163_dental_clinic";
 $port = 3306;
 
 $domain = "https://theceprog.great-site.net";
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
