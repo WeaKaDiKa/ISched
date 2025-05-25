@@ -19,6 +19,7 @@ $patients = $patientModel->getAllPatients();
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Patient Records - M&A Oida Dental Clinic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <?php require_once 'head.php' ?>
 </head>
 
@@ -54,7 +55,8 @@ $patients = $patientModel->getAllPatients();
                         <div class="flex items-center space-x-4">
                             <div class="relative">
                                 <input type="text" id="searchInput" placeholder="Search patients..."
-                                    class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                                    style="background-color: white !important; color: #333 !important;">
                                 <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                             </div>
                         </div>
