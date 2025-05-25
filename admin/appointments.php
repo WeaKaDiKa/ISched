@@ -54,6 +54,9 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
     $pendingAppointments = $rowPending['total'];
 }
 
+// Debug pending appointments
+echo "<!-- Pending appointments count: $pendingAppointments -->";
+
 
 ?>
 
@@ -64,6 +67,7 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Appointments - M&amp;A Oida Dental Clinic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <?php require_once 'head.php' ?>
 
@@ -181,6 +185,14 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
         .action-button {
             padding: 5px;
         }
+
+        /* DataTables input and select to white background */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    background-color: #fff !important;
+    color: #222 !important;
+    border: 1px solid #ccc !important;
+}
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -306,22 +318,40 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
                                     </thead>
                                     <tbody>
                                         <?php
-                                        // Fetch pending appointments
-                                        $sql = "SELECT a.id, a.services, a.appointment_date, a.appointment_time, a.status,
-                                         CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
-               p.first_name, p.middle_name, p.last_name, p.id as patient_id 
+                                        // Fetch pending appointments with debug info
+// Simplified query to get ALL appointments regardless of status for debugging
+$sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
+                p.first_name, p.middle_name, p.last_name, p.id as patient_id
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
-        WHERE a.status = 'pending' OR a.status IS NULL 
-        ORDER BY a.appointment_date DESC, a.appointment_time DESC";
+        ORDER BY a.id DESC LIMIT 10";
+        
+// Debug SQL query
+echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
                                         $result = $conn->query($sql);
 
                                         if (!$result) {
                                             echo "Error: " . $conn->error;
                                         }
 
+                                        // Debug all appointments in the database
+                                        $debug_sql = "SELECT id, patient_id, status FROM appointments ORDER BY id DESC LIMIT 10";
+                                        $debug_result = $conn->query($debug_sql);
+                                        if ($debug_result) {
+                                            echo "<!-- Recent appointments in database: ";
+                                            while ($debug_row = $debug_result->fetch_assoc()) {
+                                                echo "ID: {$debug_row['id']}, Patient: {$debug_row['patient_id']}, Status: {$debug_row['status']} | ";
+                                            }
+                                            echo " -->";
+                                        }
+                                        
                                         if ($result && $result->num_rows > 0):
+                                            // Debug count
+                                            echo "<!-- Found " . $result->num_rows . " pending appointments -->";
                                             while ($row = $result->fetch_assoc()):
+                                                // Debug row data
+                                                echo "<!-- Appointment data: " . json_encode($row) . " -->";
+
                                                 $patientName = trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']);
                                                 $ref = $row['reference_number'] ?? ('APP-' . date('Y') . '-' . str_pad($row['id'], 5, '0', STR_PAD_LEFT));
                                                 $service = $row['services'] ?? 'General Consultation';
@@ -489,10 +519,11 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
                                     <tbody>
                                         <?php
                                         // Fetch rescheduled appointments
-                                        $sql = "SELECT a.*, p.first_name, p.middle_name, p.last_name, p.id as patient_id 
+                                        $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
+                p.first_name, p.middle_name, p.last_name, p.id as patient_id 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
-        WHERE a.status = 'rescheduled' 
+        WHERE a.parent_appointment_id IS NOT NULL AND a.parent_appointment_id > 0 
         ORDER BY a.appointment_date ASC, a.appointment_time ASC";
                                         $result = $conn->query($sql);
 
@@ -702,8 +733,8 @@ if ($resultPending && $rowPending = $resultPending->fetch_assoc()) {
             <h2 class="text-xl font-bold mb-4">Reason:</h2>
             <div class="mb-6">
                 <textarea id="reasonText"
-                    class="w-full h-32 p-3 border border-gray-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="State your reason.." maxlength="500"></textarea>
+                    class="w-full h-32 p-3 border border-gray-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                    placeholder="State your reason.." maxlength="500" style="background-color: white !important; color: #333 !important;"></textarea>
                 <div class="text-right text-sm text-gray-500">
                     <span id="charCount">0</span>/500
                 </div>
