@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                (patient_id, clinic_branch, appointment_date, appointment_time, services, 
                                 health, doctor_id, status, parent_appointment_id,
                                 blood_type, medical_history, allergies, consent) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, 'booked', ?, ?, ?, ?, ?)";
+                               VALUES (?, ?, ?, ?, ?, ?, ?, 'rescheduled', ?, ?, ?, ?, ?)";
                 
                 // Create individual variables for binding to prevent issues
                 $patient_id = $appointment['patient_id'];
@@ -84,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $services = $appointment['services'];
                 $health = $appointment['health'];
                 $doctor_id = $appointment['doctor_id'] ? $appointment['doctor_id'] : NULL;
+                $parent_id = $appointmentId; // Set the original appointment as the parent
                 $blood_type = $appointment['blood_type'];
                 $medical_history = $appointment['medical_history'];
                 $allergies = $appointment['allergies'];
@@ -123,6 +124,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$updateStmt->execute()) {
                     throw new Exception("Failed to update original appointment. Error: " . $conn->error);
                 }
+                
+                // Log the status change for debugging
+                error_log("Updated appointment ID $appointmentId status to 'rescheduled'");
+                
+                // Create admin notification about the rescheduled appointment
+                $tableCheckResult = $conn->query("SHOW TABLES LIKE 'admin_notifications'");
+                if ($tableCheckResult->num_rows == 0) {
+                    // Create admin_notifications table if it doesn't exist
+                    $createTableSql = "CREATE TABLE IF NOT EXISTS admin_notifications (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        message VARCHAR(255) NOT NULL,
+                        type VARCHAR(50) NOT NULL,
+                        reference_id INT,
+                        is_read TINYINT(1) DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )";
+                    $conn->query($createTableSql);
+                }
+                
+                // Get patient name for the notification message
+                $patientQuery = "SELECT first_name, last_name FROM patients WHERE id = ?";
+                $patientStmt = $conn->prepare($patientQuery);
+                $patientStmt->bind_param("i", $patient_id);
+                $patientStmt->execute();
+                $patientResult = $patientStmt->get_result();
+                $patientData = $patientResult->fetch_assoc();
+                $patientName = $patientData['first_name'] . ' ' . $patientData['last_name'];
+                
+                // Create notification message
+                $notificationMessage = "Patient {$patientName} has rescheduled their appointment to {$new_date} at {$new_time}.";
+                
+                // Insert admin notification
+                $notifStmt = $conn->prepare("INSERT INTO admin_notifications (message, type, reference_id) VALUES (?, 'reschedule', ?)");
+                $notifStmt->bind_param("si", $notificationMessage, $newAppointmentId);
+                $notifStmt->execute();
                 
                 // If everything is successful, commit the transaction
                 $conn->commit();
