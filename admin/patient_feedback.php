@@ -36,6 +36,7 @@ if ($hour >= 5 && $hour < 12) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patient Feedback - M&amp;A Oida Dental Clinic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <?php require_once 'head.php' ?>
     <style>
@@ -246,41 +247,48 @@ if ($hour >= 5 && $hour < 12) {
             <!-- End Breadcrumb Navigation -->
             <!-- Content area -->
             <div class="flex-1 flex flex-col items-center justify-start bg-gray-100 w-full min-h-0">
-                <section class="w-full max-w-5xl mx-auto bg-white rounded-lg border border-gray-300 shadow-md p-4 my-6 overflow-y-auto">
+                <section class="w-full max-w-5xl mx-auto bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
                     <div class="flex justify-between items-center mb-3">
                         <h1 class="text-blue-900 font-bold text-lg select-none">Patient Feedback</h1>
                     </div>
-
-                    <?php while ($row = $result->fetch_assoc()): ?>
-                        <div class="bg-white border border-gray-300 rounded-lg shadow p-4 space-y-3 mb-3">
-                            <!-- Header: Name + Date -->
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-lg font-semibold text-gray-900">
-                                    <?= htmlspecialchars($row['name']) ?>
-                                </h2>
-                                <span class="text-sm text-gray-500"><?= date('Y-m-d', strtotime($row['date'])) ?></span>
-                            </div>
-
-                            <!-- Star Rating -->
-                            <div class="flex items-center gap-1 text-yellow-400 text-sm">
-                                <?php for ($i = 0; $i < $row['rating']; $i++): ?>
-                                    <i class="fas fa-star"></i>
-                                <?php endfor; ?>
-                                <?php for ($i = $row['rating']; $i < 5; $i++): ?>
-                                    <i class="far fa-star text-gray-300"></i>
-                                <?php endfor; ?>
-                            </div>
-
-                            <!-- Feedback Text -->
-                            <p class="text-gray-700 text-base"><?= nl2br(htmlspecialchars($row['text'])) ?></p>
-
-                            <!-- Services Info -->
-                            <div class="text-sm text-gray-600">
-                                <strong>Service:</strong> <?= htmlspecialchars($row['services']) ?>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-xs text-left border-collapse">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2">Name</th>
+                                    <th class="px-4 py-2">Rating</th>
+                                    <th class="px-4 py-2">Feedback</th>
+                                    <th class="px-4 py-2">Services</th>
+                                    <th class="px-4 py-2">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedback-table-body">
+                                <?php while ($row = $result->fetch_assoc()): ?>
+                                    <tr class="border-b hover:bg-blue-50">
+                                        <td class="px-4 py-2 font-semibold text-gray-900">
+                                            <?= htmlspecialchars($row['name']) ?>
+                                        </td>
+                                        <td class="px-4 py-2">
+                                            <?php for ($i = 0; $i < $row['rating']; $i++)
+                                                echo '<i class="fas fa-star text-yellow-400"></i>'; ?>
+                                            <?php for ($i = $row['rating']; $i < 5; $i++)
+                                                echo '<i class="far fa-star text-gray-300"></i>'; ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-700 max-w-xs truncate"
+                                            title="<?= htmlspecialchars($row['text']) ?>">
+                                            <?= htmlspecialchars($row['text']) ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-600">
+                                            <?= htmlspecialchars($row['services']) ?>
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-500">
+                                            <?= date('Y-m-d', strtotime($row['date'])) ?>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
             </div>
         </main>
