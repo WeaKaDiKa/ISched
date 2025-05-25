@@ -56,7 +56,7 @@ if ($user) {
     ?>;
     window.currentUserId   = <?= $currentUserId ?: 'null' ?>;
   </script>
-</head>
+  <link rel="stylesheet" href="assets/css/notification.css">\n</head>
 <body>
 
   <!-- HEADER / NAV (copy exactly from reviews.php header) -->
@@ -186,3 +186,4 @@ if ($user) {
   <script src="assets/js/reviews.js"></script>
 </body>
 </html>
+
