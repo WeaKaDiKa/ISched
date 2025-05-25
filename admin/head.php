@@ -11,4 +11,6 @@
 <link rel="stylesheet" href="assets/css/dashboard.css">
 <link rel="stylesheet" href="assets/css/responsive.css">
 <link rel="stylesheet" href="assets/css/mobile-modules.css">
+<link rel="stylesheet" href="../assets/css/admin_notifications.css">
 <script src="assets/js/mobile.js"></script>
+<script src="../assets/js/admin_notifications.js"></script>
