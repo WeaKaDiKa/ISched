@@ -36,6 +36,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
   <title>My Profile</title>
   <link rel="stylesheet" href="assets/css/profiles.css">
   <link rel="stylesheet" href="assets/css/profile-icon.css">
+  <link rel="stylesheet" href="assets/css/notification.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
@@ -43,6 +44,8 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
     <div class="header">
       <a href="index.php" class="back-btn">Back</a>
       <h1 class="profile-title">My Profile</h1>
+
+      <!-- Notification bell removed as requested -->
 
       <div class="bookings-btn">
         <!-- LINKED to mybookings.php now -->
@@ -126,6 +129,11 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       </div>
 
       <div class="action-buttons">
+        <a href="notifications.php" class="notifications-btn" style="text-decoration: none;">
+          <button style="background-color: #4a89dc; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+            <i class="fa-solid fa-bell"></i> Notifications
+          </button>
+        </a>
         <button class="edit-password-btn">Edit Password</button>
         <form action="logout.php" method="POST">
           <button type="submit" class="logout-btn">Logout</button>
