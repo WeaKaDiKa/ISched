@@ -27,6 +27,7 @@ if (isset($_SESSION['user_id'])) {
   <title>About Us - ISched of M&A Oida Dental Clinic</title>
   <link rel="stylesheet" href="assets/css/about.css">
   <link rel="stylesheet" href="assets/css/profile-icon.css">
+  <link rel="stylesheet" href="assets/css/notification.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
@@ -72,14 +73,7 @@ if (isset($_SESSION['user_id'])) {
 
       <!-- NOTIFICATIONS: only when logged in -->
       <?php if ($user !== null): ?>
-        <div class="notification-wrapper">
-          <div class="notification-toggle">
-            <i class="fa-solid fa-bell"></i>
-          </div>
-          <div class="notification-dropdown">
-            <p class="empty-message">No notifications yet</p>
-          </div>
-        </div>
+        <?php include('user_notification_bell.php'); ?>
       <?php endif; ?>
 
       <!-- PROFILE ICON -->
@@ -185,3 +179,4 @@ if (isset($_SESSION['user_id'])) {
 
 </body>
 </html>
+
