@@ -209,6 +209,43 @@ $patients = $patientModel->getAllPatients();
                         $(document).ready(function () {
                             $('#patientTable').DataTable();
                         });
+
+                        function viewPatient(patientId) {
+                            fetch('getpatient.php?id=' + encodeURIComponent(patientId))
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.error) {
+                                        alert(data.error);
+                                        return;
+                                    }
+
+                                    document.getElementById('modalPatientName').textContent = data.name;
+                                    document.getElementById('modalPatientId').textContent = 'Patient ID: ' + data.id;
+                                    document.getElementById('modalPatientImage').src = data.image || 'assets/photo/default_avatar.png';
+
+                                    // Fill upcoming and past appointments
+                                    document.getElementById('upcomingAppointments').innerHTML = data.upcoming.map(
+                                        a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('');
+                                    document.getElementById('appointmentHistory').innerHTML = data.past.map(
+                                        a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('');
+
+                                    // Fill medical info
+                                    document.getElementById('medicalInfo').innerHTML = data.medical.map(
+                                        m => `<div class="bg-gray-50 p-2 rounded">${m}</div>`).join('');
+
+                                    // Show modal
+                                    document.getElementById('patientModal').classList.remove('hidden');
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert('Failed to load patient data.');
+                                });
+                        }
+
+                        // Close modal
+                        document.getElementById('closeModal').addEventListener('click', function () {
+                            document.getElementById('patientModal').classList.add('hidden');
+                        });
                     </script>
 
 
