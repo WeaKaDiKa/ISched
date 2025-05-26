@@ -52,14 +52,7 @@ $patients = $patientModel->getAllPatients();
                 <div class="w-full max-w-6xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <input type="text" id="searchInput" placeholder="Search patients..."
-                                    class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
-                                    style="background-color: white !important; color: #333 !important;">
-                                <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-                            </div>
-                        </div>
+                        
                     </div>
 
                     <!--        <?php
@@ -304,21 +297,8 @@ $patients = $patientModel->getAllPatients();
         });
 
         // Update the search functionality
-        const searchInput = document.getElementById('searchInput');
         const patientCards = document.querySelectorAll('.patient-card');
 
-        searchInput.addEventListener('input', function (e) {
-            const searchTerm = e.target.value.toLowerCase();
-            patientCards.forEach(card => {
-                const patientName = card.querySelector('h3').textContent.toLowerCase();
-                const patientId = card.querySelector('p').textContent.toLowerCase();
-                if (patientName.includes(searchTerm) || patientId.includes(searchTerm)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
 
         // Modal functionality with real data
         const modal = document.getElementById('patientModal');
