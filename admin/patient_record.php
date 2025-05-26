@@ -52,7 +52,14 @@ $patients = $patientModel->getAllPatients();
                 <div class="w-full max-w-6xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
-
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="Search patients..."
+                                    class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                                    style="background-color: white !important; color: #333 !important;">
+                                <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
 
                     <!--        <?php
@@ -178,73 +185,85 @@ $patients = $patientModel->getAllPatients();
                     }
                     ?>
 
-                    <table id="patientTable" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>Patient Name</th>
-                                <th>Gender</th>
-                                <th>Contact Number</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($patients as $patient): ?>
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                        <table id="patientTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td><?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($patient['gender']); ?></td>
-                                    <td><?php echo htmlspecialchars($patient['phone_number']); ?></td>
-                                    <td>
-                                        <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                                            onclick="viewPatient('<?= $patient['id'] ?>')">
-                                            View
-                                        </button>
-                                    </td>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Number</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <?php foreach ($patients as $patient): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                    <?php if (!empty($patient['profile_picture'])): ?>
+                                                        <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>" alt="Profile" class="h-10 w-10 rounded-full">
+                                                    <?php else: ?>
+                                                        <i class="fas fa-user text-gray-400"></i>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
+                                                    </div>
+                                                    <div class="text-sm text-gray-500">
+                                                        <?php echo htmlspecialchars($patient['email'] ?? 'No email'); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                <?php echo htmlspecialchars($patient['gender'] ?? 'Not specified'); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <?php echo htmlspecialchars($patient['phone_number'] ?? 'No phone number'); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <a href="view_patient.php?id=<?php echo $patient['id']; ?>" class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2">
+                                                <i class="fas fa-eye mr-1"></i> View
+                                            </a>
+                                            <a href="edit_patient.php?id=<?php echo $patient['id']; ?>" class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md">
+                                                <i class="fas fa-edit mr-1"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <script>
                         $(document).ready(function () {
-                            $('#patientTable').DataTable();
-                        });
-
-                        function viewPatient(patientId) {
-                            fetch('getpatient.php?id=' + encodeURIComponent(patientId))
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.error) {
-                                        alert(data.error);
-                                        return;
-                                    }
-
-                                    document.getElementById('modalPatientName').textContent = data.name;
-                                    document.getElementById('modalPatientId').textContent = 'Patient ID: ' + data.id;
-                                    document.getElementById('modalPatientImage').src = data.image || 'assets/photo/default_avatar.png';
-
-                                    // Fill upcoming and past appointments
-                                    document.getElementById('upcomingAppointments').innerHTML = data.upcoming.map(
-                                        a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('');
-                                    document.getElementById('appointmentHistory').innerHTML = data.past.map(
-                                        a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('');
-
-                                    // Fill medical info
-                                    document.getElementById('medicalInfo').innerHTML = data.medical.map(
-                                        m => `<div class="bg-gray-50 p-2 rounded">${m}</div>`).join('');
-
-                                    // Show modal
-                                    document.getElementById('patientModal').classList.remove('hidden');
-                                })
-                                .catch(err => {
-                                    console.error(err);
-                                    alert('Failed to load patient data.');
-                                });
-                        }
-
-                        // Close modal
-                        document.getElementById('closeModal').addEventListener('click', function () {
-                            document.getElementById('patientModal').classList.add('hidden');
+                            // Initialize DataTable with custom options
+                            $('#patientTable').DataTable({
+                                "pageLength": 10,
+                                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                                "order": [[0, "asc"]],
+                                "language": {
+                                    "search": "_INPUT_",
+                                    "searchPlaceholder": "Search patients...",
+                                    "lengthMenu": "Show _MENU_ entries",
+                                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                                    "infoFiltered": "(filtered from _MAX_ total entries)"
+                                },
+                                "dom": '<"flex justify-between items-center mb-4"<"flex-1"l><"flex-1 text-right"f>>rt<"flex justify-between items-center"<"flex-1"i><"flex-1 text-right"p>>',
+                                "responsive": true,
+                                "initComplete": function() {
+                                    // Replace the default search box with our custom one
+                                    $('.dataTables_filter').hide();
+                                    $('#searchInput').on('keyup', function() {
+                                        $('#patientTable').DataTable().search($(this).val()).draw();
+                                    });
+                                }
+                            });
                         });
                     </script>
 
@@ -334,8 +353,21 @@ $patients = $patientModel->getAllPatients();
         });
 
         // Update the search functionality
+        const searchInput = document.getElementById('searchInput');
         const patientCards = document.querySelectorAll('.patient-card');
 
+        searchInput.addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            patientCards.forEach(card => {
+                const patientName = card.querySelector('h3').textContent.toLowerCase();
+                const patientId = card.querySelector('p').textContent.toLowerCase();
+                if (patientName.includes(searchTerm) || patientId.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
 
         // Modal functionality with real data
         const modal = document.getElementById('patientModal');
