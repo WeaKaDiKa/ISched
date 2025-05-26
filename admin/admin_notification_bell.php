@@ -62,10 +62,22 @@ while ($row = $result->fetch_assoc()) {
                     $typeColor = 'blue';
                     $typeIcon = 'bell';
                     
+                    // Check if the message contains approved appointment indicator
+                    $isApproved = strpos($notification['message'], '✅') !== false;
+                    
                     switch($notification['type']) {
                         case 'appointment':
+                        case 'new_appointment':
                             $typeColor = 'blue';
                             $typeIcon = 'calendar-check';
+                            break;
+                        case 'upcoming_appointment_today':
+                            $typeColor = $isApproved ? 'green' : 'orange';
+                            $typeIcon = $isApproved ? 'calendar-check' : 'calendar-day';
+                            break;
+                        case 'upcoming_appointment_tomorrow':
+                            $typeColor = $isApproved ? 'teal' : 'blue';
+                            $typeIcon = $isApproved ? 'calendar-check' : 'calendar-alt';
                             break;
                         case 'cancellation':
                             $typeColor = 'red';
@@ -123,6 +135,41 @@ while ($row = $result->fetch_assoc()) {
                                     <div class="font-semibold text-sm text-gray-800"><?= htmlspecialchars($notification['user_name']) ?></div>
                                 <?php endif; ?>
                                 <div class="text-sm text-gray-700 mt-1"><?= htmlspecialchars($notification['message']) ?></div>
+                                
+                                <?php
+                                // Extract patient name from notification message for upcoming appointments
+                                if (strpos($notification['type'], 'upcoming_appointment') !== false) {
+                                    // Try to extract patient name from the message
+                                    preg_match('/: ([^\s]+) ([^\s]+) has a/', $notification['message'], $matches);
+                                    if (count($matches) >= 3) {
+                                        $firstName = $matches[1];
+                                        $lastName = $matches[2];
+                                        
+                                        // Get patient ID from database
+                                        $patientQuery = "SELECT id FROM patients WHERE first_name = ? AND last_name = ? LIMIT 1";
+                                        $patientStmt = $conn->prepare($patientQuery);
+                                        $patientStmt->bind_param("ss", $firstName, $lastName);
+                                        $patientStmt->execute();
+                                        $patientResult = $patientStmt->get_result();
+                                        
+                                        if ($patientResult && $patientResult->num_rows > 0) {
+                                            $patientData = $patientResult->fetch_assoc();
+                                            $patientId = $patientData['id'];
+                                            ?>
+                                            <div class="mt-2 flex justify-between items-center">
+                                                <a href="view_patient.php?id=<?= $patientId ?>" class="text-<?=$typeColor?>-600 hover:text-<?=$typeColor?>-800 text-xs font-medium flex items-center">
+                                                    <i class="fas fa-user-circle mr-1"></i> View Patient Record
+                                                </a>
+                                                <a href="appointments.php?patient_id=<?= $patientId ?>" class="text-blue-600 hover:text-blue-800 text-xs font-medium flex items-center">
+                                                    <i class="fas fa-calendar-alt mr-1"></i> View Appointments
+                                                </a>
+                                            </div>
+                                            <?php
+                                        }
+                                    }
+                                }
+                                ?>
+                                
                                 <div class="text-xs text-gray-500 mt-2 text-right"><?= date('h:i A', strtotime($notification['created_at'])) ?></div>
                             </div>
                         </div>
@@ -188,3 +235,4 @@ while ($row = $result->fetch_assoc()) {
         }
     });
 </script>
+
