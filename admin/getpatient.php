@@ -23,11 +23,7 @@ if ($result->num_rows === 0) {
 $patient = $result->fetch_assoc();
 
 // Appointments (Approved)
-$stmt2 = $conn->prepare("SELECT appointment_date, start_time, status, 
-                                (SELECT name FROM services WHERE id = a.service_id) AS service_name 
-                         FROM appointments a 
-                         WHERE a.patient_id = ? AND a.status = 'approved'
-                         ORDER BY a.appointment_date DESC, a.time_slot DESC");
+$stmt2 = $conn->prepare("SELECT appointment_date, appointment_time, status, (SELECT name FROM services WHERE id = a.services) AS service_name FROM appointments a WHERE a.patient_id = ? AND a.status = 'approved' ORDER BY a.appointment_date DESC, a.appointment_time DESC");
 $stmt2->bind_param("i", $patientId);
 $stmt2->execute();
 $appointments = $stmt2->get_result();
@@ -36,7 +32,7 @@ $upcoming = [];
 $past = [];
 $today = date('Y-m-d');
 while ($row = $appointments->fetch_assoc()) {
-    $label = $row['service_name'] . ' — ' . date('M d, Y', strtotime($row['appointment_date'])) . ' at ' . date('g:i A', strtotime($row['start_time']));
+    $label = $row['service_name'] . ' — ' . date('M d, Y', strtotime($row['appointment_date'])) . ' at ' . date('g:i A', strtotime($row['appointment_time']));
     if ($row['appointment_date'] >= $today) {
         $upcoming[] = $label;
     } else {
