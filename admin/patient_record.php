@@ -237,14 +237,16 @@ $patients = $patientModel->getAllPatients();
                                             <?php echo htmlspecialchars($patient['phone_number'] ?? 'No phone number'); ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="view_patient.php?id=<?php echo $patient['id']; ?>"
-                                                class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2">
+                                            <button
+                                                class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2"
+                                                onclick="viewPatient('<?= $patient['id'] ?>')">
                                                 <i class="fas fa-eye mr-1"></i> View
-                                            </a>
-                                            <a href="edit_patient.php?id=<?php echo $patient['id']; ?>"
+                                            </button>
+
+                                            <!--       <a href="edit_patient.php?id=<?php //echo $patient['id']; ?>"
                                                 class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md">
                                                 <i class="fas fa-edit mr-1"></i> Edit
-                                            </a>
+                                            </a> -->
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -278,7 +280,6 @@ $patients = $patientModel->getAllPatients();
                                 }
                             });
                         });
-
                         function viewPatient(patientId) {
                             fetch('getpatient.php?id=' + encodeURIComponent(patientId))
                                 .then(response => response.json())
@@ -292,17 +293,28 @@ $patients = $patientModel->getAllPatients();
                                     document.getElementById('modalPatientId').textContent = 'Patient ID: ' + data.id;
                                     document.getElementById('modalPatientImage').src = data.image || 'assets/photo/default_avatar.png';
 
-                                    // Fill upcoming and past appointments
-                                    document.getElementById('upcomingAppointments').innerHTML = data.upcoming.map(
-                                        a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('');
-                                    document.getElementById('appointmentHistory').innerHTML = data.past.map(
-                                        a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('');
+                                    document.getElementById('upcomingAppointments').innerHTML =
+                                        (data.upcoming.length > 0)
+                                            ? data.upcoming.map(a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('')
+                                            : '<div class="text-gray-500 italic">No upcoming appointments.</div>';
 
-                                    // Fill medical info
-                                    document.getElementById('medicalInfo').innerHTML = data.medical.map(
-                                        m => `<div class="bg-gray-50 p-2 rounded">${m}</div>`).join('');
+                                    document.getElementById('appointmentHistory').innerHTML =
+                                        (data.past.length > 0)
+                                            ? data.past.map(a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('')
+                                            : '<div class="text-gray-500 italic">No past appointments.</div>';
 
-                                    // Show modal
+                                    const med = data.medical || {};
+
+                                    document.getElementById('med_patient_id').value = med.patient_id || '';
+                                    document.getElementById('blood_type').value = med.blood_type || '';
+                                    document.getElementById('allergies').value = med.allergies || '';
+                                    document.getElementById('blood_pressure').value = med.blood_pressure || '';
+                                    document.getElementById('heart_disease').value = med.heart_disease || '';
+                                    document.getElementById('diabetes').value = med.diabetes || '';
+                                    document.getElementById('current_medications').value = med.current_medications || '';
+                                    document.getElementById('medical_conditions').value = med.medical_conditions || '';
+                                    document.getElementById('last_physical_exam').value = med.last_physical_exam || '';
+
                                     document.getElementById('patientModal').classList.remove('hidden');
                                 })
                                 .catch(err => {
@@ -310,6 +322,7 @@ $patients = $patientModel->getAllPatients();
                                     alert('Failed to load patient data.');
                                 });
                         }
+
                         // Close modal
                         document.getElementById('closeModal').addEventListener('click', function () {
                             document.getElementById('patientModal').classList.add('hidden');
@@ -354,6 +367,11 @@ $patients = $patientModel->getAllPatients();
                         data-tab="medical">
                         Medical History
                     </button>
+                    <button
+                        class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-tab="dentals">
+                        Dental Information
+                    </button>
                 </nav>
             </div>
 
@@ -364,13 +382,13 @@ $patients = $patientModel->getAllPatients();
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h5 class="font-medium text-gray-900 mb-3">Upcoming Appointments</h5>
                         <div class="space-y-3" id="upcomingAppointments">
-                            <!-- Will be populated dynamically -->
+
                         </div>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h5 class="font-medium text-gray-900 mb-3">Past Appointments</h5>
                         <div class="space-y-3" id="appointmentHistory">
-                            <!-- Will be populated dynamically -->
+
                         </div>
                     </div>
                 </div>
@@ -379,8 +397,230 @@ $patients = $patientModel->getAllPatients();
                 <div id="medical-tab" class="tab-pane hidden space-y-6">
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h5 class="font-medium text-gray-900 mb-3">Medical Information</h5>
-                        <div class="space-y-4" id="medicalInfo">
-                            <!-- Medical information will be populated dynamically -->
+                        <form id="medicalHistoryForm" class="space-y-4">
+                            <input type="hidden" name="patient_id" id="med_patient_id">
+
+                            <div>
+                                <label>Blood Type</label>
+                                <input type="text" name="blood_type" id="blood_type" class="form-input">
+                            </div>
+
+                            <div>
+                                <label>Allergies</label>
+                                <input type="text" name="allergies" id="allergies" class="form-input">
+                            </div>
+
+                            <div>
+                                <label>Blood Pressure</label>
+                                <input type="text" name="blood_pressure" id="blood_pressure" class="form-input">
+                            </div>
+
+                            <div>
+                                <label>Heart Disease</label>
+                                <input type="text" name="heart_disease" id="heart_disease" class="form-input">
+                            </div>
+
+                            <div>
+                                <label>Diabetes</label>
+                                <input type="text" name="diabetes" id="diabetes" class="form-input">
+                            </div>
+
+                            <div>
+                                <label>Current Medications</label>
+                                <textarea name="current_medications" id="current_medications" rows="2"
+                                    class="form-textarea"></textarea>
+                            </div>
+
+                            <div>
+                                <label>Medical Conditions</label>
+                                <textarea name="medical_conditions" id="medical_conditions" rows="2"
+                                    class="form-textarea"></textarea>
+                            </div>
+
+                            <div>
+                                <label>Last Physical Exam</label>
+                                <input type="date" name="last_physical_exam" id="last_physical_exam" class="form-input">
+                            </div>
+
+                            <div>
+                                <button type="submit"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <div id="dentals-tab" class="tab-pane hidden space-y-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h5 class="font-medium text-gray-900 mb-3">Dental Information</h5>
+                        <div class="space-y-4" id="dentalInfo">
+                            <style>
+                                .section-title {
+                                    margin-top: 30px;
+                                    font-weight: bold;
+                                }
+
+                                .legend-table,
+                                .occlusion-table {
+                                    width: 100%;
+                                    margin-top: 20px;
+                                }
+
+                                .legend-table td,
+                                .occlusion-table td {
+                                    padding: 3px 6px;
+                                }
+
+                                .teeth-row {
+                                    display: flex;
+                                    justify-content: center;
+                                    margin: 10px 0;
+                                }
+
+                                .tooth {
+                                    width: 28px;
+                                    height: 28px;
+                                    border: 1px solid #000;
+                                    border-radius: 50%;
+                                    line-height: 28px;
+                                    font-size: 12px;
+                                    margin: 2px;
+                                }
+
+                                .input-label {
+                                    font-weight: bold;
+                                    margin-right: 10px;
+                                }
+                            </style>
+
+                            <h3>LAST INTRAORAL EXAMINATION</h3>
+
+                            <!-- Teeth Sections -->
+                            <div class="section-title">Temporary Teeth (Upper)</div>
+                            <div class="teeth-row">
+                                <div class="tooth">55</div>
+                                <div class="tooth">54</div>
+                                <div class="tooth">53</div>
+                                <div class="tooth">52</div>
+                                <div class="tooth">51</div>
+                                <div class="tooth">61</div>
+                                <div class="tooth">62</div>
+                                <div class="tooth">63</div>
+                                <div class="tooth">64</div>
+                                <div class="tooth">65</div>
+                            </div>
+
+                            <div class="section-title">Permanent Teeth (Upper)</div>
+                            <div class="teeth-row">
+                                <div class="tooth">18</div>
+                                <div class="tooth">17</div>
+                                <div class="tooth">16</div>
+                                <div class="tooth">15</div>
+                                <div class="tooth">14</div>
+                                <div class="tooth">13</div>
+                                <div class="tooth">12</div>
+                                <div class="tooth">11</div>
+                                <div class="tooth">21</div>
+                                <div class="tooth">22</div>
+                                <div class="tooth">23</div>
+                                <div class="tooth">24</div>
+                                <div class="tooth">25</div>
+                                <div class="tooth">26</div>
+                                <div class="tooth">27</div>
+                                <div class="tooth">28</div>
+                            </div>
+
+                            <div class="section-title">Permanent Teeth (Lower)</div>
+                            <div class="teeth-row">
+                                <div class="tooth">48</div>
+                                <div class="tooth">47</div>
+                                <div class="tooth">46</div>
+                                <div class="tooth">45</div>
+                                <div class="tooth">44</div>
+                                <div class="tooth">43</div>
+                                <div class="tooth">42</div>
+                                <div class="tooth">41</div>
+                                <div class="tooth">31</div>
+                                <div class="tooth">32</div>
+                                <div class="tooth">33</div>
+                                <div class="tooth">34</div>
+                                <div class="tooth">35</div>
+                                <div class="tooth">36</div>
+                                <div class="tooth">37</div>
+                                <div class="tooth">38</div>
+                            </div>
+
+                            <div class="section-title">Temporary Teeth (Lower)</div>
+                            <div class="teeth-row">
+                                <div class="tooth">85</div>
+                                <div class="tooth">84</div>
+                                <div class="tooth">83</div>
+                                <div class="tooth">82</div>
+                                <div class="tooth">81</div>
+                                <div class="tooth">71</div>
+                                <div class="tooth">72</div>
+                                <div class="tooth">73</div>
+                                <div class="tooth">74</div>
+                                <div class="tooth">75</div>
+                            </div>
+
+                            <!-- Legend -->
+                            <div class="section-title">Legend</div>
+                            <table class="legend-table">
+                                <tr>
+                                    <td><strong>D</strong> - Decayed</td>
+                                    <td><strong>J</strong> - Jacket Crown</td>
+                                    <td><strong>X</strong> - Extraction due to Caries</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>M</strong> - Missing due to Caries</td>
+                                    <td><strong>A</strong> - Amalgam Filling</td>
+                                    <td><strong>XO</strong> - Extraction due to other causes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>F</strong> - Filled</td>
+                                    <td><strong>A-B</strong> - Abutment</td>
+                                    <td><strong>✓</strong> - Present Teeth</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>I</strong> - Caries for Extraction</td>
+                                    <td><strong>P</strong> - Pontic</td>
+                                    <td><strong>Cn</strong> - Congenitally Missing</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>RF</strong> - Root Fragment</td>
+                                    <td><strong>In</strong> - Inlay</td>
+                                    <td><strong>Sp</strong> - Supernumerary</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>MO</strong> - Missing Other Causes</td>
+                                    <td><strong>FX</strong> - Fixed Cure Composite</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Im</strong> - Impacted Tooth</td>
+                                    <td><strong>Rm</strong> - Removable Denture</td>
+                                </tr>
+                            </table>
+
+                            <!-- Periodontal Screening & Others -->
+                            <div class="section-title">Other Notes</div>
+                            <table class="occlusion-table">
+                                <tr>
+                                    <td><strong>Periodontal Screening:</strong> Gingivitis, Early/Moderate/Advanced
+                                        Periodontics</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Occlusion:</strong> Class (Molar), Overjet, Overbite, Midline Deviation,
+                                        Crossbite</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Appliances:</strong> Orthodontic, Stayplate, Others</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>TMD:</strong> Clenching, Clicking, Trismus, Muscle Spasm</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -418,25 +658,21 @@ $patients = $patientModel->getAllPatients();
             });
         });
 
-        // Modal functionality with real data
         const modal = document.getElementById('patientModal');
         const closeModal = document.getElementById('closeModal');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
 
         function viewPatientDetails(patientId) {
-            // Your existing modal opening logic
             modal.classList.remove('hidden');
-            // Add any additional logic needed for viewing patient details
         }
 
-        // Close modal
+
         closeModal.addEventListener('click', () => modal.classList.add('hidden'));
         window.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.add('hidden');
         });
 
-        // Tab switching
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 tabButtons.forEach(btn => {

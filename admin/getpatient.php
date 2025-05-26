@@ -1,7 +1,6 @@
 <?php
 require_once 'db.php';
 
-
 if (!isset($_GET['id'])) {
     echo json_encode(['error' => 'No patient ID provided.']);
     exit;
@@ -10,7 +9,8 @@ if (!isset($_GET['id'])) {
 $patientId = $_GET['id'];
 
 // Main patient data
-$stmt = $conn->prepare("SELECT p.*, pp.gender, pp.profile_photo FROM patients p 
+$stmt = $conn->prepare("SELECT p.*, p.gender, p.profile_picture 
+                        FROM patients p 
                         LEFT JOIN patient_profiles pp ON p.id = pp.patient_id 
                         WHERE p.id = ?");
 $stmt->bind_param("i", $patientId);
@@ -23,7 +23,11 @@ if ($result->num_rows === 0) {
 $patient = $result->fetch_assoc();
 
 // Appointments (Approved)
-$stmt2 = $conn->prepare("SELECT appointment_date, appointment_time, status, (SELECT name FROM services WHERE id = a.services) AS service_name FROM appointments a WHERE a.patient_id = ? AND a.status = 'approved' ORDER BY a.appointment_date DESC, a.appointment_time DESC");
+$stmt2 = $conn->prepare("SELECT appointment_date, appointment_time, status, 
+                         (SELECT name FROM services WHERE id = a.services) AS service_name 
+                         FROM appointments a 
+                         WHERE a.patient_id = ? AND a.status = 'approved' 
+                         ORDER BY a.appointment_date DESC, a.appointment_time DESC");
 $stmt2->bind_param("i", $patientId);
 $stmt2->execute();
 $appointments = $stmt2->get_result();
@@ -40,18 +44,20 @@ while ($row = $appointments->fetch_assoc()) {
     }
 }
 
-// Dummy medical data (replace with real query if needed)
-$medical = [
-    'Blood type: O+',
-    'Allergies: None',
-    'Last check-up: March 2025'
-];
+// Medical History
+$query = "SELECT * FROM medical_history WHERE patient_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $patientId);
+$stmt->execute();
+$result = $stmt->get_result();
+$medical = $result->fetch_assoc();
 
 echo json_encode([
     'id' => $patient['id'],
     'name' => $patient['first_name'] . ' ' . $patient['last_name'],
-    'image' => !empty($patient['profile_photo']) ? $patient['profile_photo'] : '',
+    'image' => !empty($patient['profile_picture']) ? $patient['profile_picture'] : '',
     'upcoming' => $upcoming,
     'past' => $past,
-    'medical' => $medical
+    'medical' => $medical ?? []
 ]);
+?>
