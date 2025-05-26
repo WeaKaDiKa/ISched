@@ -62,47 +62,48 @@ $patients = $patientModel->getAllPatients();
                         </div>
                     </div>
 
-                    <?php
+                    <!--        <?php
                     // AND a.status = 'completed'
-                    $query = "SELECT p.*, pp.* 
-          FROM patients p 
-          LEFT JOIN patient_profiles pp ON p.id = pp.patient_id
-          LEFT JOIN appointments a ON p.id = a.patient_id
-          GROUP BY p.id
-          ORDER BY p.first_name ASC";
+                    /*     $query = "SELECT p.*, pp.* 
+              FROM patients p 
+              LEFT JOIN patient_profiles pp ON p.id = pp.patient_id
+              LEFT JOIN appointments a ON p.id = a.patient_id
+              GROUP BY p.id
+              ORDER BY p.first_name ASC";
 
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $patients = [];
-                    if ($result && $result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            $patients[] = $row;
-                        }
-                    }
+                        $stmt = $conn->prepare($query);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $patients = [];
+                        if ($result && $result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                $patients[] = $row;
+                            }
+                        } */
                     ?>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <?php foreach ($patients as $patient): ?>
+                        <?php //foreach ($patients as $patient): ?>
                             <?php
-                            // Fetch patient's approved appointments
-                            $query2 = "SELECT a.*, s.service_name, d.name as doctor_name
-                   FROM appointments a 
-                   LEFT JOIN services s ON a.service_id = s.id
-                   LEFT JOIN doctors d ON a.doctor_id = d.id
-                   WHERE a.patient_id = ? AND a.status = 'approved'
-                   ORDER BY a.appointment_date DESC, a.time_slot DESC";
+                            /*                         // Fetch patient's approved appointments
+                                                    $query2 = "SELECT a.*, 
+                               CONCAT(d.first_name, ' ', d.last_name) AS doctor_name
+                        FROM appointments a 
+                        LEFT JOIN doctors d ON a.doctor_id = d.id
+                        WHERE a.patient_id = ? AND a.status = 'approved'
+                        ORDER BY a.appointment_date DESC, a.appointment_time DESC
+                        ";
 
-                            $stmt2 = $conn->prepare($query2);
-                            $stmt2->bind_param("i", $patient['id']);
-                            $stmt2->execute();
-                            $result2 = $stmt2->get_result();
-                            $patientAppointments = [];
-                            if ($result2 && $result2->num_rows > 0) {
-                                while ($apt = $result2->fetch_assoc()) {
-                                    $patientAppointments[] = $apt;
-                                }
-                            }
+                                                    $stmt2 = $conn->prepare($query2);
+                                                    $stmt2->bind_param("i", $patient['id']);
+                                                    $stmt2->execute();
+                                                    $result2 = $stmt2->get_result();
+                                                    $patientAppointments = [];
+                                                    if ($result2 && $result2->num_rows > 0) {
+                                                        while ($apt = $result2->fetch_assoc()) {
+                                                            $patientAppointments[] = $apt;
+                                                        }
+                                                    } */
                             ?>
 
                             <div
@@ -134,7 +135,8 @@ $patients = $patientModel->getAllPatients();
                                                                 <?php echo date('M j, Y', strtotime($apt['appointment_date'])); ?>
                                                             </div>
                                                             <div class="text-green-700">
-                                                                <?php echo date('g:i A', strtotime($apt['start_time'])); ?>
+                                                                <?php echo date('g:i A', strtotime($apt['appointment_time'])); ?>
+
                                                             </div>
                                                         </div>
                                                         <div class="text-right text-sm">
@@ -159,12 +161,63 @@ $patients = $patientModel->getAllPatients();
                                     </button>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                        <?php if (empty($patients)): ?>
+                        <?php // endforeach; ?>
+                        <?php //if (empty($patients)): ?>
                             <p class="text-red-500">No patients found.</p>
-                        <?php endif; ?>
+                        <?php //endif; ?> -->
 
-                    </div>
+                    <?php
+                    $query = "SELECT p.*, pp.* 
+    FROM patients p 
+    LEFT JOIN patient_profiles pp ON p.id = pp.patient_id
+    LEFT JOIN appointments a ON p.id = a.patient_id
+    GROUP BY p.id
+    ORDER BY p.first_name ASC";
+
+                    $stmt = $conn->prepare($query);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $patients = [];
+                    if ($result && $result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            $patients[] = $row;
+                        }
+                    }
+                    ?>
+
+                    <table id="patientTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient Name</th>
+                                <th>Gender</th>
+                                <th>Contact Number</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($patients as $patient): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($patient['gender']); ?></td>
+                                    <td><?php echo htmlspecialchars($patient['phone_number']); ?></td>
+                                    <td>
+                                        <a href="view_patient.php?id=<?php echo $patient['id']; ?>"
+                                            class="btn btn-sm btn-primary">View</a>
+                                        <a href="edit_patient.php?id=<?php echo $patient['id']; ?>"
+                                            class="btn btn-sm btn-success">Edit</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <script>
+                        $(document).ready(function () {
+                            $('#patientTable').DataTable();
+                        });
+                    </script>
+
 
                 </div>
             </div>
