@@ -10,6 +10,7 @@ require_once 'models/Appointment.php';
 $patientModel = new Patient();
 $appointmentModel = new Appointment();
 $patients = $patientModel->getAllPatients();
+
 ?>
 
 <!DOCTYPE html>
@@ -397,56 +398,95 @@ $patients = $patientModel->getAllPatients();
                 <div id="medical-tab" class="tab-pane hidden space-y-6">
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h5 class="font-medium text-gray-900 mb-3">Medical Information</h5>
-                        <form id="medicalHistoryForm" class="space-y-4">
+                        <form id="medicalHistoryForm" class="space-y-6 bg-white p-6 rounded-lg shadow-md">
                             <input type="hidden" name="patient_id" id="med_patient_id">
 
                             <div>
-                                <label>Blood Type</label>
-                                <input type="text" name="blood_type" id="blood_type" class="form-input">
+                                <label for="blood_type" class="block text-sm font-medium text-gray-700">Blood
+                                    Type</label>
+                                <input type="text" name="blood_type" id="blood_type"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2" />
                             </div>
 
                             <div>
-                                <label>Allergies</label>
-                                <input type="text" name="allergies" id="allergies" class="form-input">
+                                <label for="allergies" class="block text-sm font-medium text-gray-700">Allergies</label>
+                                <input type="text" name="allergies" id="allergies"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2" />
                             </div>
 
                             <div>
-                                <label>Blood Pressure</label>
-                                <input type="text" name="blood_pressure" id="blood_pressure" class="form-input">
+                                <label for="blood_pressure" class="block text-sm font-medium text-gray-700">Blood
+                                    Pressure</label>
+                                <input type="text" name="blood_pressure" id="blood_pressure"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2" />
                             </div>
 
                             <div>
-                                <label>Heart Disease</label>
-                                <input type="text" name="heart_disease" id="heart_disease" class="form-input">
+                                <label for="heart_disease" class="block text-sm font-medium text-gray-700">Heart
+                                    Disease</label>
+                                <input type="text" name="heart_disease" id="heart_disease"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2" />
                             </div>
 
                             <div>
-                                <label>Diabetes</label>
-                                <input type="text" name="diabetes" id="diabetes" class="form-input">
+                                <label for="diabetes" class="block text-sm font-medium text-gray-700">Diabetes</label>
+                                <input type="text" name="diabetes" id="diabetes"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2" />
                             </div>
 
                             <div>
-                                <label>Current Medications</label>
+                                <label for="current_medications" class="block text-sm font-medium text-gray-700">Current
+                                    Medications</label>
                                 <textarea name="current_medications" id="current_medications" rows="2"
-                                    class="form-textarea"></textarea>
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"></textarea>
                             </div>
 
                             <div>
-                                <label>Medical Conditions</label>
+                                <label for="medical_conditions" class="block text-sm font-medium text-gray-700">Medical
+                                    Conditions</label>
                                 <textarea name="medical_conditions" id="medical_conditions" rows="2"
-                                    class="form-textarea"></textarea>
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"></textarea>
                             </div>
 
                             <div>
-                                <label>Last Physical Exam</label>
-                                <input type="date" name="last_physical_exam" id="last_physical_exam" class="form-input">
+                                <label for="last_physical_exam" class="block text-sm font-medium text-gray-700">Last
+                                    Physical Exam</label>
+                                <input type="date" name="last_physical_exam" id="last_physical_exam"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2" />
                             </div>
 
-                            <div>
+                            <div class="pt-4">
                                 <button type="submit"
-                                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+                                    class="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
+                                    Save
+                                </button>
                             </div>
                         </form>
+                        <script>
+                            document.getElementById('medicalHistoryForm').addEventListener('submit', function (e) {
+                                e.preventDefault();
+
+                                const formData = new FormData(this);
+
+                                fetch('update_medical.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert("Medical history updated!");
+                                        } else {
+                                            alert("Failed to update.");
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error(err);
+                                        alert("Something went wrong.");
+                                    });
+                            });
+
+                        </script>
                     </div>
                 </div>
 
@@ -496,131 +536,226 @@ $patients = $patientModel->getAllPatients();
 
                             <h3>LAST INTRAORAL EXAMINATION</h3>
 
-                            <!-- Teeth Sections -->
-                            <div class="section-title">Temporary Teeth (Upper)</div>
-                            <div class="teeth-row">
-                                <div class="tooth">55</div>
-                                <div class="tooth">54</div>
-                                <div class="tooth">53</div>
-                                <div class="tooth">52</div>
-                                <div class="tooth">51</div>
-                                <div class="tooth">61</div>
-                                <div class="tooth">62</div>
-                                <div class="tooth">63</div>
-                                <div class="tooth">64</div>
-                                <div class="tooth">65</div>
-                            </div>
+                            <form class="space-y-8 bg-white p-6 rounded-lg shadow">
+                   
+                                <div>
+                                    <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Upper)</h2>
+                                    <div class="grid grid-cols-10 gap-2">
+                                        <template id="tooth-input-template"></template>
+                            
+                                        <input type="text" name="tooth[55]" placeholder="55"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[54]" placeholder="54"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[53]" placeholder="53"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[52]" placeholder="52"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[51]" placeholder="51"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[61]" placeholder="61"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[62]" placeholder="62"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[63]" placeholder="63"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[64]" placeholder="64"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[65]" placeholder="65"
+                                            class="text-center border rounded p-1" />
+                                    </div>
+                                </div>
 
-                            <div class="section-title">Permanent Teeth (Upper)</div>
-                            <div class="teeth-row">
-                                <div class="tooth">18</div>
-                                <div class="tooth">17</div>
-                                <div class="tooth">16</div>
-                                <div class="tooth">15</div>
-                                <div class="tooth">14</div>
-                                <div class="tooth">13</div>
-                                <div class="tooth">12</div>
-                                <div class="tooth">11</div>
-                                <div class="tooth">21</div>
-                                <div class="tooth">22</div>
-                                <div class="tooth">23</div>
-                                <div class="tooth">24</div>
-                                <div class="tooth">25</div>
-                                <div class="tooth">26</div>
-                                <div class="tooth">27</div>
-                                <div class="tooth">28</div>
-                            </div>
+                                <div>
+                                    <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Upper)</h2>
+                                    <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
+                                        <input type="text" name="tooth[18]" placeholder="18"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[17]" placeholder="17"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[16]" placeholder="16"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[15]" placeholder="15"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[14]" placeholder="14"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[13]" placeholder="13"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[12]" placeholder="12"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[11]" placeholder="11"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[21]" placeholder="21"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[22]" placeholder="22"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[23]" placeholder="23"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[24]" placeholder="24"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[25]" placeholder="25"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[26]" placeholder="26"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[27]" placeholder="27"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[28]" placeholder="28"
+                                            class="text-center border rounded p-1" />
+                                    </div>
+                                </div>
 
-                            <div class="section-title">Permanent Teeth (Lower)</div>
-                            <div class="teeth-row">
-                                <div class="tooth">48</div>
-                                <div class="tooth">47</div>
-                                <div class="tooth">46</div>
-                                <div class="tooth">45</div>
-                                <div class="tooth">44</div>
-                                <div class="tooth">43</div>
-                                <div class="tooth">42</div>
-                                <div class="tooth">41</div>
-                                <div class="tooth">31</div>
-                                <div class="tooth">32</div>
-                                <div class="tooth">33</div>
-                                <div class="tooth">34</div>
-                                <div class="tooth">35</div>
-                                <div class="tooth">36</div>
-                                <div class="tooth">37</div>
-                                <div class="tooth">38</div>
-                            </div>
+                                <div>
+                                    <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Lower)</h2>
+                                    <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
+                                        <input type="text" name="tooth[48]" placeholder="48"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[47]" placeholder="47"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[46]" placeholder="46"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[45]" placeholder="45"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[44]" placeholder="44"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[43]" placeholder="43"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[42]" placeholder="42"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[41]" placeholder="41"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[31]" placeholder="31"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[32]" placeholder="32"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[33]" placeholder="33"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[34]" placeholder="34"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[35]" placeholder="35"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[36]" placeholder="36"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[37]" placeholder="37"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[38]" placeholder="38"
+                                            class="text-center border rounded p-1" />
+                                    </div>
+                                </div>
 
-                            <div class="section-title">Temporary Teeth (Lower)</div>
-                            <div class="teeth-row">
-                                <div class="tooth">85</div>
-                                <div class="tooth">84</div>
-                                <div class="tooth">83</div>
-                                <div class="tooth">82</div>
-                                <div class="tooth">81</div>
-                                <div class="tooth">71</div>
-                                <div class="tooth">72</div>
-                                <div class="tooth">73</div>
-                                <div class="tooth">74</div>
-                                <div class="tooth">75</div>
-                            </div>
+                                <div>
+                                    <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Lower)</h2>
+                                    <div class="grid grid-cols-10 gap-2">
+                                        <input type="text" name="tooth[85]" placeholder="85"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[84]" placeholder="84"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[83]" placeholder="83"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[82]" placeholder="82"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[81]" placeholder="81"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[71]" placeholder="71"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[72]" placeholder="72"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[73]" placeholder="73"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[74]" placeholder="74"
+                                            class="text-center border rounded p-1" />
+                                        <input type="text" name="tooth[75]" placeholder="75"
+                                            class="text-center border rounded p-1" />
+                                    </div>
+                                </div>
 
-                            <!-- Legend -->
-                            <div class="section-title">Legend</div>
-                            <table class="legend-table">
-                                <tr>
-                                    <td><strong>D</strong> - Decayed</td>
-                                    <td><strong>J</strong> - Jacket Crown</td>
-                                    <td><strong>X</strong> - Extraction due to Caries</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>M</strong> - Missing due to Caries</td>
-                                    <td><strong>A</strong> - Amalgam Filling</td>
-                                    <td><strong>XO</strong> - Extraction due to other causes</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>F</strong> - Filled</td>
-                                    <td><strong>A-B</strong> - Abutment</td>
-                                    <td><strong>✓</strong> - Present Teeth</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>I</strong> - Caries for Extraction</td>
-                                    <td><strong>P</strong> - Pontic</td>
-                                    <td><strong>Cn</strong> - Congenitally Missing</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>RF</strong> - Root Fragment</td>
-                                    <td><strong>In</strong> - Inlay</td>
-                                    <td><strong>Sp</strong> - Supernumerary</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>MO</strong> - Missing Other Causes</td>
-                                    <td><strong>FX</strong> - Fixed Cure Composite</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Im</strong> - Impacted Tooth</td>
-                                    <td><strong>Rm</strong> - Removable Denture</td>
-                                </tr>
-                            </table>
+                                <div>
+                                    <h2 class="text-lg font-semibold mb-2">Other Notes</h2>
+                                    <textarea name="notes" rows="4" class="w-full border rounded p-2"></textarea>
+                                </div>
 
-                            <!-- Periodontal Screening & Others -->
-                            <div class="section-title">Other Notes</div>
-                            <table class="occlusion-table">
-                                <tr>
-                                    <td><strong>Periodontal Screening:</strong> Gingivitis, Early/Moderate/Advanced
-                                        Periodontics</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Occlusion:</strong> Class (Molar), Overjet, Overbite, Midline Deviation,
-                                        Crossbite</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Appliances:</strong> Orthodontic, Stayplate, Others</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>TMD:</strong> Clenching, Clicking, Trismus, Muscle Spasm</td>
-                                </tr>
-                            </table>
+
+                                <div class="section-title">Legend</div>
+                                <table class="legend-table">
+                                    <tr>
+                                        <td><strong>D</strong> - Decayed</td>
+                                        <td><strong>J</strong> - Jacket Crown</td>
+                                        <td><strong>X</strong> - Extraction due to Caries</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>M</strong> - Missing due to Caries</td>
+                                        <td><strong>A</strong> - Amalgam Filling</td>
+                                        <td><strong>XO</strong> - Extraction due to other causes</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>F</strong> - Filled</td>
+                                        <td><strong>A-B</strong> - Abutment</td>
+                                        <td><strong>✓</strong> - Present Teeth</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>I</strong> - Caries for Extraction</td>
+                                        <td><strong>P</strong> - Pontic</td>
+                                        <td><strong>Cn</strong> - Congenitally Missing</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>RF</strong> - Root Fragment</td>
+                                        <td><strong>In</strong> - Inlay</td>
+                                        <td><strong>Sp</strong> - Supernumerary</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>MO</strong> - Missing Other Causes</td>
+                                        <td><strong>FX</strong> - Fixed Cure Composite</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Im</strong> - Impacted Tooth</td>
+                                        <td><strong>Rm</strong> - Removable Denture</td>
+                                    </tr>
+                                </table>
+
+           
+                                <div class="section-title">Additional Notes</div>
+                                <ul>
+                                    <li><strong>Periodontal Screening:</strong>
+                                        <ul>
+                                            <li><input type="checkbox"> Gingivitis</li>
+                                            <li><input type="checkbox"> Early Periodontics</li>
+                                            <li><input type="checkbox"> Moderate Periodontics</li>
+                                            <li><input type="checkbox"> Advanced Periodontics</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Occlusion:</strong>
+                                        <ul>
+                                            <li><input type="checkbox"> Class (Molar)</li>
+                                            <li><input type="checkbox"> Overjet</li>
+                                            <li><input type="checkbox"> Overbite</li>
+                                            <li><input type="checkbox"> Midline Deviation</li>
+                                            <li><input type="checkbox"> Crossbite</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Appliances:</strong>
+                                        <ul>
+                                            <li><input type="checkbox"> Orthodontic</li>
+                                            <li><input type="checkbox"> Stayplate</li>
+                                            <li><input type="checkbox"> Others</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>TMD:</strong>
+                                        <ul>
+                                            <li><input type="checkbox"> Clenching</li>
+                                            <li><input type="checkbox"> Clicking</li>
+                                            <li><input type="checkbox"> Trismus</li>
+                                            <li><input type="checkbox"> Muscle Spasm</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+
+                                <div>
+                                    <button type="submit"
+                                        class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                                        Save Dental Chart
+                                    </button>
+                                </div>
+                            </form>
+
                         </div>
                     </div>
                 </div>
