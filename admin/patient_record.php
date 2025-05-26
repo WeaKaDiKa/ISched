@@ -306,7 +306,7 @@ $patients = $patientModel->getAllPatients();
 
                                     const med = data.medical || {};
 
-                                    document.getElementById('med_patient_id').value = med.patient_id || '';
+                                    document.getElementById('med_patient_id').value = med.patient_id || patientId;
                                     document.getElementById('blood_type').value = med.blood_type || '';
                                     document.getElementById('allergies').value = med.allergies || '';
                                     document.getElementById('blood_pressure').value = med.blood_pressure || '';

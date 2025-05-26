@@ -60,4 +60,3 @@ echo json_encode([
     'past' => $past,
     'medical' => $medical ?? []
 ]);
-?>
