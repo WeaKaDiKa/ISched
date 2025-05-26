@@ -52,7 +52,7 @@ $patients = $patientModel->getAllPatients();
                 <div class="w-full max-w-6xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
-                        
+
                     </div>
 
                     <!--        <?php
@@ -195,10 +195,10 @@ $patients = $patientModel->getAllPatients();
                                     <td><?php echo htmlspecialchars($patient['gender']); ?></td>
                                     <td><?php echo htmlspecialchars($patient['phone_number']); ?></td>
                                     <td>
-                                        <a href="view_patient.php?id=<?php echo $patient['id']; ?>"
-                                            class="btn btn-sm btn-primary">View</a>
-                                        <a href="edit_patient.php?id=<?php echo $patient['id']; ?>"
-                                            class="btn btn-sm btn-success">Edit</a>
+                                        <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                                            onclick="viewPatient('<?= $patient['id'] ?>')">
+                                            View
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
