@@ -189,10 +189,18 @@ $patients = $patientModel->getAllPatients();
                         <table id="patientTable" class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Number</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Patient Name</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Gender</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Contact Number</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Action</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -200,9 +208,11 @@ $patients = $patientModel->getAllPatients();
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <div
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                                                     <?php if (!empty($patient['profile_picture'])): ?>
-                                                        <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>" alt="Profile" class="h-10 w-10 rounded-full">
+                                                        <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>"
+                                                            alt="Profile" class="h-10 w-10 rounded-full">
                                                     <?php else: ?>
                                                         <i class="fas fa-user text-gray-400"></i>
                                                     <?php endif; ?>
@@ -218,7 +228,8 @@ $patients = $patientModel->getAllPatients();
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            <span
+                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                                 <?php echo htmlspecialchars($patient['gender'] ?? 'Not specified'); ?>
                                             </span>
                                         </td>
@@ -226,10 +237,12 @@ $patients = $patientModel->getAllPatients();
                                             <?php echo htmlspecialchars($patient['phone_number'] ?? 'No phone number'); ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="view_patient.php?id=<?php echo $patient['id']; ?>" class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2">
+                                            <a href="view_patient.php?id=<?php echo $patient['id']; ?>"
+                                                class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2">
                                                 <i class="fas fa-eye mr-1"></i> View
                                             </a>
-                                            <a href="edit_patient.php?id=<?php echo $patient['id']; ?>" class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md">
+                                            <a href="edit_patient.php?id=<?php echo $patient['id']; ?>"
+                                                class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md">
                                                 <i class="fas fa-edit mr-1"></i> Edit
                                             </a>
                                         </td>
@@ -256,14 +269,50 @@ $patients = $patientModel->getAllPatients();
                                 },
                                 "dom": '<"flex justify-between items-center mb-4"<"flex-1"l><"flex-1 text-right"f>>rt<"flex justify-between items-center"<"flex-1"i><"flex-1 text-right"p>>',
                                 "responsive": true,
-                                "initComplete": function() {
+                                "initComplete": function () {
                                     // Replace the default search box with our custom one
                                     $('.dataTables_filter').hide();
-                                    $('#searchInput').on('keyup', function() {
+                                    $('#searchInput').on('keyup', function () {
                                         $('#patientTable').DataTable().search($(this).val()).draw();
                                     });
                                 }
                             });
+                        });
+
+                        function viewPatient(patientId) {
+                            fetch('getpatient.php?id=' + encodeURIComponent(patientId))
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.error) {
+                                        alert(data.error);
+                                        return;
+                                    }
+
+                                    document.getElementById('modalPatientName').textContent = data.name;
+                                    document.getElementById('modalPatientId').textContent = 'Patient ID: ' + data.id;
+                                    document.getElementById('modalPatientImage').src = data.image || 'assets/photo/default_avatar.png';
+
+                                    // Fill upcoming and past appointments
+                                    document.getElementById('upcomingAppointments').innerHTML = data.upcoming.map(
+                                        a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('');
+                                    document.getElementById('appointmentHistory').innerHTML = data.past.map(
+                                        a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('');
+
+                                    // Fill medical info
+                                    document.getElementById('medicalInfo').innerHTML = data.medical.map(
+                                        m => `<div class="bg-gray-50 p-2 rounded">${m}</div>`).join('');
+
+                                    // Show modal
+                                    document.getElementById('patientModal').classList.remove('hidden');
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert('Failed to load patient data.');
+                                });
+                        }
+                        // Close modal
+                        document.getElementById('closeModal').addEventListener('click', function () {
+                            document.getElementById('patientModal').classList.add('hidden');
                         });
                     </script>
 
