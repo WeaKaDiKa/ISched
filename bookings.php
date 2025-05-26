@@ -186,19 +186,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
                 
                 // Create admin notification about the new appointment
                 try {
-                    $tableCheckResult = $conn->query("SHOW TABLES LIKE 'admin_notifications'");
-                    if ($tableCheckResult->num_rows == 0) {
-                        // Create admin_notifications table if it doesn't exist
-                        $createTableSql = "CREATE TABLE IF NOT EXISTS admin_notifications (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            message VARCHAR(255) NOT NULL,
-                            type VARCHAR(50) NOT NULL,
-                            reference_id INT,
-                            is_read TINYINT(1) DEFAULT 0,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )";
-                        $conn->query($createTableSql);
-                    }
+                    // First, ensure the admin_notifications table exists
+                    $createTableSql = "CREATE TABLE IF NOT EXISTS admin_notifications (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        message VARCHAR(255) NOT NULL,
+                        type VARCHAR(50) NOT NULL,
+                        reference_id INT,
+                        is_read TINYINT(1) DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )";
+                    $conn->query($createTableSql);
                     
                     // Get patient name for the notification message
                     $patientQuery = "SELECT first_name, last_name FROM patients WHERE id = ?";
@@ -207,18 +204,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
                     $patientStmt->execute();
                     $patientResult = $patientStmt->get_result();
                     $patientData = $patientResult->fetch_assoc();
-                    $patientName = $patientData['first_name'] . ' ' . $patientData['last_name'];
                     
-                    // Create notification message
-                    $notificationMessage = "New appointment booked by {$patientName} for {$allData['appointment_date']} at {$allData['appointment_time']}.";
-                    
-                    // Insert admin notification
-                    $notifStmt = $conn->prepare("INSERT INTO admin_notifications (message, type, reference_id) VALUES (?, 'new_appointment', ?)");
-                    $notifStmt->bind_param("si", $notificationMessage, $appointmentId);
-                    $notifStmt->execute();
+                    if ($patientData) {
+                        $patientName = $patientData['first_name'] . ' ' . $patientData['last_name'];
+                        
+                        // Create notification message
+                        $notificationMessage = "New appointment booked by {$patientName} for {$allData['appointment_date']} at {$allData['appointment_time']}.";
+                        
+                        // Insert admin notification
+                        $notifStmt = $conn->prepare("INSERT INTO admin_notifications (message, type, reference_id) VALUES (?, 'new_appointment', ?)");
+                        $notifStmt->bind_param("si", $notificationMessage, $appointmentId);
+                        $notifResult = $notifStmt->execute();
+                        
+                        if (!$notifResult) {
+                            error_log("Failed to insert admin notification: " . $conn->error);
+                        } else {
+                            error_log("Successfully created admin notification for appointment ID: {$appointmentId}");
+                        }
+                    } else {
+                        error_log("Could not find patient data for ID: {$patientId}");
+                    }
                 } catch (Exception $e) {
-                    // Log error but don't stop the process
+                    // Log detailed error but don't stop the process
                     error_log("Error creating admin notification: " . $e->getMessage());
+                    error_log("Error trace: " . $e->getTraceAsString());
                 }
                 
                 // Clear form data
@@ -600,6 +609,79 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <link rel="stylesheet" href="assets/css/calendar.css?v=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* Success Modal Styles */
+        .success-modal-content {
+            max-width: 500px;
+            text-align: center;
+            padding: 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .success-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+        }
+        
+        .success-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .success-body {
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .booking-reference {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .success-footer {
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .ok-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .ok-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .download-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .download-btn:hover {
+            background-color: #0b7dda;
+        }
+    </style>
     <!-- Pass PHP data to JavaScript -->
   <script>
   window.servicePrices = <?php echo json_encode($servicePrices); ?>;
@@ -1158,6 +1240,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                     </div>
     </div>
     <div class="success-footer">
+      <button class="download-btn" id="download-booking-btn">Download Booking</button>
       <button class="ok-btn" onclick="window.location.href='index.php'">OK</button>
     </div>
   </div>
@@ -1407,7 +1490,21 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                     window.location.href = 'index.php';
                 });
             }
+            
+            // Setup download booking button
+            const downloadBtn = document.querySelector('.success-modal-content .download-btn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const referenceId = document.getElementById('booking-reference-id').textContent;
+                    if (referenceId && referenceId !== 'Processing...') {
+                        window.open('download_booking_pdf.php?ref=' + encodeURIComponent(referenceId), '_blank');
+                    } else {
+                        alert('Please wait for the booking reference to be generated.');
+                    }
+                });
+            }
         });
     </script>
 </body>
 </html>
+
