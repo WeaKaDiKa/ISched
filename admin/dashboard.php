@@ -134,8 +134,6 @@ if ($admin_id) {
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
     <title>M&amp;A Oida Dental Clinic Dashboard</title>
     <?php require_once 'head.php' ?>
 

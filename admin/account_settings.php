@@ -155,38 +155,18 @@ if ($admin_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Settings</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <?php require_once 'head.php' ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <style>
-        body,
-        html,
-        .text-sm,
-        .text-base,
-        .text-lg,
-        .text-xl,
-        .text-2xl,
-        .text-3xl,
-        .text-gray-700,
-        .text-gray-900,
-        .text-blue-900 {
-            font-family: 'Inter', sans-serif !important;
-        }
 
-        .icon-circle {
-            @apply w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl transition-all duration-200 ease-in-out shadow-sm;
-        }
-    </style>
 </head>
 
 <body class="bg-white text-gray-900">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <!-- Sidebar -->
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <!-- Top bar -->
             <?php require_once 'header.php' ?>
             <!-- Breadcrumb Navigation -->
@@ -197,19 +177,19 @@ if ($admin_id) {
             <!-- End Breadcrumb Navigation -->
 
             <!-- Content area -->
-            <div class="flex-1 flex items-center justify-center p-4 overflow-y-auto min-h-screen bg-gray-50">
-                <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6">
-                    <div class="border-b border-gray-200 mb-6">
-                        <nav class="flex space-x-8" aria-label="Tabs">
-                            <a href="#" id="tab-personal" onclick="showTab('personal-details-tab'); return false;"
-                                class="text-blue-600 border-b-2 border-blue-600 px-1 pb-2 font-medium">Personal
-                                Details</a>
-                            <a href="#" id="tab-reset" onclick="showTab('reset-password-tab'); return false;"
-                                class="text-gray-500 px-1 pb-2 font-medium">Reset Password</a>
-                        </nav>
-                    </div>
-                    <div id="personal-details-tab">
-                        <form id="profileForm" method="post" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="flex space-x-8" aria-label="Tabs">
+                        <a href="#" id="tab-personal" onclick="showTab('personal-details-tab'); return false;"
+                            class="no-loader  text-blue-600 border-b-2 border-blue-600 px-1 pb-2 font-medium">Personal
+                            Details</a>
+                        <a href="#" id="tab-reset" onclick="showTab('reset-password-tab'); return false;"
+                            class="no-loader text-gray-500 px-1 pb-2 font-medium">Reset Password</a>
+                    </nav>
+                </div>
+                <div id="personal-details-tab">
+                    <form id="profileForm" method="post">
+                        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span
                                         class="text-red-500">*</span></label>
@@ -314,77 +294,77 @@ if ($admin_id) {
                                     </label>
                                 </div>
                             </div>
-                            <div class="flex justify-end mt-6 space-x-2 md:col-span-4">
-                                <button type="button" onclick="window.location.href='dashboard.php'"
-                                    class="px-4 py-2 rounded bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors duration-200">Cancel</button>
-                                <button type="submit" name="update_profile"
-                                    class="px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors duration-200">Update</button>
+                        </div>
+                        <div class="flex justify-end mt-6 space-x-2 md:col-span-4">
+                            <button type="button" onclick="window.location.href='dashboard.php'"
+                                class="px-4 py-2 rounded bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors duration-200">Cancel</button>
+                            <button type="submit" name="update_profile"
+                                class="px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors duration-200">Update</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="reset-password-tab" class="hidden">
+                    <div class="flex justify-center">
+                        <form method="post" class="full max-w-md">
+                            <?php if (!empty($success)) {
+                                echo '<div class="text-green-600 mb-4">' . $success . '</div>';
+                            } ?>
+                            <?php if (!empty($error)) {
+                                echo '<div class="text-red-600 mb-4">' . $error . '</div>';
+                            } ?>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-1">Current password <span
+                                        class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input type="password" name="current_password" id="current_password"
+                                        class="block w-full border border-gray-300 rounded-md py-2 pr-10 pl-3 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.25)] group-hover:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
+                                        placeholder="Enter Current password" required>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                                        onclick="togglePassword('current_password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-1">New password <span
+                                        class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input type="password" name="new_password" id="new_password"
+                                        class="block w-full border border-gray-300 rounded-md py-2 pr-10 pl-3 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.25)] group-hover:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
+                                        placeholder="Your password must be 8-20 characters long." required>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                                        onclick="togglePassword('new_password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-700 font-medium mb-1">Confirm new password <span
+                                        class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input type="password" name="confirm_password" id="confirm_password"
+                                        class="block w-full border border-gray-300 rounded-md py-2 pr-10 pl-3 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.25)] group-hover:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
+                                        placeholder="Confirm new password" required>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                                        onclick="togglePassword('confirm_password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" onclick="showTab('personal-details-tab')"
+                                    class="px-4 py-2 rounded bg-gray-200 text-gray-700 font-medium hover:bg-gray-300">
+                                    Cancel
+                                </button>
+                                <button type="submit" name="update_password"
+                                    class="px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700">
+                                    Update Password
+                                </button>
                             </div>
                         </form>
                     </div>
-                    <div id="reset-password-tab" class="hidden">
-                        <div class="flex justify-center">
-                            <form method="post" class="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
-                                <?php if (!empty($success)) {
-                                    echo '<div class="text-green-600 mb-4">' . $success . '</div>';
-                                } ?>
-                                <?php if (!empty($error)) {
-                                    echo '<div class="text-red-600 mb-4">' . $error . '</div>';
-                                } ?>
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-medium mb-1">Current password <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input type="password" name="current_password" id="current_password"
-                                            class="block w-full border border-gray-300 rounded-md py-2 pr-10 pl-3 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.25)] group-hover:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
-                                            placeholder="Enter Current password" required>
-                                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-                                            onclick="togglePassword('current_password', this)">
-                                            <i class="fas fa-eye"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-medium mb-1">New password <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input type="password" name="new_password" id="new_password"
-                                            class="block w-full border border-gray-300 rounded-md py-2 pr-10 pl-3 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.25)] group-hover:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
-                                            placeholder="Your password must be 8-20 characters long." required>
-                                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-                                            onclick="togglePassword('new_password', this)">
-                                            <i class="fas fa-eye"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="mb-6">
-                                    <label class="block text-gray-700 font-medium mb-1">Confirm new password <span
-                                            class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input type="password" name="confirm_password" id="confirm_password"
-                                            class="block w-full border border-gray-300 rounded-md py-2 pr-10 pl-3 focus:ring-blue-500 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.25)] group-hover:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
-                                            placeholder="Confirm new password" required>
-                                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-                                            onclick="togglePassword('confirm_password', this)">
-                                            <i class="fas fa-eye"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex justify-end space-x-2">
-                                    <button type="button" onclick="showTab('personal-details-tab')"
-                                        class="px-4 py-2 rounded bg-gray-200 text-gray-700 font-medium hover:bg-gray-300">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" name="update_password"
-                                        class="px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700">
-                                        Update Password
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
     <!-- Success Modal -->

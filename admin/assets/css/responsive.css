@@ -116,17 +116,6 @@ body {
         margin-bottom: 1rem;
     }
 
-    /* Input fields */
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="number"],
-    input[type="tel"] {
-        width: 100%;
-        padding: 0.75rem;
-        font-size: 16px !important;
-        border-radius: 0.5rem;
-    }
 
     /* Buttons */
     .btn {

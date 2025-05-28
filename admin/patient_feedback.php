@@ -23,7 +23,6 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patient Feedback - M&amp;A Oida Dental Clinic</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <?php require_once 'head.php' ?>
     <style>
