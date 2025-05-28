@@ -105,7 +105,7 @@ body {
         padding: 1rem !important;
     }
 
-    #sidebar {
+ /*    #sidebar {
         position: fixed;
         left: -100%;
         top: 0;
@@ -122,7 +122,6 @@ body {
         left: 0;
     }
 
-    /* Sidebar navigation */
     #sidebar nav span:not(.notification-badge) {
         display: block;
     }
@@ -161,7 +160,7 @@ body {
         margin-left: 0.5rem;
     }
 
-    /* Overlay for mobile sidebar */
+
     .sidebar-overlay {
         display: none;
         position: fixed;
@@ -175,7 +174,7 @@ body {
 
     .sidebar-overlay.show {
         display: block;
-    }
+    } */
 
     /* Form layout improvements */
     .grid {

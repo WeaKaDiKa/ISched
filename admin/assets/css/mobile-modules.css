@@ -21,7 +21,6 @@
         padding: 0 !important;
         margin: 0;
         border-radius: 8px;
-        z-index: 60;
         -webkit-tap-highlight-color: transparent;
     }
 
@@ -29,7 +28,7 @@
         background-color: rgba(0, 0, 0, 0.05);
     }
 
-    /* Sidebar */
+    /* Sidebar *
     #sidebar {
         position: fixed !important;
         left: -100% !important;
@@ -43,7 +42,7 @@
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1) !important;
         overflow-y: auto !important;
         padding-top: 60px !important;
-        /* Add space for fixed header */
+
     }
 
     #sidebar.show {
@@ -67,7 +66,7 @@
         display: block;
     }
 
-    /* Typography */
+  */
     h1 {
         font-size: 1.5rem !important;
     }

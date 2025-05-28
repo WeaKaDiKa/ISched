@@ -20,6 +20,10 @@ try {
 <header class="flex items-center justify-between bg-blue-300 px-6 py-3 border-b border-gray-300">
     <!-- Welcome Message Section -->
     <div class="flex items-center space-x-3 text-gray-900 text-sm font-normal">
+        <button id="sidebarToggle" aria-label="Toggle menu"
+            class="text-blue-600 hover:text-blue-700 focus:outline-none md:hidden block">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
         <span class="lg:block hidden"><?php echo $greeting; ?></span>
         <span class="font-bold text-gray-900 text-base sm:block hidden">
             <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>!

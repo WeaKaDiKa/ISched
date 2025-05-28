@@ -137,22 +137,10 @@ if ($admin_id) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <title>M&amp;A Oida Dental Clinic Dashboard</title>
-       <?php require_once 'head.php' ?>
+    <?php require_once 'head.php' ?>
 
     <style>
         @media (max-width: 768px) {
-            #sidebar {
-                position: fixed;
-                left: -256px;
-                top: 0;
-                bottom: 0;
-                z-index: 50;
-                transition: left 0.3s ease;
-            }
-
-            #sidebar.active {
-                left: 0;
-            }
 
             .main-content {
                 margin-left: 0 !important;
