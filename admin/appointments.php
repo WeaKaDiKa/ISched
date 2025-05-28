@@ -231,10 +231,10 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
 </head>
 
 <body class="bg-white text-gray-900">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="overflow-x-hidden">
             <?php require_once 'header.php' ?>
 
             <!-- Breadcrumb Navigation -->
@@ -256,7 +256,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
 
 
             <!-- Content area -->
-            <div class="flex-1 overflow-hidden bg-gray-100">
+            <div class="bg-gray-100 overflow-x-hidden">
                 <!-- Appointments Table Section -->
                 <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
                     <div class="flex justify-between items-center mb-3">
@@ -272,28 +272,30 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                         </div> -->
                     </div>
 
-                    <div class="appointments-tabs mb-6">
+                    <div class="flex flex-col md:flex-row mb-6">
+
                         <button type="button" onclick="showSection('pending')" id="pending-btn"
-                            class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold">
+                            class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
                             <i class="fas fa-clock mr-2"></i>Pending
                         </button>
                         <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
-                            class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold">
+                            class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
                             <i class="fas fa-calendar-check mr-2"></i>Upcoming
                         </button>
                         <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
-                            class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold">
+                            class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
                             <i class="fas fa-calendar-alt mr-2"></i>Rescheduled
                         </button>
                         <button type="button" onclick="showSection('canceled')" id="canceled-btn"
                             class="action-button bg-red-700 hover:bg-red-800 text-white font-semibold">
                             <i class="fas fa-times-circle mr-2"></i>Canceled
                         </button>
+
                     </div>
 
-                    <div class="appointments-sections relative w-full">
-                        <div id="pending-section" class="w-full" style="display:block;">
-                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                    <div class="my-4 w-full overflow-x-scroll">
+                        <div id="pending-section" class="w-full block">
+                            <div class="appointments-table-container" >
                                 <table id="appointmentsTable1" class="appointments-table display">
 
                                     <thead>
@@ -413,7 +415,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                         </div>
 
                         <div id="upcoming-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                            <div class="appointments-table-container" >
                                 <table id="appointmentsTable" class="appointments-table display">
 
                                     <thead>
@@ -493,7 +495,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
 
 
                         <div id="rescheduled-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                            <div class="appointments-table-container" >
                                 <table id="appointmentsTable2" class="appointments-table display">
 
                                     <thead>
@@ -599,7 +601,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                         </div>
 
                         <div id="canceled-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" style="max-height: 80vh; overflow-y: auto;">
+                            <div class="appointments-table-container" >
                                 <table id="appointmentsTable3" class="appointments-table display">
 
                                     <thead>

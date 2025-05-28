@@ -217,15 +217,15 @@ $role = $_SESSION['admin_type'] ?? '';
 </aside>
 
 <script>
-    // Sidebar toggle logic
+/*     // Sidebar toggle logic
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('sidebarToggle');
     toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('active');
     });
+ */
 
-
-    const currentPage = window.location.pathname.split('/').pop();
+  /*   const currentPage = window.location.pathname.split('/').pop();
     const navMap = {
         'dashboard.php': 'nav-dashboard',
         'appointments.php': 'nav-appointments',
@@ -235,7 +235,7 @@ $role = $_SESSION['admin_type'] ?? '';
     };
     if (navMap[currentPage]) {
         document.getElementById(navMap[currentPage]).classList.add('active');
-    }// Mobile sidebar toggle
+    } */
 
     document.addEventListener('DOMContentLoaded', function () {
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -264,7 +264,7 @@ $role = $_SESSION['admin_type'] ?? '';
             }
         });
 
-        // Add touch swipe support for mobile
+    /*     // Add touch swipe support for mobile
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -291,7 +291,7 @@ $role = $_SESSION['admin_type'] ?? '';
                 }
             }
         }
-
+ */
         // Add loading indicator for better UX
         document.addEventListener('click', function (event) {
             const link = event.target.closest('a');
