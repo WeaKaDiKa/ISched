@@ -430,14 +430,13 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
     /* Improve touch targets */
     button, 
     .btn,
     a {
-        min-height: 44px;
-        min-width: 44px;
         padding: 12px;
     }
     
