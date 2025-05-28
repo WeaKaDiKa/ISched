@@ -25,7 +25,7 @@
     }
 
     #sidebarToggle {
-        display: flex !important;
+      
         align-items: center;
         justify-content: center;
         width: 44px;

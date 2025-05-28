@@ -13,21 +13,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     header('Location: patient_feedback.php');
     exit;
 }
-// Fetch all feedbacks
-$sql = "SELECT * FROM reviews ORDER BY rating DESC, date DESC";
-$result = $conn->query($sql);
-// Mark all unseen feedback as seen
-$conn->query("UPDATE reviews SET is_seen = 1 WHERE is_seen = 0");
-// Dynamic greeting based on time of day (Asia/Manila)
-date_default_timezone_set('Asia/Manila');
-$hour = (int) date('G');
-if ($hour >= 5 && $hour < 12) {
-    $greeting = 'Good Morning,';
-} elseif ($hour >= 12 && $hour < 18) {
-    $greeting = 'Good Afternoon,';
-} else {
-    $greeting = 'Good Evening,';
-}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -232,11 +219,11 @@ if ($hour >= 5 && $hour < 12) {
 </head>
 
 <body class="bg-white text-gray-900">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <!-- Sidebar -->
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <!-- Top bar -->
             <?php require_once 'header.php' ?>
             <!-- Breadcrumb Navigation -->
@@ -246,51 +233,69 @@ if ($hour >= 5 && $hour < 12) {
             ?>
             <!-- End Breadcrumb Navigation -->
             <!-- Content area -->
-            <div class="flex-1 flex flex-col items-center justify-start bg-gray-100 w-full min-h-0">
-                <section class="w-full max-w-5xl mx-auto bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <h1 class="text-blue-900 font-bold text-lg select-none">Patient Feedback</h1>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-xs text-left border-collapse">
-                            <thead class="bg-gray-100 text-gray-700">
-                                <tr>
-                                    <th class="px-4 py-2">Name</th>
-                                    <th class="px-4 py-2">Rating</th>
-                                    <th class="px-4 py-2">Feedback</th>
-                                    <th class="px-4 py-2">Services</th>
-                                    <th class="px-4 py-2">Date</th>
+
+            <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h1 class="text-blue-900 font-bold text-lg select-none">Patient Feedback</h1>
+                </div>
+                <div class="my-4 w-full overflow-x-scroll">
+                    <table id="feedbackTable" class="min-w-full text-xs text-left border-collapse">
+                        <thead class="bg-gray-100 text-gray-700">
+                            <tr>
+                                <th class="px-4 py-2">Name</th>
+                                <th class="px-4 py-2">Rating</th>
+                                <th class="px-4 py-2">Feedback</th>
+                                <th class="px-4 py-2">Services</th>
+                                <th class="px-4 py-2">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+
+                            $conn->query("UPDATE reviews SET is_seen = 1 WHERE is_seen = 0");
+
+                            $sql = "SELECT * FROM reviews ORDER BY rating DESC, date DESC";
+                            $result = $conn->query($sql);
+
+                    
+                            while ($row = $result->fetch_assoc()): ?>
+                                <tr class="border-b hover:bg-blue-50">
+                                    <td class="px-4 py-2 font-semibold text-gray-900">
+                                        <?= htmlspecialchars($row['name']) ?>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <?php for ($i = 0; $i < $row['rating']; $i++)
+                                            echo '<i class="fas fa-star text-yellow-400"></i>'; ?>
+                                        <?php for ($i = $row['rating']; $i < 5; $i++)
+                                            echo '<i class="far fa-star text-gray-300"></i>'; ?>
+                                    </td>
+                                    <td class="px-4 py-2 text-gray-700 max-w-xs truncate"
+                                        title="<?= htmlspecialchars($row['text']) ?>">
+                                        <?= htmlspecialchars($row['text']) ?>
+                                    </td>
+                                    <td class="px-4 py-2 text-gray-600">
+                                        <?= htmlspecialchars($row['services']) ?>
+                                    </td>
+                                    <td class="px-4 py-2 text-gray-500">
+                                        <?= date('Y-m-d', strtotime($row['date'])) ?>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody id="feedback-table-body">
-                                <?php while ($row = $result->fetch_assoc()): ?>
-                                    <tr class="border-b hover:bg-blue-50">
-                                        <td class="px-4 py-2 font-semibold text-gray-900">
-                                            <?= htmlspecialchars($row['name']) ?>
-                                        </td>
-                                        <td class="px-4 py-2">
-                                            <?php for ($i = 0; $i < $row['rating']; $i++)
-                                                echo '<i class="fas fa-star text-yellow-400"></i>'; ?>
-                                            <?php for ($i = $row['rating']; $i < 5; $i++)
-                                                echo '<i class="far fa-star text-gray-300"></i>'; ?>
-                                        </td>
-                                        <td class="px-4 py-2 text-gray-700 max-w-xs truncate"
-                                            title="<?= htmlspecialchars($row['text']) ?>">
-                                            <?= htmlspecialchars($row['text']) ?>
-                                        </td>
-                                        <td class="px-4 py-2 text-gray-600">
-                                            <?= htmlspecialchars($row['services']) ?>
-                                        </td>
-                                        <td class="px-4 py-2 text-gray-500">
-                                            <?= date('Y-m-d', strtotime($row['date'])) ?>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+
+                    <script>
+                        $(document).ready(function () {
+                            $('#feedbackTable').DataTable({
+                                responsive: true,
+                                pageLength: 10
+                            });
+                        });
+                    </script>
+
+                </div>
+            </section>
+
         </main>
     </div>
     <!-- Success Modal for Feedback Actions -->

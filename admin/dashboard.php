@@ -165,7 +165,7 @@ if ($admin_id) {
 
 
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <!-- Top bar -->
             <?php require_once 'header.php'; ?>
             <!-- Content area -->

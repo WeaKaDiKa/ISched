@@ -25,10 +25,10 @@ $patients = $patientModel->getAllPatients();
 </head>
 
 <body class="bg-white text-gray-900">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <!-- Top bar -->
             <?php require_once 'header.php' ?>
             <!-- Breadcrumb -->
@@ -48,291 +48,186 @@ $patients = $patientModel->getAllPatients();
                 </ol>
             </nav>
 
-            <!-- Content area -->
-            <div class="flex-1 overflow-y-auto p-4">
-                <div class="w-full max-w-6xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <input type="text" id="searchInput" placeholder="Search patients..."
-                                    class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
-                                    style="background-color: white !important; color: #333 !important;">
-                                <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-                            </div>
+            <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+
+                <div class="flex justify-between items-center mb-3">
+                    <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Search patients..."
+                                class="w-64 px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                                style="background-color: white !important; color: #333 !important;">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                         </div>
                     </div>
+                </div>
 
-                    <!--        <?php
-                    // AND a.status = 'completed'
-                    /*     $query = "SELECT p.*, pp.* 
-              FROM patients p 
-              LEFT JOIN patient_profiles pp ON p.id = pp.patient_id
-              LEFT JOIN appointments a ON p.id = a.patient_id
-              GROUP BY p.id
-              ORDER BY p.first_name ASC";
-
-                        $stmt = $conn->prepare($query);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $patients = [];
-                        if ($result && $result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                $patients[] = $row;
-                            }
-                        } */
-                    ?>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <?php //foreach ($patients as $patient): ?>
-                            <?php
-                            /*                         // Fetch patient's approved appointments
-                                                    $query2 = "SELECT a.*, 
-                               CONCAT(d.first_name, ' ', d.last_name) AS doctor_name
-                        FROM appointments a 
-                        LEFT JOIN doctors d ON a.doctor_id = d.id
-                        WHERE a.patient_id = ? AND a.status = 'approved'
-                        ORDER BY a.appointment_date DESC, a.appointment_time DESC
-                        ";
-
-                                                    $stmt2 = $conn->prepare($query2);
-                                                    $stmt2->bind_param("i", $patient['id']);
-                                                    $stmt2->execute();
-                                                    $result2 = $stmt2->get_result();
-                                                    $patientAppointments = [];
-                                                    if ($result2 && $result2->num_rows > 0) {
-                                                        while ($apt = $result2->fetch_assoc()) {
-                                                            $patientAppointments[] = $apt;
-                                                        }
-                                                    } */
-                            ?>
-
-                            <div
-                                class="patient-card bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all">
-                                <div class="flex items-center space-x-3 mb-3">
-                                    <img src="<?php echo !empty($patient['profile_photo']) ? htmlspecialchars($patient['profile_photo']) : 'assets/photo/default_avatar.png'; ?>"
-                                        alt="<?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>"
-                                        class="w-12 h-12 rounded-full object-cover">
-                                    <div>
-                                        <h3 class="text-gray-900 font-medium">
-                                            <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
-                                        </h3>
-
-                                        <p class="text-sm text-gray-500">
-                                            Patient ID: <?php echo htmlspecialchars($patient['id']); ?>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <?php if (!empty($patientAppointments)): ?>
-                                    <div class="mt-3">
-                                        <h4 class="text-sm font-medium text-gray-700 mb-2">Approved Appointments:</h4>
-                                        <div class="space-y-2">
-                                            <?php foreach ($patientAppointments as $apt): ?>
-                                                <div class="bg-green-50 rounded-md p-2 border border-green-200">
-                                                    <div class="flex justify-between items-center">
-                                                        <div class="text-sm">
-                                                            <div class="font-medium text-green-800">
-                                                                <?php echo date('M j, Y', strtotime($apt['appointment_date'])); ?>
-                                                            </div>
-                                                            <div class="text-green-700">
-                                                                <?php echo date('g:i A', strtotime($apt['appointment_time'])); ?>
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="text-right text-sm">
-                                                            <div class="text-green-800">
-                                                                <?php echo htmlspecialchars($apt['service_name']); ?>
-                                                            </div>
-                                                            <div class="text-green-700">
-                                                                Dr. <?php echo htmlspecialchars($apt['doctor_name']); ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="mt-4 flex justify-end">
-                                    <button onclick="viewPatientDetails(<?php echo htmlspecialchars($patient['id']); ?>)"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        View Details <i class="fas fa-chevron-right ml-1"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        <?php // endforeach; ?>
-                        <?php //if (empty($patients)): ?>
-                            <p class="text-red-500">No patients found.</p>
-                        <?php //endif; ?> -->
-
-                    <?php
-                    $query = "SELECT p.*, pp.* 
+                <?php
+                $query = "SELECT p.*, pp.* 
     FROM patients p 
     LEFT JOIN patient_profiles pp ON p.id = pp.patient_id
     LEFT JOIN appointments a ON p.id = a.patient_id
     GROUP BY p.id
     ORDER BY p.first_name ASC";
 
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $patients = [];
-                    if ($result && $result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            $patients[] = $row;
-                        }
+                $stmt = $conn->prepare($query);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $patients = [];
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $patients[] = $row;
                     }
-                    ?>
+                }
+                ?>
 
-                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                        <table id="patientTable" class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Patient Name</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Gender</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Contact Number</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php foreach ($patients as $patient): ?>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                                    <?php if (!empty($patient['profile_picture'])): ?>
-                                                        <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>"
-                                                            alt="Profile" class="h-10 w-10 rounded-full">
-                                                    <?php else: ?>
-                                                        <i class="fas fa-user text-gray-400"></i>
-                                                    <?php endif; ?>
+                <div class="my-4 w-full overflow-x-scroll">
+                    <table id="patientTable" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Patient Name</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Gender</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Contact Number</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($patients as $patient): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div
+                                                class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <?php if (!empty($patient['profile_picture'])): ?>
+                                                    <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>"
+                                                        alt="Profile" class="h-10 w-10 rounded-full">
+                                                <?php else: ?>
+                                                    <i class="fas fa-user text-gray-400"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
-                                                    </div>
-                                                    <div class="text-sm text-gray-500">
-                                                        <?php echo htmlspecialchars($patient['email'] ?? 'No email'); ?>
-                                                    </div>
+                                                <div class="text-sm text-gray-500">
+                                                    <?php echo htmlspecialchars($patient['email'] ?? 'No email'); ?>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                <?php echo htmlspecialchars($patient['gender'] ?? 'Not specified'); ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <?php echo htmlspecialchars($patient['phone_number'] ?? 'No phone number'); ?>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2"
-                                                onclick="viewPatient('<?= $patient['id'] ?>')">
-                                                <i class="fas fa-eye mr-1"></i> View
-                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            <?php echo htmlspecialchars($patient['gender'] ?? 'Not specified'); ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?php echo htmlspecialchars($patient['phone_number'] ?? 'No phone number'); ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button
+                                            class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2"
+                                            onclick="viewPatient('<?= $patient['id'] ?>')">
+                                            <i class="fas fa-eye mr-1"></i> View
+                                        </button>
 
-                                            <!--       <a href="edit_patient.php?id=<?php //echo $patient['id']; ?>"
+                                        <!--       <a href="edit_patient.php?id=<?php //echo $patient['id']; ?>"
                                                 class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md">
                                                 <i class="fas fa-edit mr-1"></i> Edit
                                             </a> -->
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <script>
-                        $(document).ready(function () {
-                            // Initialize DataTable with custom options
-                            $('#patientTable').DataTable({
-                                "pageLength": 10,
-                                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                                "order": [[0, "asc"]],
-                                "language": {
-                                    "search": "_INPUT_",
-                                    "searchPlaceholder": "Search patients...",
-                                    "lengthMenu": "Show _MENU_ entries",
-                                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
-                                    "infoEmpty": "Showing 0 to 0 of 0 entries",
-                                    "infoFiltered": "(filtered from _MAX_ total entries)"
-                                },
-                                "dom": '<"flex justify-between items-center mb-4"<"flex-1"l><"flex-1 text-right"f>>rt<"flex justify-between items-center"<"flex-1"i><"flex-1 text-right"p>>',
-                                "responsive": true,
-                                "initComplete": function () {
-                                    // Replace the default search box with our custom one
-                                    $('.dataTables_filter').hide();
-                                    $('#searchInput').on('keyup', function () {
-                                        $('#patientTable').DataTable().search($(this).val()).draw();
-                                    });
-                                }
-                            });
-                        });
-                        function viewPatient(patientId) {
-                            fetch('getpatient.php?id=' + encodeURIComponent(patientId))
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.error) {
-                                        alert(data.error);
-                                        return;
-                                    }
-
-                                    document.getElementById('modalPatientName').textContent = data.name;
-                                    document.getElementById('modalPatientId').textContent = 'Patient ID: ' + data.id;
-                                    document.getElementById('modalPatientImage').src = data.image || 'assets/photo/default_avatar.png';
-
-                                    document.getElementById('upcomingAppointments').innerHTML =
-                                        (data.upcoming.length > 0)
-                                            ? data.upcoming.map(a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('')
-                                            : '<div class="text-gray-500 italic">No upcoming appointments.</div>';
-
-                                    document.getElementById('appointmentHistory').innerHTML =
-                                        (data.past.length > 0)
-                                            ? data.past.map(a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('')
-                                            : '<div class="text-gray-500 italic">No past appointments.</div>';
-
-                                    const med = data.medical || {};
-
-                                    document.getElementById('med_patient_id').value = med.patient_id || patientId;
-                                    document.getElementById('blood_type').value = med.blood_type || '';
-                                    document.getElementById('allergies').value = med.allergies || '';
-                                    document.getElementById('blood_pressure').value = med.blood_pressure || '';
-                                    document.getElementById('heart_disease').value = med.heart_disease || '';
-                                    document.getElementById('diabetes').value = med.diabetes || '';
-                                    document.getElementById('current_medications').value = med.current_medications || '';
-                                    document.getElementById('medical_conditions').value = med.medical_conditions || '';
-                                    document.getElementById('last_physical_exam').value = med.last_physical_exam || '';
-
-                                    document.getElementById('patientModal').classList.remove('hidden');
-                                })
-                                .catch(err => {
-                                    console.error(err);
-                                    alert('Failed to load patient data.');
-                                });
-                        }
-
-                        // Close modal
-                        document.getElementById('closeModal').addEventListener('click', function () {
-                            document.getElementById('patientModal').classList.add('hidden');
-                        });
-                    </script>
-
-
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+
+                <script>
+                    $(document).ready(function () {
+                        // Initialize DataTable with custom options
+                        $('#patientTable').DataTable({
+                            "pageLength": 10,
+                            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                            "order": [[0, "asc"]],
+                            "language": {
+                                "search": "_INPUT_",
+                                "searchPlaceholder": "Search patients...",
+                                "lengthMenu": "Show _MENU_ entries",
+                                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                                "infoEmpty": "Showing 0 to 0 of 0 entries",
+                                "infoFiltered": "(filtered from _MAX_ total entries)"
+                            },
+                            "dom": '<"flex justify-between items-center mb-4"<"flex-1"l><"flex-1 text-right"f>>rt<"flex justify-between items-center"<"flex-1"i><"flex-1 text-right"p>>',
+                            "responsive": true,
+                            "initComplete": function () {
+                                // Replace the default search box with our custom one
+                                $('.dataTables_filter').hide();
+                                $('#searchInput').on('keyup', function () {
+                                    $('#patientTable').DataTable().search($(this).val()).draw();
+                                });
+                            }
+                        });
+                    });
+                    function viewPatient(patientId) {
+                        fetch('getpatient.php?id=' + encodeURIComponent(patientId))
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.error) {
+                                    alert(data.error);
+                                    return;
+                                }
+
+                                document.getElementById('modalPatientName').textContent = data.name;
+                                document.getElementById('modalPatientId').textContent = 'Patient ID: ' + data.id;
+                                document.getElementById('modalPatientImage').src = data.image || 'assets/photo/default_avatar.png';
+
+                                document.getElementById('upcomingAppointments').innerHTML =
+                                    (data.upcoming.length > 0)
+                                        ? data.upcoming.map(a => `<div class="bg-blue-100 p-2 rounded">${a}</div>`).join('')
+                                        : '<div class="text-gray-500 italic">No upcoming appointments.</div>';
+
+                                document.getElementById('appointmentHistory').innerHTML =
+                                    (data.past.length > 0)
+                                        ? data.past.map(a => `<div class="bg-gray-100 p-2 rounded">${a}</div>`).join('')
+                                        : '<div class="text-gray-500 italic">No past appointments.</div>';
+
+                                const med = data.medical || {};
+
+                                document.getElementById('med_patient_id').value = med.patient_id || patientId;
+                                document.getElementById('blood_type').value = med.blood_type || '';
+                                document.getElementById('allergies').value = med.allergies || '';
+                                document.getElementById('blood_pressure').value = med.blood_pressure || '';
+                                document.getElementById('heart_disease').value = med.heart_disease || '';
+                                document.getElementById('diabetes').value = med.diabetes || '';
+                                document.getElementById('current_medications').value = med.current_medications || '';
+                                document.getElementById('medical_conditions').value = med.medical_conditions || '';
+                                document.getElementById('last_physical_exam').value = med.last_physical_exam || '';
+
+                                document.getElementById('patientModal').classList.remove('hidden');
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert('Failed to load patient data.');
+                            });
+                    }
+
+                    // Close modal
+                    document.getElementById('closeModal').addEventListener('click', function () {
+                        document.getElementById('patientModal').classList.add('hidden');
+                    });
+                </script>
+
+
+            </section>
+
         </main>
     </div>
 
@@ -537,12 +432,12 @@ $patients = $patientModel->getAllPatients();
                             <h3>LAST INTRAORAL EXAMINATION</h3>
 
                             <form class="space-y-8 bg-white p-6 rounded-lg shadow">
-                   
+
                                 <div>
                                     <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Upper)</h2>
                                     <div class="grid grid-cols-10 gap-2">
                                         <template id="tooth-input-template"></template>
-                            
+
                                         <input type="text" name="tooth[55]" placeholder="55"
                                             class="text-center border rounded p-1" />
                                         <input type="text" name="tooth[54]" placeholder="54"
@@ -711,7 +606,7 @@ $patients = $patientModel->getAllPatients();
                                     </tr>
                                 </table>
 
-           
+
                                 <div class="section-title">Additional Notes</div>
                                 <ul>
                                     <li><strong>Periodontal Screening:</strong>

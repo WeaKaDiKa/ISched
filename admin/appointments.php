@@ -137,37 +137,12 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 overflow-y: auto;
             }
 
-            /* Better form inputs */
-            input[type="text"],
-            input[type="date"],
-            input[type="time"],
-            select,
-            textarea {
-                width: 100%;
-                padding: 12px;
-                font-size: 16px;
-                border-radius: 4px;
-                margin-bottom: 10px;
-            }
 
             /* Improve calendar view */
             .calendar-container {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 10px 0;
-            }
-
-            /* Better navigation */
-            .nav-tabs {
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
-                padding: 10px 0;
-            }
-
-            .nav-item {
-                display: inline-block;
-                margin-right: 10px;
             }
 
             /* Loading states */
@@ -184,14 +159,6 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
 
         .action-button {
             padding: 5px;
-        }
-
-        /* DataTables input and select to white background */
-        .dataTables_wrapper .dataTables_filter input,
-        .dataTables_wrapper .dataTables_length select {
-            background-color: #fff !important;
-            color: #222 !important;
-            border: 1px solid #ccc !important;
         }
     </style>
     <script>
@@ -234,7 +201,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
     <div class="flex h-screen">
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="overflow-x-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <?php require_once 'header.php' ?>
 
             <!-- Breadcrumb Navigation -->
@@ -254,445 +221,438 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 </ol>
             </nav>
 
-
-            <!-- Content area -->
-            <div class="bg-gray-100 overflow-x-hidden">
-                <!-- Appointments Table Section -->
-                <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <h1 class="text-blue-900 font-bold text-lg select-none">
-                            Appointments
-                        </h1>
-                        <!--    <div class="relative">
+            <!-- Appointments Table Section -->
+            <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h1 class="text-blue-900 font-bold text-lg select-none">
+                        Appointments
+                    </h1>
+                    <!--    <div class="relative">
                             <input aria-label="Search"
                                 class="border border-gray-400 rounded text-sm pl-7 pr-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-600"
                                 placeholder="Search appointments..." type="text" />
                             <i aria-hidden="true"
                                 class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-gray-600 text-xs"></i>
                         </div> -->
-                    </div>
+                </div>
 
-                    <div class="flex flex-col md:flex-row mb-6">
+                <div class="flex flex-col md:flex-row mb-6">
 
-                        <button type="button" onclick="showSection('pending')" id="pending-btn"
-                            class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
-                            <i class="fas fa-clock mr-2"></i>Pending
-                        </button>
-                        <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
-                            class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
-                            <i class="fas fa-calendar-check mr-2"></i>Upcoming
-                        </button>
-                        <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
-                            class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
-                            <i class="fas fa-calendar-alt mr-2"></i>Rescheduled
-                        </button>
-                        <button type="button" onclick="showSection('canceled')" id="canceled-btn"
-                            class="action-button bg-red-700 hover:bg-red-800 text-white font-semibold">
-                            <i class="fas fa-times-circle mr-2"></i>Canceled
-                        </button>
+                    <button type="button" onclick="showSection('pending')" id="pending-btn"
+                        class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
+                        <i class="fas fa-clock mr-2"></i>Pending
+                    </button>
+                    <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
+                        class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
+                        <i class="fas fa-calendar-check mr-2"></i>Upcoming
+                    </button>
+                    <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
+                        class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
+                        <i class="fas fa-calendar-alt mr-2"></i>Rescheduled
+                    </button>
+                    <button type="button" onclick="showSection('canceled')" id="canceled-btn"
+                        class="action-button bg-red-700 hover:bg-red-800 text-white font-semibold">
+                        <i class="fas fa-times-circle mr-2"></i>Canceled
+                    </button>
 
-                    </div>
+                </div>
 
-                    <div class="my-4 w-full overflow-x-scroll">
-                        <div id="pending-section" class="w-full block">
-                            <div class="appointments-table-container" >
-                                <table id="appointmentsTable1" class="appointments-table display">
+                <div class="my-4 w-full overflow-x-scroll">
+                    <div id="pending-section" class="w-full block">
+                        <div class="appointments-table-container p-2">
+                            <table id="appointmentsTable1" class="appointments-table display">
 
-                                    <thead>
-                                        <tr class="bg-gray-50 border-b border-gray-300">
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Booking Ref No.</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Patient Name</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Service</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Date</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Time</th>
-                                            <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        // Fetch pending appointments with debug info
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-300">
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Booking Ref No.</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Patient Name</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Service</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Date</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Time</th>
+                                        <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Fetch pending appointments with debug info
 // Simplified query to get ALL appointments regardless of status for debugging
-                                        $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
+                                    $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
                 p.first_name, p.middle_name, p.last_name, p.id as patient_id
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
         ORDER BY a.id DESC LIMIT 10";
 
-                                        // Debug SQL query
-                                        echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
-                                        $result = $conn->query($sql);
+                                    // Debug SQL query
+                                    echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
+                                    $result = $conn->query($sql);
 
-                                        if (!$result) {
-                                            echo "Error: " . $conn->error;
+                                    if (!$result) {
+                                        echo "Error: " . $conn->error;
+                                    }
+
+                                    // Debug all appointments in the database
+                                    $debug_sql = "SELECT id, patient_id, status FROM appointments ORDER BY id DESC LIMIT 10";
+                                    $debug_result = $conn->query($debug_sql);
+                                    if ($debug_result) {
+                                        echo "<!-- Recent appointments in database: ";
+                                        while ($debug_row = $debug_result->fetch_assoc()) {
+                                            echo "ID: {$debug_row['id']}, Patient: {$debug_row['patient_id']}, Status: {$debug_row['status']} | ";
                                         }
+                                        echo " -->";
+                                    }
 
-                                        // Debug all appointments in the database
-                                        $debug_sql = "SELECT id, patient_id, status FROM appointments ORDER BY id DESC LIMIT 10";
-                                        $debug_result = $conn->query($debug_sql);
-                                        if ($debug_result) {
-                                            echo "<!-- Recent appointments in database: ";
-                                            while ($debug_row = $debug_result->fetch_assoc()) {
-                                                echo "ID: {$debug_row['id']}, Patient: {$debug_row['patient_id']}, Status: {$debug_row['status']} | ";
-                                            }
-                                            echo " -->";
-                                        }
+                                    if ($result && $result->num_rows > 0):
+                                        // Debug count
+                                        echo "<!-- Found " . $result->num_rows . " pending appointments -->";
+                                        while ($row = $result->fetch_assoc()):
+                                            // Debug row data
+                                            echo "<!-- Appointment data: " . json_encode($row) . " -->";
 
-                                        if ($result && $result->num_rows > 0):
-                                            // Debug count
-                                            echo "<!-- Found " . $result->num_rows . " pending appointments -->";
-                                            while ($row = $result->fetch_assoc()):
-                                                // Debug row data
-                                                echo "<!-- Appointment data: " . json_encode($row) . " -->";
-
-                                                $patientName = trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']);
-                                                $ref = $row['reference_number'] ?? ('APP-' . date('Y') . '-' . str_pad($row['id'], 5, '0', STR_PAD_LEFT));
-                                                $service = $row['services'] ?? 'General Consultation';
-                                                $date = !empty($row['appointment_date']) ? date('F j, Y', strtotime($row['appointment_date'])) : date('F j, Y');
-                                                $time = !empty($row['appointment_time']) ? date('g:i A', strtotime($row['appointment_time'])) : '9:00 AM';
-                                                ?>
-                                                <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
-                                                    <td
-                                                        class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($ref); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($patientName); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($service); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($date); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($time); ?>
-                                                    </td>
-                                                    <td class="px-4 py-2 whitespace-nowrap flex items-center space-x-2">
-                                                        <button
-                                                            class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
-                                                            type="button" title="Approve"
-                                                            onclick="showConfirmModal('approve', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
-                                                                class="fas fa-check"></i></button>
-                                                        <button
-                                                            class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
-                                                            type="button" title="Decline"
-                                                            onclick="showConfirmModal('decline', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
-                                                                class="fas fa-times"></i></button>
-                                                        <button
-                                                            class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
-                                                            type="button" title="Details"
-                                                            onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch'] ?? 'Maligaya Park Branch') ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
-                                                            Details
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                            endwhile;
-                                        endif; ?>
-                                    </tbody>
-                                </table>
-                                <script>
-                                    $(document).ready(function () {
-                                        $('#appointmentsTable1').DataTable({
-                                            responsive: true,
-                                            pageLength: 10,
-                                            order: [[3, 'asc']], // Sort by Date (column index 3)
-                                        });
+                                            $patientName = trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']);
+                                            $ref = $row['reference_number'] ?? ('APP-' . date('Y') . '-' . str_pad($row['id'], 5, '0', STR_PAD_LEFT));
+                                            $service = $row['services'] ?? 'General Consultation';
+                                            $date = !empty($row['appointment_date']) ? date('F j, Y', strtotime($row['appointment_date'])) : date('F j, Y');
+                                            $time = !empty($row['appointment_time']) ? date('g:i A', strtotime($row['appointment_time'])) : '9:00 AM';
+                                            ?>
+                                            <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
+                                                <td class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($ref); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($patientName); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($service); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($date); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($time); ?>
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap flex items-center space-x-2">
+                                                    <button
+                                                        class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
+                                                        type="button" title="Approve"
+                                                        onclick="showConfirmModal('approve', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
+                                                            class="fas fa-check"></i></button>
+                                                    <button
+                                                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
+                                                        type="button" title="Decline"
+                                                        onclick="showConfirmModal('decline', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
+                                                            class="fas fa-times"></i></button>
+                                                    <button
+                                                        class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
+                                                        type="button" title="Details"
+                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch'] ?? 'Maligaya Park Branch') ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
+                                                        Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        endwhile;
+                                    endif; ?>
+                                </tbody>
+                            </table>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#appointmentsTable1').DataTable({
+                                        responsive: true,
+                                        pageLength: 10,
+                                        order: [[3, 'asc']], // Sort by Date (column index 3)
                                     });
-                                </script>
+                                });
+                            </script>
 
-                            </div>
                         </div>
+                    </div>
 
-                        <div id="upcoming-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" >
-                                <table id="appointmentsTable" class="appointments-table display">
+                    <div id="upcoming-section" class="w-full" style="display:none;">
+                        <div class="appointments-table-container">
+                            <table id="appointmentsTable" class="appointments-table display">
 
-                                    <thead>
-                                        <tr class="bg-gray-50 border-b border-gray-300">
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Booking Ref No.</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Patient Name</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Service</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Date</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Time</th>
-                                            <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        // Fetch upcoming appointments
-                                        $sql = "SELECT a.*, p.first_name, p.middle_name, p.last_name 
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-300">
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Booking Ref No.</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Patient Name</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Service</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Date</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Time</th>
+                                        <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Fetch upcoming appointments
+                                    $sql = "SELECT a.*, p.first_name, p.middle_name, p.last_name 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
         WHERE a.status IN ('upcoming', 'booked') 
         ORDER BY a.appointment_date ASC, a.appointment_time ASC";
-                                        $result = $conn->query($sql);
+                                    $result = $conn->query($sql);
 
-                                        if ($result && $result->num_rows > 0):
-                                            while ($row = $result->fetch_assoc()):
-                                                $patientName = trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']);
-                                                $ref = $row['reference_number'] ?? ('APP-' . date('Y') . '-' . str_pad($row['id'], 5, '0', STR_PAD_LEFT));
-                                                $service = $row['services'] ?? 'General Consultation';
-                                                $date = !empty($row['appointment_date']) ? date('F j, Y', strtotime($row['appointment_date'])) : date('F j, Y');
-                                                $time = !empty($row['appointment_time']) ? date('g:i A', strtotime($row['appointment_time'])) : '9:00 AM';
-                                                ?>
-                                                <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
-                                                    <td
-                                                        class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($ref); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($patientName); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($service); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($date); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($time); ?>
-                                                    </td>
-                                                    <td class="px-4 py-2 whitespace-nowrap text-green-700 font-bold">Approved
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                            endwhile;
-                                        endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    if ($result && $result->num_rows > 0):
+                                        while ($row = $result->fetch_assoc()):
+                                            $patientName = trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']);
+                                            $ref = $row['reference_number'] ?? ('APP-' . date('Y') . '-' . str_pad($row['id'], 5, '0', STR_PAD_LEFT));
+                                            $service = $row['services'] ?? 'General Consultation';
+                                            $date = !empty($row['appointment_date']) ? date('F j, Y', strtotime($row['appointment_date'])) : date('F j, Y');
+                                            $time = !empty($row['appointment_time']) ? date('g:i A', strtotime($row['appointment_time'])) : '9:00 AM';
+                                            ?>
+                                            <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
+                                                <td class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($ref); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($patientName); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($service); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($date); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($time); ?>
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-green-700 font-bold">Approved
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        endwhile;
+                                    endif; ?>
+                                </tbody>
+                            </table>
                         </div>
-                        <script>
-                            $(document).ready(function () {
-                                $('#appointmentsTable').DataTable({
-                                    responsive: true,
-                                    pageLength: 10,
-                                    order: [[3, 'asc']], // Sort by Date (column index 3)
-                                });
+                    </div>
+                    <script>
+                        $(document).ready(function () {
+                            $('#appointmentsTable').DataTable({
+                                responsive: true,
+                                pageLength: 10,
+                                order: [[3, 'asc']], // Sort by Date (column index 3)
                             });
-                        </script>
+                        });
+                    </script>
 
 
-                        <div id="rescheduled-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" >
-                                <table id="appointmentsTable2" class="appointments-table display">
+                    <div id="rescheduled-section" class="w-full" style="display:none;">
+                        <div class="appointments-table-container">
+                            <table id="appointmentsTable2" class="appointments-table display">
 
-                                    <thead>
-                                        <tr class="bg-gray-50 border-b border-gray-300">
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Booking Ref No.</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Patient Name</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Service</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Date</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Time</th>
-                                            <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        // Fetch rescheduled appointments
-                                        $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-300">
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Booking Ref No.</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Patient Name</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Service</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Date</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Time</th>
+                                        <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Fetch rescheduled appointments
+                                    $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
                 p.first_name, p.middle_name, p.last_name, p.id as patient_id 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
         WHERE a.parent_appointment_id IS NOT NULL AND a.parent_appointment_id > 0 
         ORDER BY a.appointment_date ASC, a.appointment_time ASC";
-                                        $result = $conn->query($sql);
+                                    $result = $conn->query($sql);
 
-                                        if ($result && $result->num_rows > 0):
-                                            while ($row = $result->fetch_assoc()):
-                                                $firstName = isset($row['first_name']) ? $row['first_name'] : '';
-                                                $middleName = isset($row['middle_name']) ? $row['middle_name'] . ' ' : '';
-                                                $lastName = isset($row['last_name']) ? $row['last_name'] : '';
-                                                $patientName = trim($firstName . ' ' . $middleName . $lastName);
-                                                $patientName = empty($patientName) ? 'N/A' : $patientName;
+                                    if ($result && $result->num_rows > 0):
+                                        while ($row = $result->fetch_assoc()):
+                                            $firstName = isset($row['first_name']) ? $row['first_name'] : '';
+                                            $middleName = isset($row['middle_name']) ? $row['middle_name'] . ' ' : '';
+                                            $lastName = isset($row['last_name']) ? $row['last_name'] : '';
+                                            $patientName = trim($firstName . ' ' . $middleName . $lastName);
+                                            $patientName = empty($patientName) ? 'N/A' : $patientName;
 
-                                                $ref = isset($row['reference_number']) ? $row['reference_number'] : 'N/A';
-                                                $service = isset($row['services']) ? $row['services'] : 'Not specified';
+                                            $ref = isset($row['reference_number']) ? $row['reference_number'] : 'N/A';
+                                            $service = isset($row['services']) ? $row['services'] : 'Not specified';
 
-                                                $date = isset($row['appointment_date']) && !empty($row['appointment_date']) ?
-                                                    date('F j, Y', strtotime($row['appointment_date'])) : 'Not set';
+                                            $date = isset($row['appointment_date']) && !empty($row['appointment_date']) ?
+                                                date('F j, Y', strtotime($row['appointment_date'])) : 'Not set';
 
-                                                $time = isset($row['appointment_time']) && !empty($row['appointment_time']) ?
-                                                    date('g:i A', strtotime($row['appointment_time'])) : 'Not set';
-                                                ?>
-                                                <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
-                                                    <td
-                                                        class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($ref); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($patientName); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($service); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($date); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($time); ?>
-                                                    </td>
-                                                    <td class="px-4 py-2 whitespace-nowrap flex items-center space-x-2">
-                                                        <button
-                                                            class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
-                                                            type="button" title="Approve"
-                                                            onclick="showConfirmModal('approve', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
-                                                                class="fas fa-check"></i></button>
-                                                        <button
-                                                            class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
-                                                            type="button" title="Decline"
-                                                            onclick="showConfirmModal('decline', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
-                                                                class="fas fa-times"></i></button>
-                                                        <button
-                                                            class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
-                                                            type="button" title="Details"
-                                                            onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch']) ?>','<?= htmlspecialchars($row['status']) ?>')">
-                                                            Details
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                            endwhile;
-                                        endif; ?>
-                                    </tbody>
-                                </table>
-                                <script>
-                                    $(document).ready(function () {
-                                        $('#appointmentsTable2').DataTable({
-                                            responsive: true,
-                                            pageLength: 10,
-                                            order: [[3, 'asc']], // Sort by Date (column index 3)
-                                        });
+                                            $time = isset($row['appointment_time']) && !empty($row['appointment_time']) ?
+                                                date('g:i A', strtotime($row['appointment_time'])) : 'Not set';
+                                            ?>
+                                            <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
+                                                <td class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($ref); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($patientName); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($service); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($date); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($time); ?>
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap flex items-center space-x-2">
+                                                    <button
+                                                        class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
+                                                        type="button" title="Approve"
+                                                        onclick="showConfirmModal('approve', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
+                                                            class="fas fa-check"></i></button>
+                                                    <button
+                                                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
+                                                        type="button" title="Decline"
+                                                        onclick="showConfirmModal('decline', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
+                                                            class="fas fa-times"></i></button>
+                                                    <button
+                                                        class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
+                                                        type="button" title="Details"
+                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch']) ?>','<?= htmlspecialchars($row['status']) ?>')">
+                                                        Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        endwhile;
+                                    endif; ?>
+                                </tbody>
+                            </table>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#appointmentsTable2').DataTable({
+                                        responsive: true,
+                                        pageLength: 10,
+                                        order: [[3, 'asc']], // Sort by Date (column index 3)
                                     });
-                                </script>
+                                });
+                            </script>
 
-                            </div>
                         </div>
+                    </div>
 
-                        <div id="canceled-section" class="w-full" style="display:none;">
-                            <div class="appointments-table-container" >
-                                <table id="appointmentsTable3" class="appointments-table display">
+                    <div id="canceled-section" class="w-full" style="display:none;">
+                        <div class="appointments-table-container">
+                            <table id="appointmentsTable3" class="appointments-table display">
 
-                                    <thead>
-                                        <tr class="bg-gray-50 border-b border-gray-300">
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Booking Ref No.</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Patient Name</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Service</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Date</th>
-                                            <th
-                                                class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
-                                                Time</th>
-                                            <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        // Fetch canceled appointments
-                                        $sql = "SELECT a.id, a.services, a.appointment_date, a.appointment_time, a.status,
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-300">
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Booking Ref No.</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Patient Name</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Service</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Date</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Time</th>
+                                        <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Fetch canceled appointments
+                                    $sql = "SELECT a.id, a.services, a.appointment_date, a.appointment_time, a.status,
                CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
                p.first_name, p.middle_name, p.last_name, p.id as patient_id 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
         WHERE a.status = 'cancelled' 
         ORDER BY a.appointment_date ASC, a.appointment_time ASC";
-                                        $result = $conn->query($sql);
+                                    $result = $conn->query($sql);
 
-                                        if ($result && $result->num_rows > 0):
-                                            while ($row = $result->fetch_assoc()):
-                                                $firstName = isset($row['first_name']) ? $row['first_name'] : '';
-                                                $middleName = isset($row['middle_name']) ? $row['middle_name'] . ' ' : '';
-                                                $lastName = isset($row['last_name']) ? $row['last_name'] : '';
-                                                $patientName = trim($firstName . ' ' . $middleName . $lastName);
-                                                $patientName = empty($patientName) ? 'N/A' : $patientName;
+                                    if ($result && $result->num_rows > 0):
+                                        while ($row = $result->fetch_assoc()):
+                                            $firstName = isset($row['first_name']) ? $row['first_name'] : '';
+                                            $middleName = isset($row['middle_name']) ? $row['middle_name'] . ' ' : '';
+                                            $lastName = isset($row['last_name']) ? $row['last_name'] : '';
+                                            $patientName = trim($firstName . ' ' . $middleName . $lastName);
+                                            $patientName = empty($patientName) ? 'N/A' : $patientName;
 
-                                                $ref = isset($row['reference_number']) ? $row['reference_number'] : 'N/A';
-                                                $service = isset($row['services']) ? $row['services'] : 'Not specified';
+                                            $ref = isset($row['reference_number']) ? $row['reference_number'] : 'N/A';
+                                            $service = isset($row['services']) ? $row['services'] : 'Not specified';
 
-                                                $date = isset($row['appointment_date']) && !empty($row['appointment_date']) ?
-                                                    date('F j, Y', strtotime($row['appointment_date'])) : 'Not set';
+                                            $date = isset($row['appointment_date']) && !empty($row['appointment_date']) ?
+                                                date('F j, Y', strtotime($row['appointment_date'])) : 'Not set';
 
-                                                $time = isset($row['appointment_time']) && !empty($row['appointment_time']) ?
-                                                    date('g:i A', strtotime($row['appointment_time'])) : 'Not set';
-                                                ?>
-                                                <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
-                                                    <td
-                                                        class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($ref); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($patientName); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($service); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($date); ?>
-                                                    </td>
-                                                    <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
-                                                        <?php echo htmlspecialchars($time); ?>
-                                                    </td>
-                                                    <td class="px-4 py-2 whitespace-nowrap text-red-700 font-bold">Cancelled
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                            endwhile;
-                                        endif; ?>
-                                    </tbody>
-                                </table>
-                                <script>
-                                    $(document).ready(function () {
-                                        $('#appointmentsTable3').DataTable({
-                                            responsive: true,
-                                            pageLength: 10,
-                                            order: [[3, 'asc']], // Sort by Date (column index 3)
-                                        });
+                                            $time = isset($row['appointment_time']) && !empty($row['appointment_time']) ?
+                                                date('g:i A', strtotime($row['appointment_time'])) : 'Not set';
+                                            ?>
+                                            <tr class="border-t border-gray-300 hover:bg-gray-50 transition-colors">
+                                                <td class="border-r border-gray-300 font-semibold px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($ref); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($patientName); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($service); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($date); ?>
+                                                </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($time); ?>
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-red-700 font-bold">Cancelled
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        endwhile;
+                                    endif; ?>
+                                </tbody>
+                            </table>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#appointmentsTable3').DataTable({
+                                        responsive: true,
+                                        pageLength: 10,
+                                        order: [[3, 'asc']], // Sort by Date (column index 3)
                                     });
-                                </script>
+                                });
+                            </script>
 
-                            </div>
                         </div>
                     </div>
-                </section>
-            </div>
+                </div>
+            </section>
+
         </main>
     </div>
     <!-- Appointment Details Modal -->
