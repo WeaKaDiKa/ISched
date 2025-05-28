@@ -13,7 +13,6 @@ body {
 .login-container {
     display: flex;
     background: #fff;
-    margin-left: 35px;
     border-radius: 18px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     gap: 120px;
