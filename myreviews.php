@@ -1,24 +1,24 @@
-<?php 
+<?php
 require_once('session.php');
 require_once('db.php');
 
 // 1) FETCH LOGGED‑IN USER
 $user = null;
 if (isset($_SESSION['user_id'])) {
-    $stmt = $conn->prepare("
+  $stmt = $conn->prepare("
       SELECT first_name, last_name, profile_picture 
         FROM patients 
        WHERE id = ?
     ");
-    $stmt->bind_param("i", $_SESSION['user_id']);
-    $stmt->execute();
-    $user = $stmt->get_result()->fetch_assoc() ?: null;
+  $stmt->bind_param("i", $_SESSION['user_id']);
+  $stmt->execute();
+  $user = $stmt->get_result()->fetch_assoc() ?: null;
 }
 
 // 2) FETCH ONLY THIS USER’S REVIEWS
 $reviews = [];
 if ($user) {
-    $stmt = $conn->prepare("
+  $stmt = $conn->prepare("
       SELECT 
         r.id,
         r.name,
@@ -33,13 +33,14 @@ if ($user) {
       WHERE r.patient_id = ?
       ORDER BY r.date DESC
     ");
-    $stmt->bind_param("i", $_SESSION['user_id']);
-    $stmt->execute();
-    $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+  $stmt->bind_param("i", $_SESSION['user_id']);
+  $stmt->execute();
+  $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -49,76 +50,72 @@ if ($user) {
   <link rel="stylesheet" href="assets/css/reviews.css">
 
   <script>
-    window.isLoggedIn      = <?= $user ? 'true' : 'false' ?>;
-    window.currentUserName = <?= $user 
-      ? json_encode($user['first_name'] . ' ' . $user['last_name']) 
-      : '""' 
-    ?>;
-    window.currentUserId   = <?= $currentUserId ?: 'null' ?>;
+    window.isLoggedIn = <?= $user ? 'true' : 'false' ?>;
+    window.currentUserName = <?= $user
+      ? json_encode($user['first_name'] . ' ' . $user['last_name'])
+      : '""'
+      ?>;
+    window.currentUserId = <?= $currentUserId ?: 'null' ?>;
   </script>
-  <link rel="stylesheet" href="assets/css/notification.css">\n</head>
+  <link rel="stylesheet" href="assets/css/notification.css">\n
+</head>
+
 <body>
 
   <!-- HEADER / NAV (copy exactly from reviews.php header) -->
   <header>
-  <nav class="navbar">
-    <a href="index.php" class="logo-link">
-      <img src="assets/photos/logo.jpg" alt="Logo" class="logo">
-    </a>
-
-    <?php if ($user !== null): ?>
-      <div class="welcome-message">
-        Welcome, <strong><?= htmlspecialchars($user['first_name']) ?>!</strong>
-      </div>
-    <?php endif; ?>
-
-    <ul class="nav-links">
-      <li><a href="index.php"      <?= basename($_SERVER['PHP_SELF'])=='index.php' ? 'class="active"' : '' ?>>Home</a></li>
-      <li><a href="services.php"   <?= basename($_SERVER['PHP_SELF'])=='services.php' ? 'class="active"' : '' ?>>Services</a></li>
-      <li><a href="about.php"      <?= basename($_SERVER['PHP_SELF'])=='about.php' ? 'class="active"' : '' ?>>About</a></li>
-      <li><a href="reviews.php" <?= in_array(basename($_SERVER['PHP_SELF']), ['reviews.php', 'myreviews.php']) ? 'class="active"' : '' ?>>Reviews</a></li>
-      <li><a href="contact.php"    <?= basename($_SERVER['PHP_SELF'])=='contact.php' ? 'class="active"' : '' ?>>Contact Us</a></li>
-    </ul>
-
-    <div class="nav-right">
-      <a href="<?= $user ? 'bookings.php' : 'login.php' ?>"
-         <?= $user ? '' : "onclick=\"alert('Please login to book an appointment.');\"" ?>>
-        <button class="book-now">Book Now</button>
+    <nav class="navbar">
+      <a href="index.php" class="logo-link">
+        <img src="assets/photos/logo.jpg" alt="Logo" class="logo">
       </a>
 
-      <?php if ($user): ?>
-        <div class="notification-wrapper">
-          <div class="notification-toggle"><i class="fa-solid fa-bell"></i></div>
-          <div class="notification-dropdown">
-            <p class="empty-message">No notifications yet</p>
-          </div>
+      <?php if ($user !== null): ?>
+        <div class="welcome-message">
+          Welcome, <strong><?= htmlspecialchars($user['first_name']) ?>!</strong>
         </div>
       <?php endif; ?>
 
-    <!-- PROFILE ICON -->
-<a href="<?= $user !== null ? 'profile.php' : 'login.php'; ?>"
-   <?= $user === null 
-        ? "onclick=\"alert('Please login to view profile.');\"" 
-        : '' ?>>
+      <ul class="nav-links">
+        <li><a href="index.php" <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'class="active"' : '' ?>>Home</a></li>
+        <li><a href="services.php" <?= basename($_SERVER['PHP_SELF']) == 'services.php' ? 'class="active"' : '' ?>>Services</a></li>
+        <li><a href="about.php" <?= basename($_SERVER['PHP_SELF']) == 'about.php' ? 'class="active"' : '' ?>>About</a></li>
+        <li><a href="reviews.php" <?= in_array(basename($_SERVER['PHP_SELF']), ['reviews.php', 'myreviews.php']) ? 'class="active"' : '' ?>>Reviews</a></li>
+        <li><a href="contact.php" <?= basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'class="active"' : '' ?>>Contact
+            Us</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <a href="<?= $user ? 'bookings.php' : 'login.php' ?>" <?= $user ? '' : "onclick=\"alert('Please login to book an appointment.');\"" ?>>
+          <button class="book-now">Book Now</button>
+        </a>
+
+        <?php if ($user): ?>
+          <div class="notification-wrapper">
+            <div class="notification-toggle"><i class="fa-solid fa-bell"></i></div>
+            <div class="notification-dropdown">
+              <p class="empty-message">No notifications yet</p>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <!-- PROFILE ICON -->
+        <a href="<?= $user !== null ? 'profile.php' : 'login.php'; ?>" <?= $user === null
+                  ? "onclick=\"alert('Please login to view profile.');\""
+                  : '' ?>>
   <div class="user-icon">
-    <?php if ($user && !empty($user['profile_picture'])): ?>
-        <img
-        src="uploads/profiles/<?= htmlspecialchars($user['profile_picture']) ?>?<?= time() ?>"
-        alt="Profile Picture"
-        class="profile-pic">
-    <?php else: ?>
-        <img
-        src="assets/photos/default_avatar.png"
-        alt="Default Profile Icon"
-        class="profile-pic">
-        
-    <?php endif; ?>
-  </div>
-</a>
-    </div>
-  </nav>
-</header>
-</header>
+            <?php if ($user && !empty($user['profile_picture'])): ?>
+              <img src="uploads/profiles/<?= htmlspecialchars($user['profile_picture']) ?>?<?= time() ?>"
+                alt="Profile Picture" class="profile-pic">
+            <?php else: ?>
+              <img src="assets/photos/default_avatar.png" alt="Default Profile Icon" class="profile-pic">
+
+            <?php endif; ?>
+          </div>
+        </a>
+      </div>
+    </nav>
+  </header>
+  </header>
 
   <!-- MAIN CONTENT -->
   <main class="reviews-section">
@@ -153,37 +150,37 @@ if ($user) {
 
     <!-- REVIEWS CONTAINER: rendered server‑side -->
     <div id="reviewsContainer" class="reviews-container">
-    <?php if (empty($reviews)): ?>
-  <p class="no-reviews">No reviews found.</p>
-<?php else: ?>
-  <?php foreach ($reviews as $r): 
-    $services = json_decode($r['services'], true) ?: [];
-    $stars    = str_repeat('★', $r['rating']) . str_repeat('☆', 5 - $r['rating']);
-    $date     = date('M d, Y', strtotime($r['date']));
-    $isAnon   = strtolower(trim($r['name'])) === 'anonymous';
-    $avatar   = $isAnon 
-                ? 'assets/photos/default_avatar.png' 
-                : ('uploads/profiles/' . ($r['profile_picture'] ?: 'default_avatar.png'));
-  ?>
-    <div class="review-item">
-      <div class="review-header">
-        <img src="<?= htmlspecialchars($avatar) ?>" alt="" class="review-avatar">
-        <div class="reviewer-name"><?= htmlspecialchars($r['name']) ?></div>
-        <div class="review-rating"><?= $stars ?></div>
-      </div>
-      <div class="review-content"><?= nl2br(htmlspecialchars($r['text'])) ?></div>
-      <?php if ($services): ?>
-        <div class="review-service"><?= htmlspecialchars(implode(', ', $services)) ?></div>
+      <?php if (empty($reviews)): ?>
+        <p class="no-reviews">No reviews found.</p>
+      <?php else: ?>
+        <?php foreach ($reviews as $r):
+          $services = json_decode($r['services'], true) ?: [];
+          $stars = str_repeat('★', $r['rating']) . str_repeat('☆', 5 - $r['rating']);
+          $date = date('M d, Y', strtotime($r['date']));
+          $isAnon = strtolower(trim($r['name'])) === 'anonymous';
+          $avatar = $isAnon
+            ? 'assets/photos/default_avatar.png'
+            : ('uploads/profiles/' . ($r['profile_picture'] ?: 'default_avatar.png'));
+          ?>
+          <div class="review-item">
+            <div class="review-header">
+              <img src="<?= htmlspecialchars($avatar) ?>" alt="" class="review-avatar">
+              <div class="reviewer-name"><?= htmlspecialchars($r['name']) ?></div>
+              <div class="review-rating"><?= $stars ?></div>
+            </div>
+            <div class="review-content"><?= nl2br(htmlspecialchars($r['text'])) ?></div>
+            <?php if ($services): ?>
+              <div class="review-service"><?= htmlspecialchars(implode(', ', $services)) ?></div>
+            <?php endif; ?>
+            <div class="review-date"><?= $date ?></div>
+          </div>
+        <?php endforeach; ?>
       <?php endif; ?>
-      <div class="review-date"><?= $date ?></div>
     </div>
-  <?php endforeach; ?>
-<?php endif; ?>
-    </div>
-  <footer>© 2025 M&amp;A Oida Dental Clinic. All Rights Reserved.</footer>
+    <footer>© 2025 M&amp;A Oida Dental Clinic. All Rights Reserved.</footer>
 
-  <!-- load your existing reviews.js -->
-  <script src="assets/js/reviews.js"></script>
+    <!-- load your existing reviews.js -->
+    <script src="assets/js/reviews.js"></script>
 </body>
-</html>
 
+</html>

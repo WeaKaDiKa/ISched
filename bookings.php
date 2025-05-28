@@ -603,11 +603,10 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Booking - M&A Oida Dental Clinic</title>
     <link rel="stylesheet" href="assets/css/bookings.css?v=1.4">
-    <link rel="stylesheet" href="assets/css/homepage.css">
-    <link rel="stylesheet" href="assets/css/profile-icon.css">
-    <link rel="stylesheet" href="assets/css/notification.css">
+
     <link rel="stylesheet" href="assets/css/calendar.css?v=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+      <?php require_once 'includes/head.php' ?>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* Success Modal Styles */

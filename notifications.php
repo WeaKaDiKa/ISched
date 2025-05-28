@@ -14,11 +14,11 @@ $userId = $_SESSION['user_id'];
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    
+
     // Mark notification as read
     if ($action === 'mark_read') {
         $notificationId = isset($_POST['notification_id']) ? intval($_POST['notification_id']) : 0;
-        
+
         if ($notificationId > 0) {
             // Mark specific notification as read
             $stmt = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?");
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ?");
             $stmt->bind_param("i", $userId);
         }
-        
+
         if ($stmt->execute()) {
             echo json_encode(['success' => true]);
         } else {
@@ -71,6 +71,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -83,12 +84,12 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             box-sizing: border-box;
             font-family: 'Arial', sans-serif;
         }
-        
+
         body {
             background-color: #f8f9fa;
             color: #333;
         }
-        
+
         header {
             background-color: #4a89dc;
             color: white;
@@ -96,7 +97,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             text-align: center;
             position: relative;
         }
-        
+
         .back-btn {
             position: absolute;
             top: 20px;
@@ -105,50 +106,90 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             text-decoration: none;
             font-size: 16px;
         }
-        
+
         .container {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
         }
-        
+
         .notification-list {
             margin-top: 20px;
         }
-        
+
         .notification-item {
             background-color: white;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             position: relative;
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         /* Type colors */
-        .type-appointment { border-left: 4px solid #4a89dc; }
-        .type-cancellation { border-left: 4px solid #dc4a4a; }
-        .type-reschedule { border-left: 4px solid #dc8c4a; }
-        .type-review { border-left: 4px solid #dcce4a; }
-        .type-reminder { border-left: 4px solid #4adc7d; }
-        .type-message { border-left: 4px solid #9c4adc; }
-        
+        .type-appointment {
+            border-left: 4px solid #4a89dc;
+        }
+
+        .type-cancellation {
+            border-left: 4px solid #dc4a4a;
+        }
+
+        .type-reschedule {
+            border-left: 4px solid #dc8c4a;
+        }
+
+        .type-review {
+            border-left: 4px solid #dcce4a;
+        }
+
+        .type-reminder {
+            border-left: 4px solid #4adc7d;
+        }
+
+        .type-message {
+            border-left: 4px solid #9c4adc;
+        }
+
         /* Type icon colors */
-        .icon-appointment { background-color: #e6f0ff; color: #4a89dc; }
-        .icon-cancellation { background-color: #ffe6e6; color: #dc4a4a; }
-        .icon-reschedule { background-color: #fff0e6; color: #dc8c4a; }
-        .icon-review { background-color: #fffde6; color: #dcce4a; }
-        .icon-reminder { background-color: #e6ffef; color: #4adc7d; }
-        .icon-message { background-color: #f2e6ff; color: #9c4adc; }
-        
+        .icon-appointment {
+            background-color: #e6f0ff;
+            color: #4a89dc;
+        }
+
+        .icon-cancellation {
+            background-color: #ffe6e6;
+            color: #dc4a4a;
+        }
+
+        .icon-reschedule {
+            background-color: #fff0e6;
+            color: #dc8c4a;
+        }
+
+        .icon-review {
+            background-color: #fffde6;
+            color: #dcce4a;
+        }
+
+        .icon-reminder {
+            background-color: #e6ffef;
+            color: #4adc7d;
+        }
+
+        .icon-message {
+            background-color: #f2e6ff;
+            color: #9c4adc;
+        }
+
         .notification-header {
             display: flex;
             align-items: center;
             margin-bottom: 12px;
         }
-        
+
         .notification-type-icon {
             width: 32px;
             height: 32px;
@@ -159,25 +200,25 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             margin-right: 10px;
             flex-shrink: 0;
         }
-        
+
         .notification-type {
             font-weight: 600;
             font-size: 14px;
             text-transform: capitalize;
             flex-grow: 1;
         }
-        
+
         .notification-date {
             font-size: 12px;
             color: #888;
             flex-shrink: 0;
         }
-        
+
         .notification-content {
             display: flex;
             align-items: flex-start;
         }
-        
+
         .sender-photo {
             width: 48px;
             height: 48px;
@@ -187,7 +228,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             border: 2px solid #e6e6e6;
             flex-shrink: 0;
         }
-        
+
         .sender-initial {
             width: 48px;
             height: 48px;
@@ -200,46 +241,46 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             color: white;
             font-size: 18px;
             flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
+
         .message-bubble {
             background-color: #f5f5f5;
             border-radius: 12px;
             padding: 12px;
             flex-grow: 1;
         }
-        
+
         .sender-name {
             font-weight: 600;
             font-size: 14px;
             margin-bottom: 5px;
         }
-        
+
         .message-text {
             font-size: 14px;
             line-height: 1.4;
         }
-        
+
         .message-time {
             font-size: 12px;
             color: #888;
             margin-top: 8px;
             text-align: right;
         }
-        
+
         .no-notifications {
             text-align: center;
             padding: 40px 20px;
             color: #757575;
         }
-        
+
         .no-notifications i {
             font-size: 48px;
             margin-bottom: 15px;
             color: #d0d0d0;
         }
-        
+
         .mark-all-read {
             background-color: #4a89dc;
             color: white;
@@ -252,22 +293,23 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             font-weight: 600;
             transition: background-color 0.2s;
         }
-        
+
         .mark-all-read:hover {
             background-color: #3a79cc;
         }
-        
+
         .mark-all-read i {
             margin-right: 5px;
         }
     </style>
 </head>
+
 <body>
     <header>
         <a href="profile.php" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
         <h1>Notifications</h1>
     </header>
-    
+
     <div class="container">
         <?php if (!empty($notifications)): ?>
             <button class="mark-all-read" id="markAllRead"><i class="fas fa-check-double"></i> Mark All as Read</button>
@@ -278,8 +320,8 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
                     $typeColor = 'blue';
                     $typeIcon = 'bell';
                     $typeName = $notification['type'];
-                    
-                    switch($notification['type']) {
+
+                    switch ($notification['type']) {
                         case 'appointment':
                             $typeColor = 'appointment';
                             $typeIcon = 'calendar-check';
@@ -306,8 +348,9 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
                             break;
                     }
                     ?>
-                    
-                    <div class="notification-item type-<?php echo $typeColor; ?> <?php echo $notification['is_read'] ? '' : 'unread'; ?>" data-id="<?php echo $notification['id']; ?>">
+
+                    <div class="notification-item type-<?php echo $typeColor; ?> <?php echo $notification['is_read'] ? '' : 'unread'; ?>"
+                        data-id="<?php echo $notification['id']; ?>">
                         <!-- Notification Header with Type -->
                         <div class="notification-header">
                             <div class="notification-type-icon icon-<?php echo $typeColor; ?>">
@@ -320,25 +363,28 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
                                 <?php echo date('M d, Y', strtotime($notification['created_at'])); ?>
                             </div>
                         </div>
-                        
+
                         <!-- Notification Content -->
                         <div class="notification-content">
                             <!-- Sender Photo -->
                             <?php if (!empty($notification['sender_photo'])): ?>
-                                <img src="<?php echo htmlspecialchars($notification['sender_photo']); ?>" alt="Sender" class="sender-photo">
+                                <img src="<?php echo htmlspecialchars($notification['sender_photo']); ?>" alt="Sender"
+                                    class="sender-photo">
                             <?php else: ?>
-                                <div class="sender-initial" style="background-color: var(--<?php echo $typeColor; ?>-color, #4a89dc);">
+                                <div class="sender-initial"
+                                    style="background-color: var(--<?php echo $typeColor; ?>-color, #4a89dc);">
                                     <?php echo !empty($notification['sender_name']) ? strtoupper(substr($notification['sender_name'], 0, 1)) : 'C'; ?>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <!-- Message Bubble -->
                             <div class="message-bubble">
                                 <?php if (!empty($notification['sender_name'])): ?>
                                     <div class="sender-name"><?php echo htmlspecialchars($notification['sender_name']); ?></div>
                                 <?php endif; ?>
                                 <div class="message-text"><?php echo htmlspecialchars($notification['message']); ?></div>
-                                <div class="message-time"><?php echo date('h:i A', strtotime($notification['created_at'])); ?></div>
+                                <div class="message-time"><?php echo date('h:i A', strtotime($notification['created_at'])); ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -351,46 +397,47 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
             </div>
         <?php endif; ?>
     </div>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Mark individual notification as read when clicked
             document.querySelectorAll('.notification-item').forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     const notificationId = this.getAttribute('data-id');
                     markAsRead(notificationId);
                     this.classList.remove('unread');
                 });
             });
-            
+
             // Mark all notifications as read
-            document.getElementById('markAllRead')?.addEventListener('click', function() {
+            document.getElementById('markAllRead')?.addEventListener('click', function () {
                 markAsRead(0); // 0 means mark all as read
                 document.querySelectorAll('.notification-item').forEach(item => {
                     item.classList.remove('unread');
                 });
             });
-            
+
             function markAsRead(notificationId) {
                 const formData = new FormData();
                 formData.append('action', 'mark_read');
                 formData.append('notification_id', notificationId);
-                
+
                 fetch('notifications.php', {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('Failed to mark notification as read');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Failed to mark notification as read');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             }
         });
     </script>
 </body>
+
 </html>
