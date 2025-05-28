@@ -187,10 +187,11 @@ if ($admin_id) {
                             <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">
                                 <?php echo htmlspecialchars($admin_name); ?>
                             </h2>
-                            <div class="flex space-x-6 mt-6">
+                            <div class="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 mt-6">
+
                                 <!-- Appointments card -->
                                 <a href="appointments.php"
-                                    class="block rounded-lg p-6 bg-white bg-opacity-90 shadow hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-[220px]">
+                                    class="block rounded-lg p-6 bg-white bg-opacity-90 shadow hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-[200px]">
                                     <div class="flex items-center space-x-4">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
@@ -211,7 +212,7 @@ if ($admin_id) {
                                 </a>
                                 <!-- Patients card -->
                                 <a href="patient_records.php"
-                                    class="block rounded-lg p-6 bg-white bg-opacity-90 shadow hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-[220px]">
+                                    class="block rounded-lg p-6 bg-white bg-opacity-90 shadow hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-[200px]">
                                     <div class="flex items-center space-x-4">
                                         <div
                                             class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">

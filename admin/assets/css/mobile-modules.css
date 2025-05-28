@@ -11,62 +11,7 @@
         /* Add space for fixed header */
     }
 
-    /* Mobile Header */
-    #sidebarToggle {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 44px;
-        height: 44px;
-        padding: 0 !important;
-        margin: 0;
-        border-radius: 8px;
-        -webkit-tap-highlight-color: transparent;
-    }
 
-    #sidebarToggle:active {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    /* Sidebar *
-    #sidebar {
-        position: fixed !important;
-        left: -100% !important;
-        top: 0 !important;
-        height: 100vh !important;
-        width: 85% !important;
-        max-width: 320px !important;
-        z-index: 50 !important;
-        transition: left 0.3s ease !important;
-        background: white !important;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1) !important;
-        overflow-y: auto !important;
-        padding-top: 60px !important;
-
-    }
-
-    #sidebar.show {
-        left: 0 !important;
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 45;
-        transition: opacity 0.3s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-  */
     h1 {
         font-size: 1.5rem !important;
     }
@@ -668,34 +613,6 @@
         border-radius: 6px !important;
     }
 }
-
-/* Dark mode support for all modules */
-/* @media (prefers-color-scheme: dark) {
-    .card, .panel {
-        background-color: #2d2d2d !important;
-        border-color: #404040 !important;
-    }
-
-    .table {
-        color: #ffffff !important;
-    }
-
-    .table th,
-    .table td {
-        border-color: #404040 !important;
-    }
-
-    .modal-content {
-        background-color: #2d2d2d !important;
-        color: #ffffff !important;
-    }
-
-    input, select, textarea {
-        background-color: #1a1a1a !important;
-        border-color: #404040 !important;
-        color: #ffffff !important;
-    }
-} */
 
 /* Loading states */
 .loading-overlay {

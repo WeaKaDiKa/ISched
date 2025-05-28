@@ -24,6 +24,21 @@
         /* Fix: match transition property */
     }
 
+    #sidebarToggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0 !important;
+        margin: 0;
+        border-radius: 8px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #sidebarToggle:active {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
 
     .sidebar-icon {
         @apply transition-all duration-200 ease-in-out;
@@ -221,7 +236,7 @@ $role = $_SESSION['admin_type'] ?? '';
     if (navMap[currentPage]) {
         document.getElementById(navMap[currentPage]).classList.add('active');
     }// Mobile sidebar toggle
-    
+
     document.addEventListener('DOMContentLoaded', function () {
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
