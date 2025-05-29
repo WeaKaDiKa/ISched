@@ -5,8 +5,8 @@ require_once('includes/profile_functions.php');
 
 $user_id = $_SESSION['user_id'] ?? null;
 if (!$user_id) {
-  header('Location: login.php');
-  exit;
+    header('Location: login.php');
+    exit;
 }
 
 $sql = "
@@ -23,14 +23,13 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 if (!$user) {
-  die("User not found.");
+    die("User not found.");
 }
 
 $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -40,7 +39,6 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
   <link rel="stylesheet" href="assets/css/notification.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-
 <body>
   <div class="profile-container">
     <div class="header">
@@ -61,7 +59,10 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
     <div class="profile-content">
       <div class="profile-pic-section">
         <div class="profile-pic-container">
-          <img src="<?= get_profile_image_url($user_id) ?>" alt="Profile Picture" class="profile-pic">
+          <img
+            src="<?= get_profile_image_url($user_id) ?>"
+            alt="Profile Picture"
+            class="profile-pic">
         </div>
         <div class="profile-name-header">
           <h2>
@@ -129,8 +130,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
 
       <div class="action-buttons">
         <a href="notifications.php" class="notifications-btn" style="text-decoration: none;">
-          <button
-            style="background-color: #4a89dc; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+          <button style="background-color: #4a89dc; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
             <i class="fa-solid fa-bell"></i> Notifications
           </button>
         </a>
@@ -142,5 +142,4 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
     </div>
   </div>
 </body>
-
 </html>
