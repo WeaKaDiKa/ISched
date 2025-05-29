@@ -606,6 +606,7 @@ function validateAppointment() {
   }
   
   // Validate doctor selection - ALWAYS required
+  /* 
   const doctorSelect = document.getElementById('doctor');
   const doctorError = document.getElementById('doctor-error');
   
@@ -619,7 +620,7 @@ function validateAppointment() {
       }
     } else if (doctorError) {
       doctorError.style.display = 'none';
-  }
+  } */
   
   // Validate appointment date and time
   const appointmentDate = document.getElementById('appointment-date');
@@ -778,6 +779,13 @@ function initServiceSelection() {
                 // Show feedback
                 showFeedback(`Removed: ${serviceName}`);
         } else {
+                // Check if already at max services limit (3)
+                if (window.selectedServices.length >= 3) {
+                    // Show error feedback
+                    showFeedback(`You can only select up to 3 services`);
+                    return;
+                }
+                
                 // Add to selected
                 card.classList.add('selected');
                 card.classList.add('pulse-animation');
@@ -910,7 +918,7 @@ function updateSelectedServicesUI() {
     // Add each selected service to the list
     window.selectedServices.forEach(service => {
         const listItem = document.createElement('div');
-        listItem.className = 'selected-service-item';
+        listItem.className = 'selected-service-item d-flex justify-content-between';
         
         const nameSpan = document.createElement('span');
         nameSpan.className = 'service-name';
@@ -956,7 +964,7 @@ function initAppointmentSelections() {
   if (clinicSelect) {
     clinicSelect.addEventListener('change', function() {
       // Show doctor selection based on branch
-      updateDoctorOptions(this.value);
+/*       updateDoctorOptions(this.value); */
       
       // Show calendar
       const calendarContainer = document.querySelector('.calendar-container');
@@ -967,13 +975,13 @@ function initAppointmentSelections() {
   }
   
   // Initialize doctor container visibility
-  const doctorContainer = document.getElementById('doctor-container');
+ /*  const doctorContainer = document.getElementById('doctor-container');
   if (doctorContainer) {
     doctorContainer.style.display = 'none';
-  }
+  } */
 }
 
-function updateDoctorOptions(branch) {
+/* function updateDoctorOptions(branch) {
   const doctorContainer = document.getElementById('doctor-container');
   const doctorSelect = document.getElementById('doctor');
   
@@ -1002,7 +1010,7 @@ function updateDoctorOptions(branch) {
   // Always show doctor selection
   doctorContainer.style.display = 'block';
 }
-
+ */
 function calculateTotal() {
   const selectedServices = document.querySelectorAll('.service-checkbox:checked');
   let total = 0;
@@ -1096,21 +1104,19 @@ function updateAppointmentHiddenFields() {
   const date = document.getElementById('appointment-date')?.value || '';
   const timeSlot = document.querySelector('.time-slot.selected');
   const time = timeSlot ? timeSlot.textContent.trim() : '';
-  const doctorId = document.getElementById('doctor')?.value || '';
+/*   const doctorId = document.getElementById('doctor')?.value || ''; */
   
   // Get doctor name for display purposes
-  const doctorSelect = document.getElementById('doctor');
+/*   const doctorSelect = document.getElementById('doctor');
   const doctorName = doctorSelect && doctorSelect.selectedIndex > 0 ? 
                      doctorSelect.options[doctorSelect.selectedIndex].text : 
-                     'No doctor selected';
+                     'No doctor selected'; */
   
   // Update hidden fields
   const hiddenFields = {
     'clinic_branch': branch,
     'appointment_date': date,
-    'appointment_time': time,
-    'doctor_id': doctorId,
-    'selected_doctor_name': doctorName
+    'appointment_time': time
   };
   
   Object.entries(hiddenFields).forEach(([name, value]) => {
@@ -1137,7 +1143,7 @@ function updateAppointmentHiddenFields() {
   // Update selected schedule display
   const scheduleDisplay = document.getElementById('selected-schedule');
   if (scheduleDisplay) {
-    const doctorName = document.getElementById('doctor')?.selectedOptions?.[0]?.text || 'No doctor selected';
+   // const doctorName = document.getElementById('doctor')?.selectedOptions?.[0]?.text || 'No doctor selected';
     const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'No date selected';
     
     scheduleDisplay.innerHTML = `
@@ -1145,7 +1151,6 @@ function updateAppointmentHiddenFields() {
       Date: ${formattedDate}<br>
       Time: ${time}<br>
       Branch: ${branch}<br>
-      Doctor: ${doctorName}
     `;
   }
 }
@@ -1447,14 +1452,14 @@ function prepareSummaryView() {
   console.log('Appointment values:', { clinicBranch, appointmentDate, appointmentTime });
   
   // Get doctor information
-  const doctorSelect = document.getElementById('doctor');
+/*   const doctorSelect = document.getElementById('doctor');
   let doctorName = 'No doctor selected';
   
   if (doctorSelect && doctorSelect.selectedIndex > 0) {
     doctorName = doctorSelect.options[doctorSelect.selectedIndex].text;
     console.log('Selected doctor:', doctorName);
   }
-  
+   */
   // Format the date
   let formattedDate = 'Date not selected';
   if (appointmentDate) {
@@ -1480,7 +1485,7 @@ function prepareSummaryView() {
     // Find or create elements
     let dateElement = appointmentSection.querySelector('p:nth-of-type(1)');
     let branchElement = appointmentSection.querySelector('p:nth-of-type(2)');
-    let doctorElement = appointmentSection.querySelector('p:nth-of-type(3)');
+/*     let doctorElement = appointmentSection.querySelector('p:nth-of-type(3)'); */
     
     // Update or create date element
     if (dateElement) {
@@ -1517,7 +1522,7 @@ function prepareSummaryView() {
     }
     
     // Update or create doctor element
-    if (doctorElement) {
+ /*    if (doctorElement) {
       doctorElement.textContent = doctorName;
     } else {
       console.log('Doctor element not found, looking for alternative');
@@ -1531,7 +1536,7 @@ function prepareSummaryView() {
           break;
         }
       }
-    }
+    } */
   } else {
     console.log('Could not find appointment section');
   }
@@ -1611,7 +1616,7 @@ function addServiceCardFallbackHandlers() {
       const name = card.getAttribute('data-service-name');
       
       const item = document.createElement('div');
-      item.className = 'selected-service-item';
+      item.className = 'selected-service-item d-flex justify-content-between';
       item.innerHTML = `
         <div class="selected-service-name">${name}</div>
       `;

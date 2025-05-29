@@ -27,9 +27,8 @@ if (isset($_SESSION['user_id'])) {
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>About Us - ISched of M&A Oida Dental Clinic</title>
   <link rel="stylesheet" href="assets/css/about.css">
-  <link rel="stylesheet" href="assets/css/profile-icon.css">
-  <link rel="stylesheet" href="assets/css/notification.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <?php require_once 'includes/head.php' ?>
+  <?php include_once('includes/custom_modal.php'); ?>
 </head>
 
 <body>

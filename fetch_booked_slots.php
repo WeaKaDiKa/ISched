@@ -4,15 +4,17 @@ header('Content-Type: application/json');
 
 $date = isset($_POST['date']) ? $_POST['date'] : null;
 $branch = isset($_POST['branch']) ? $_POST['branch'] : null;
-$doctor_id = isset($_POST['doctor_id']) ? $_POST['doctor_id'] : null;
+/* $doctor_id = isset($_POST['doctor_id']) ? $_POST['doctor_id'] : null; */
 
 $response = ["available_slots" => [], "all_slots" => [], "booked_slots" => []];
 
 // --- TIME FORMATTER FOR UI ---
-function format_ampm($time) {
+function format_ampm($time)
+{
     // Accepts '10:00:00' or '13:00:00', returns '01:00 pm'
     $dt = DateTime::createFromFormat('H:i:s', $time);
-    if ($dt) return strtolower($dt->format('h:i a'));
+    if ($dt)
+        return strtolower($dt->format('h:i a'));
     return $time;
 }
 // ----------------------------------------
@@ -25,12 +27,12 @@ while ($row = $res->fetch_assoc()) {
 }
 $response['all_slots'] = $all_slots;
 
-if ($date && $branch && $doctor_id) {
+if ($date && $branch) {
     $stmt = $conn->prepare(
         "SELECT appointment_time FROM appointments "
-        . " WHERE appointment_date = ? AND clinic_branch = ? AND doctor_id = ? AND status = 'booked'"
+        . " WHERE appointment_date = ? AND clinic_branch = ? AND status = 'booked'"
     );
-    $stmt->bind_param('ssi', $date, $branch, $doctor_id);
+    $stmt->bind_param('ss', $date, $branch);
     $stmt->execute();
     $result = $stmt->get_result();
     $booked = [];
@@ -45,7 +47,7 @@ if ($date && $branch && $doctor_id) {
 }
 
 // If not enough info, return all slots as unavailable
-if (!$date || !$branch || !$doctor_id) {
+if (!$date || !$branch) {
     $response['available_slots'] = [];
 }
 

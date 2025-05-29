@@ -14,6 +14,7 @@
 
 <link rel="stylesheet" href="assets/css/profile-icon.css">
 <link rel="stylesheet" href="assets/css/notification.css">
+<link rel="stylesheet" href="assets/css/notifications.css">
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 
@@ -44,7 +45,6 @@
 
     /* Position the greeting away from the logo */
     .welcome-message {
-        margin-left: 50px;
         /* shift right; adjust as needed */
         font-size: 1.5rem;
         color: #333;
@@ -79,7 +79,6 @@
     /* Make sure nav-links move to the right */
     .nav-links {
         margin-left: auto;
-        margin-right: 80px;
         display: flex;
         align-items: center;
     }
@@ -347,7 +346,7 @@
         align-items: center;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
         .nav-toggle-label {
             display: block;
         }

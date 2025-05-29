@@ -53,16 +53,17 @@ if (isset($_SESSION['user_id'])) {
             <span class="notification-badge"><?= $unreadCount ?></span>
         <?php endif; ?>
     </button>
-    
+
     <!-- Notification Dropdown -->
     <div class="notification-dropdown" id="notificationDropdown">
         <div class="notification-header">
             <span>Notifications</span>
             <?php if ($unreadCount > 0): ?>
-                <button id="markAllReadBtn" class="mark-all-read"><i class="fas fa-check-double"></i> Mark all as read</button>
+                <button id="markAllReadBtn" class="mark-all-read"><i class="fas fa-check-double"></i> Mark all as
+                    read</button>
             <?php endif; ?>
         </div>
-        
+
         <div class="notification-list">
             <?php if (empty($notifications)): ?>
                 <div class="no-notifications">
@@ -76,8 +77,8 @@ if (isset($_SESSION['user_id'])) {
                     $typeColor = 'blue';
                     $typeIcon = 'bell';
                     $typeName = $notification['type'];
-                    
-                    switch($notification['type']) {
+
+                    switch ($notification['type']) {
                         case 'appointment':
                             $typeColor = 'appointment';
                             $typeIcon = 'calendar-check';
@@ -104,8 +105,9 @@ if (isset($_SESSION['user_id'])) {
                             break;
                     }
                     ?>
-                    
-                    <div class="notification-item type-<?php echo $typeColor; ?> <?php echo $notification['is_read'] ? '' : 'unread'; ?>" data-id="<?php echo $notification['id']; ?>">
+
+                    <div class="notification-item type-<?php echo $typeColor; ?> <?php echo $notification['is_read'] ? '' : 'unread'; ?>"
+                        data-id="<?php echo $notification['id']; ?>">
                         <!-- Notification Header with Type -->
                         <div class="notification-item-header">
                             <div class="notification-type-icon icon-<?php echo $typeColor; ?>">
@@ -118,25 +120,28 @@ if (isset($_SESSION['user_id'])) {
                                 <?php echo date('M d, Y', strtotime($notification['created_at'])); ?>
                             </div>
                         </div>
-                        
+
                         <!-- Notification Content -->
                         <div class="notification-content">
                             <!-- Sender Photo -->
                             <?php if (!empty($notification['sender_photo'])): ?>
-                                <img src="<?php echo htmlspecialchars($notification['sender_photo']); ?>" alt="Sender" class="sender-photo">
+                                <img src="<?php echo htmlspecialchars($notification['sender_photo']); ?>" alt="Sender"
+                                    class="sender-photo">
                             <?php else: ?>
-                                <div class="sender-initial" style="background-color: var(--<?php echo $typeColor; ?>-color, #4a89dc);">
+                                <div class="sender-initial"
+                                    style="background-color: var(--<?php echo $typeColor; ?>-color, #4a89dc);">
                                     <?php echo !empty($notification['sender_name']) ? strtoupper(substr($notification['sender_name'], 0, 1)) : 'C'; ?>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <!-- Message Bubble -->
                             <div class="message-bubble">
                                 <?php if (!empty($notification['sender_name'])): ?>
                                     <div class="sender-name"><?php echo htmlspecialchars($notification['sender_name']); ?></div>
                                 <?php endif; ?>
                                 <div class="message-text"><?php echo htmlspecialchars($notification['message']); ?></div>
-                                <div class="message-time"><?php echo date('h:i A', strtotime($notification['created_at'])); ?></div>
+                                <div class="message-time"><?php echo date('h:i A', strtotime($notification['created_at'])); ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,64 +152,64 @@ if (isset($_SESSION['user_id'])) {
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const bellBtn = document.getElementById('notificationBellBtn');
-    const dropdown = document.querySelector('.notification-dropdown');
-    const wrapper = document.querySelector('.notification-wrapper');
-    const markAllReadBtn = document.getElementById('markAllReadBtn');
-    
-    // Toggle dropdown when bell is clicked
-    bellBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        dropdown.classList.toggle("show");
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener("click", function (e) {
-        if (!wrapper.contains(e.target)) {
-            dropdown.classList.remove("show");
+    document.addEventListener("DOMContentLoaded", function () {
+        const bellBtn = document.getElementById('notificationBellBtn');
+        const dropdown = document.querySelector('.notification-dropdown');
+        const wrapper = document.querySelector('.notification-wrapper');
+        const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+        // Toggle dropdown when bell is clicked
+        bellBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (e) {
+            if (!wrapper.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+
+        // Mark individual notification as read
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
+                markAsRead(notificationId);
+                this.classList.remove('unread');
+            });
+        });
+
+        // Mark all notifications as read
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                markAsRead(0); // 0 means mark all as read
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.classList.remove('unread');
+                });
+                document.querySelector('.notification-badge')?.remove();
+            });
+        }
+
+        // Function to mark notification as read
+        function markAsRead(notificationId) {
+            fetch('mark_notification_read.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=mark_read&notification_id=' + notificationId
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Failed to mark notification as read');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
     });
-    
-    // Mark individual notification as read
-    document.querySelectorAll('.notification-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const notificationId = this.getAttribute('data-id');
-            markAsRead(notificationId);
-            this.classList.remove('unread');
-        });
-    });
-    
-    // Mark all notifications as read
-    if (markAllReadBtn) {
-        markAllReadBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            markAsRead(0); // 0 means mark all as read
-            document.querySelectorAll('.notification-item').forEach(item => {
-                item.classList.remove('unread');
-            });
-            document.querySelector('.notification-badge')?.remove();
-        });
-    }
-    
-    // Function to mark notification as read
-    function markAsRead(notificationId) {
-        fetch('mark_notification_read.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'action=mark_read&notification_id=' + notificationId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                console.error('Failed to mark notification as read');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-});
 </script>

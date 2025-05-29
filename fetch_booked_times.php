@@ -11,7 +11,7 @@ if (!isset($_GET['date']) || !isset($_GET['branch'])) {
 
 $date = $_GET['date'];
 $branch = $_GET['branch'];
-$doctorId = $_GET['doctor'] ?? null; // Optional doctor filter
+/* $doctorId = $_GET['doctor'] ?? null; */ // Optional doctor filter
 
 // Validate date format
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
@@ -34,12 +34,12 @@ try {
     $params = [$date, $branch];
     
     // Add doctor filter if provided
-    if ($doctorId) {
+  /*   if ($doctorId) {
         $query .= " AND doctor_id = ?";
         $types .= "i"; // Add integer type
         $params[] = $doctorId;
     }
-    
+     */
     // Execute query
     $stmt = $conn->prepare($query);
     $stmt->bind_param($types, ...$params);

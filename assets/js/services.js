@@ -10,19 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
       'Dental Check-ups & Consultation': 'Regular examinations of the teeth and oral cavity to assess overall dental health and detect potential issues. This service includes a detailed consultation and the development of a personalized treatment plan.',
       'Teeth Cleaning':                   'A professional cleaning procedure designed to remove plaque and tartar buildup from the teeth. This service helps prevent tooth decay and gum disease.',
       'Tooth Extraction':                 'The removal of a damaged or decayed tooth that cannot be restored through other dental procedures. This service is performed with careful attention to patient comfort and safety.',
-      'Dental Fillings/Dental Bonding':   'Dental fillings restore decayed teeth by removing damage and filling cavities with durable, tooth-colored resin, while dental bonding repairs chips, cracks, and gaps by sculpting and curing a cosmetic resin directly onto the tooth’s surface.',
+      'Dental Fillings/Dental Bonding':   'Dental fillings restore decayed teeth by removing damage and filling cavities with durable, tooth-colored resin, while dental bonding repairs chips, cracks, and gaps by sculpting and curing a cosmetic resin directly onto the tooth\'s surface.',
       'Gum Treatment and Gingivectomy':   'Treatments focused on managing and treating gum diseases, such as scaling and root planing, which help remove plaque and tartar from beneath the gum line to prevent further periodontal issues.',
       'Teeth Whitening':                  'A professional treatment designed to brighten your smile by removing stains and discoloration, resulting in a noticeably whiter smile.',
       'Dental Veneers':                   'Custom-made, thin porcelain shells that are bonded to the front of your teeth to enhance their appearance by improving shape, color, and overall alignment.',
-      'Metal Braces/Ceramic':             'A Traditional stainless steel braces used for effective teeth alignment. For Ceramic Braces, it’s  more aesthetic alternative to metal braces, offering a less noticeable appearance.',
-      'Clear Aligners/Retainers':         'Clear Invisalign is a discreet and removable aligner used to straighten teeth comfortably without metal braces. It’s clear, custom-made, and easy to wear. A Retainers is a custom-made devices as well to maintain teeth alignment after orthodontic treatment.',
+      'Metal Braces/Ceramic':             'A Traditional stainless steel braces used for effective teeth alignment. For Ceramic Braces, it\'s  more aesthetic alternative to metal braces, offering a less noticeable appearance.',
+      'Clear Aligners/Retainers':         'Clear Invisalign is a discreet and removable aligner used to straighten teeth comfortably without metal braces. It\'s clear, custom-made, and easy to wear. A Retainers is a custom-made devices as well to maintain teeth alignment after orthodontic treatment.',
       'Dental Crown':                     'Custom caps placed over damaged teeth to restore strength and appearance.',
       'Dental Bridges':                   'Fixed prosthetic devices used to replace one or more missing teeth by anchoring to adjacent teeth.',
       'Dentures (Partial & Full)':        'Removable replacements for missing teeth; partial dentures replace several teeth while full dentures replace all teeth in an arch.',
       'Dental Implants':                  'Surgically placed fixtures that serve as permanent replacements for missing teeth.',
-      'Fluoride Treatment':               'Application of fluoride to strengthen children’s teeth and help prevent cavities.',
+      'Fluoride Treatment':               'Application of fluoride to strengthen children\'s teeth and help prevent cavities.',
       'Dental Sealants':                  'Protective coatings applied to the chewing surfaces of back teeth to prevent decay.',
-      'Kids’ Braces & Orthodontic Care':  'Early orthodontic interventions designed to correct developing alignment issues in children.',
+      'Kids\' Braces & Orthodontic Care':  'Early orthodontic interventions designed to correct developing alignment issues in children.',
       'Wisdom Tooth Extraction (Odontectomy)': ' Removal of impacted or problematic wisdom teeth.',
       'Root Canal Treatment':             'Treatment for infected or inflamed tooth pulp aimed at saving the tooth.',
       'TMJ Treatment':                    'Therapeutic interventions to manage jaw pain and temporomandibular joint disorders.',
@@ -41,6 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.querySelector('#modalImage').src = item.querySelector('img').src;
         modal.querySelector('#modalDescription').textContent =
           descriptions[title] || '';
+        // Set the exact service name on the modal for Book Now
+        const exactServiceName = item.getAttribute('data-exact-service-name') || title;
+        modal.setAttribute('data-exact-service-name', exactServiceName);
         modal.style.display = 'block';
       });
     });
@@ -51,12 +54,28 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === modal) modal.style.display = 'none';
     });
   
-    // Book Now inside modal
-    bookBtn.addEventListener('click', () => {
-      if (!isLoggedIn) {
-        alert('Please login to book an appointment.');
-        return window.location.href = 'login.php';
-      }
-      window.location.href = 'bookings.php';
+    // Book Now inside modal - handled in services.php
+    // We're not adding an event listener here to avoid conflicts
+    // The event listener is now in services.php
+    
+    // Add close functionality for login modal
+    const loginModal = document.getElementById('loginModal');
+    const loginCloseBtn = loginModal.querySelector('.close');
+    
+    // Close login modal when clicking the X
+    loginCloseBtn.addEventListener('click', () => {
+      loginModal.style.display = 'none';
     });
+    
+    // Close login modal when clicking outside of it
+    window.addEventListener('click', e => {
+      if (e.target === loginModal) {
+        loginModal.style.display = 'none';
+      }
+    });
+    
+    // Close function for login modal
+    window.closeLoginModal = function() {
+      loginModal.style.display = 'none';
+    };
   });

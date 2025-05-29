@@ -465,7 +465,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $allergies = isset($allData['allergies']) ? implode(', ', $allData['allergies']) : '';
             
             // Prepare statement
-        $stmt = $conn->prepare("
+        $stmtbakuop = $conn->prepare("
             INSERT INTO appointments (
                     patient_id, doctor_id, clinic_branch, appointment_date, appointment_time, 
                     services, status, health, pregnant, nursing, birth_control, 
@@ -473,6 +473,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     religion, nationality, occupation, dental_insurance, previous_dentist
             ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+        ");
+         $stmt = $conn->prepare("
+            INSERT INTO appointments (
+                    patient_id, clinic_branch, appointment_date, appointment_time, 
+                    services, status, health, pregnant, nursing, birth_control, 
+                    blood_pressure, blood_type, medical_history, allergies, consent, 
+                    religion, nationality, occupation, dental_insurance, previous_dentist
+            ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         ");
             
@@ -483,7 +493,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Store all values in variables first to pass by reference
             $patient_id = $_SESSION['user_id'];
-            $doctor_id = isset($allData['doctor_id']) ? $allData['doctor_id'] : null;
+          //  $doctor_id = isset($allData['doctor_id']) ? $allData['doctor_id'] : null;
             $clinic_branch = $allData['clinic_branch'];
             $appointment_date = $allData['appointment_date'];
             $appointment_time = $allData['appointment_time'];
@@ -499,12 +509,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dental_insurance = isset($allData['dental_insurance']) ? $allData['dental_insurance'] : null;
             $previous_dentist = isset($allData['previous_dentist']) ? $allData['previous_dentist'] : null;
 
-$typeString = 'iisssssssssssssiisss';
+$typeString = 'isssssssssssssiisss';
 
 $stmt->bind_param(
     $typeString,
     $patient_id,
-    $doctor_id,
+    
     $clinic_branch,
     $appointment_date,
     $appointment_time,
@@ -603,10 +613,9 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Booking - M&A Oida Dental Clinic</title>
     <link rel="stylesheet" href="assets/css/bookings.css?v=1.4">
-
+  <?php require_once 'includes/head.php' ?>
+    <link rel="stylesheet" href="assets/css/selected-services.css">
     <link rel="stylesheet" href="assets/css/calendar.css?v=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-      <?php require_once 'includes/head.php' ?>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* Success Modal Styles */
@@ -684,7 +693,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <!-- Pass PHP data to JavaScript -->
   <script>
   window.servicePrices = <?php echo json_encode($servicePrices); ?>;
-        window.doctorsJson = <?php echo $doctorsJson; ?>;
+       // window.doctorsJson = <?php //echo $doctorsJson; ?>;
 </script>
     <script src="assets/js/bookings.js?v=1.1" defer></script>
     <script src="assets/js/appointment_schedule.js?v=1.1" defer></script>
@@ -763,7 +772,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
         
         <!-- Progress Bar Section -->
     <div class="progress-container">
-      <div class="progress-bar">
+      <div class="progress-bar flex-row">
                 <div class="step <?php echo $current_section === 'services' ? 'active' : ($current_section === 'appointment' || $current_section === 'payment' || $current_section === 'summary' ? 'completed' : ''); ?>">
           <span>1</span>
           <div class="step-label">Services</div>
@@ -801,8 +810,9 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <?php endif; ?>
     <div class="error-message" id="services-error" style="display: none;"></div>
 
-    <div class="services-container">
-        <div class="services-grid">
+    <div class="services-container d-block d-lg-flex">
+
+        <div class="services-grid mb-3">
             <?php foreach ($services as $service): ?>
             <div class="service-card <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'selected' : ''; ?>" 
                  data-service-name="<?php echo htmlspecialchars($service['name']); ?>"
@@ -821,6 +831,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             </div>
             <?php endforeach; ?>
         </div>
+
         <div class="selected-services-panel">
             <div class="selected-services-header">
                 <h3>Selected Services</h3>
@@ -828,7 +839,11 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             <div class="selected-services-list" id="selected-services-list">
                 <!-- Selected services will be displayed here -->
             </div>
+
         </div>
+
+
+
     </div>
     <div class="button-group">
         <button type="button" class="next-btn">Next</button>
@@ -851,15 +866,15 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     </div>
                 
                 <!-- Doctor selection will be populated by JS based on branch -->
-                <div class="form-group" id="doctor-container" style="display:none;">
+        <!--         <div class="form-group" id="doctor-container" style="display:none;">
                     <label>Select Doctor:</label>
                     <select id="doctor" name="doctor_id">
                         <option value="">Select a Doctor</option>
-                        <!-- Options will be populated by JavaScript -->
+
                     </select>
                     <div class="error-message" id="doctor-error" style="display: none;"></div>
                 </div>
-                
+                 -->
                 <!-- Calendar and Time Selection -->
                 <div class="schedule-container">
                     <h3>Select Date and Time</h3>
@@ -900,7 +915,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                             Date: Not selected<br>
                             Time: Not selected<br>
                             Branch: Not selected<br>
-                            Doctor: Not selected
+                  <!--           Doctor: Not selected -->
             </div>
         </div>
                 </div>
@@ -909,8 +924,8 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                 <input type="hidden" id="appointment-date" name="appointment_date" value="<?php echo htmlspecialchars($postData['appointment_date'] ?? ''); ?>">
                 <input type="hidden" id="appointment-time" name="appointment_time" value="<?php echo htmlspecialchars($postData['appointment_time'] ?? ''); ?>">
                 <input type="hidden" id="appointment-datetime" name="appointment_datetime" value="<?php echo htmlspecialchars($postData['appointment_datetime'] ?? ''); ?>">
-                <input type="hidden" id="selected-doctor-name" name="selected_doctor_name" value="<?php echo htmlspecialchars($postData['selected_doctor_name'] ?? ''); ?>">
-                
+        <!--   <input type="hidden" id="selected-doctor-name" name="selected_doctor_name" value="<?php echo htmlspecialchars($postData['selected_doctor_name'] ?? ''); ?>">
+           -->      
                 <div class="info-text">
                     <div class="info-icon">i</div>
                     <div>Select your preferred branch, date, and time for your appointment. Time slots shown are available for booking.</div>
@@ -982,10 +997,10 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                                 </div>
                                 
                                 <div class="payment-icons">
-                                    <img src="assets/img/cash-icon.png" alt="Cash">
-                                    <img src="assets/img/gcash-icon.png" alt="GCash">
-                                    <img src="assets/img/maya-icon.png" alt="Maya">
-                                    <img src="assets/img/card-icon.png" alt="Credit/Debit Cards">
+                                    <img src="assets/photos/Cash-App-Logo.png" alt="Cash">
+                                    <img src="assets/photos/gcash.png" alt="GCash">
+                                    <img src="assets/photos/maya.png" alt="Maya">
+                                    <img src="assets/photos/visa.png" alt="Credit/Debit Cards">
                                 </div>
                             </div>
     </div>
@@ -1015,7 +1030,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                             </div>
         </div>
     </div>
-
+      </div>
     <div class="button-group">
                     <button type="button" class="prev-btn" >Previous</button>
                     <button type="button" class="next-btn" onclick="showSummary()">Review Booking</button>
@@ -1146,11 +1161,11 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                         (<?php echo htmlspecialchars($branchAddress); ?>)
                     </p>
                     
-                    <div class="summary-title">Selected Doctor:</div>
-                    <p>
+               <!--      <div class="summary-title">Selected Doctor:</div>
+                    <p> -->
                         <?php 
                             // First try to use the selected_doctor_name if available
-                            if (!empty($postData['selected_doctor_name'])) {
+             /*                if (!empty($postData['selected_doctor_name'])) {
                                 echo htmlspecialchars($postData['selected_doctor_name']);
                             } else {
                             $doctorName = 'No doctor selected';
@@ -1175,9 +1190,9 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                             }
                             
                             echo htmlspecialchars($doctorName); 
-                            }
+                            } */
                         ?>
-                    </p>
+                   <!--  </p> -->
       
       <div class="summary-row">
         <div class="summary-field">
@@ -1248,7 +1263,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
 
     <script>
         // Initialize global variables for doctor data
-        window.doctorsJson = <?php echo $doctorsJson ?: '{}'; ?>;
+   /*      window.doctorsJson = <?php echo $doctorsJson ?: '{}'; ?>; */
         
         // Function to force update summary data from the database
         function showSummary() {
@@ -1317,7 +1332,53 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                 prepareSummaryView();
             });
         }
-</script>
+
+        // Function to automatically select service from services page
+        function autoSelectService() {
+            const selectedService = sessionStorage.getItem('selectedService');
+            if (selectedService) {
+                // Find the service card with matching name
+                const serviceCards = document.querySelectorAll('.service-card');
+                serviceCards.forEach(card => {
+                    const serviceName = card.getAttribute('data-service-name');
+                    if (serviceName === selectedService) {
+                        // Click the checkbox
+                        const checkbox = card.querySelector('.service-checkbox');
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            card.classList.add('selected');
+                            // Add to window.selectedServices if not already present
+                            if (!window.selectedServices) window.selectedServices = [];
+                            const servicePrice = parseInt(card.getAttribute('data-service-price'), 10) || 0;
+                            if (!window.selectedServices.some(s => s.name === serviceName)) {
+                                window.selectedServices.push({ name: serviceName, price: servicePrice });
+                            }
+                            // Trigger change event to update the UI
+                            const event = new Event('change');
+                            checkbox.dispatchEvent(event);
+                        }
+                    }
+                });
+                // Update the Selected Services panel and payment summary
+                if (typeof updateSelectedServicesUI === 'function') {
+                    updateSelectedServicesUI();
+                }
+                if (typeof calculateTotal === 'function') {
+                    calculateTotal();
+                }
+                if (typeof updatePaymentSummary === 'function') {
+                    updatePaymentSummary();
+                }
+                // Clear the stored service
+                sessionStorage.removeItem('selectedService');
+            }
+        }
+
+        // Call autoSelectService when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            autoSelectService();
+        });
+    </script>
     
     <!-- Medical History Yes/No Toggle Script -->
     <script>
@@ -1504,6 +1565,108 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             }
         });
     </script>
+    
+    <!-- Service Card Selection Script -->
+    <script>
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded - initializing service card selection');
+            
+            // Direct approach to handle service card selection
+            function setupServiceCardSelection() {
+                // Get all service cards and the selected services list container
+                const serviceCards = document.querySelectorAll('.service-card');
+                const selectedServicesList = document.getElementById('selected-services-list');
+                
+                console.log('Found ' + serviceCards.length + ' service cards');
+                console.log('Selected services list element:', selectedServicesList);
+                
+                if (!selectedServicesList) {
+                    console.error('Selected services list element not found!');
+                    return;
+                }
+                
+                // Function to update the selected services panel
+                function updateSelectedServices() {
+                    // Clear the current list
+                    selectedServicesList.innerHTML = '';
+                    
+                    // Get all checked checkboxes
+                    const checkedServices = document.querySelectorAll('.service-checkbox:checked');
+                    console.log('Found ' + checkedServices.length + ' checked services');
+                    
+                    if (checkedServices.length === 0) {
+                        selectedServicesList.innerHTML = '<div class="no-services-selected">No services selected</div>';
+                        return;
+                    }
+                    
+                    // Add each selected service to the list
+                    checkedServices.forEach(checkbox => {
+                        const card = checkbox.closest('.service-card');
+                        if (!card) return;
+                        
+                        const serviceName = card.getAttribute('data-service-name');
+                        const servicePrice = card.getAttribute('data-service-price');
+                        
+                        console.log('Adding selected service:', serviceName, servicePrice);
+                        
+                        const serviceItem = document.createElement('div');
+                        serviceItem.className = 'selected-service-item d-flex justify-content-between';
+                        serviceItem.innerHTML = `
+                            <div class="selected-service-name">${serviceName}</div>
+                            <div class="selected-service-price">₱${servicePrice}</div>
+                        `;
+                        selectedServicesList.appendChild(serviceItem);
+                    });
+                }
+                
+                // Add click event to each service card
+                serviceCards.forEach(card => {
+                    card.onclick = function(e) {
+                        // Find the checkbox inside this card
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        if (!checkbox) {
+                            console.error('Checkbox not found in card');
+                            return;
+                        }
+                        
+                        // If the click was directly on the checkbox, don't do anything
+                        if (e.target === checkbox) {
+                            return;
+                        }
+                        
+                        // Toggle the checkbox state
+                        checkbox.checked = !checkbox.checked;
+                        console.log('Toggled checkbox to:', checkbox.checked);
+                        
+                        // Toggle the selected class on the card
+                        this.classList.toggle('selected', checkbox.checked);
+                        
+                        // Update the selected services list
+                        updateSelectedServices();
+                    };
+                });
+                
+                // Also handle checkbox changes directly
+                document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+                    checkbox.onchange = function() {
+                        const card = this.closest('.service-card');
+                        if (card) {
+                            card.classList.toggle('selected', this.checked);
+                            updateSelectedServices();
+                        }
+                    };
+                });
+                
+                // Initialize the selected services list
+                updateSelectedServices();
+                
+                console.log('Service card selection setup complete');
+            }
+            
+            // Run the setup
+            setupServiceCardSelection();
+        });
+    </script>
 </body>
 </html>
-

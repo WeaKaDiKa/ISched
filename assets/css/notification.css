@@ -1,0 +1,237 @@
+/* Notification Bell Styles */
+:root {
+  /* Type colors */
+  --appointment-color: #4a89dc;
+  --cancellation-color: #dc4a4a;
+  --reschedule-color: #dc8c4a;
+  --review-color: #dcce4a;
+  --reminder-color: #4adc7d;
+  --message-color: #9c4adc;
+}
+
+.notification-wrapper {
+  position: relative;
+  margin-right: 15px;
+}
+
+.notification-toggle {
+  background: none;
+  border: none;
+  color: #124085;
+  font-size: 20px;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #dc4a4a;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  right: -10px;
+  top: 40px;
+  width: 380px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 500px;
+}
+
+.notification-dropdown.show {
+  display: block;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #124085;
+  color: white;
+  font-weight: bold;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.notification-item-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.notification-type-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.notification-type {
+  font-weight: 600;
+  font-size: 14px;
+  flex-grow: 1;
+  text-transform: capitalize;
+}
+
+.notification-date {
+  font-size: 12px;
+  color: #777;
+}
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.sender-photo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid #eee;
+}
+
+.sender-initial {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  margin-right: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.message-bubble {
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  padding: 12px;
+  flex-grow: 1;
+}
+
+.sender-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.message-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+  text-align: right;
+}
+
+.no-notifications {
+  padding: 30px 20px;
+  text-align: center;
+  color: #888;
+}
+
+.no-notifications i {
+  font-size: 40px;
+  color: #ddd;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.mark-all-read {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.mark-all-read i {
+  margin-right: 5px;
+}
+
+/* Type-specific colors */
+.type-appointment { border-left-color: var(--appointment-color); }
+.type-cancellation { border-left-color: var(--cancellation-color); }
+.type-reschedule { border-left-color: var(--reschedule-color); }
+.type-review { border-left-color: var(--review-color); }
+.type-reminder { border-left-color: var(--reminder-color); }
+.type-message { border-left-color: var(--message-color); }
+
+/* Icon background colors */
+.icon-appointment { background-color: #e6f0ff; color: var(--appointment-color); }
+.icon-cancellation { background-color: #ffe6e6; color: var(--cancellation-color); }
+.icon-reschedule { background-color: #fff0e6; color: var(--reschedule-color); }
+.icon-review { background-color: #fffde6; color: var(--review-color); }
+.icon-reminder { background-color: #e6ffef; color: var(--reminder-color); }
+.icon-message { background-color: #f2e6ff; color: var(--message-color); }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 320px;
+    right: -80px;
+  }
+  
+  .notification-dropdown:before {
+    right: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-dropdown {
+    width: 300px;
+    right: -100px;
+  }
+}

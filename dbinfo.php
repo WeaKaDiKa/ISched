@@ -14,5 +14,3 @@ $port = 3318;
 
 $domain = "https://theceprog.great-site.net";
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);

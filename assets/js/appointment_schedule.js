@@ -10,18 +10,18 @@ function initializeCalendar() {
     const appointmentDatetimeInput = document.getElementById('appointment-datetime');
     const clinicSelect = document.getElementById('clinic');
     const monthYearElement = document.querySelector('.month-year');
-    const doctorSelect = document.getElementById('doctor');
-    
+/*     const doctorSelect = document.getElementById('doctor'); */
+
     if (!calendarContainer) {
         console.log('Calendar container not found. The element might not be loaded yet.');
         // Retry initialization after a short delay
         setTimeout(initializeCalendar, 500);
         return;
     }
-    
+
     console.log('Calendar container found, initializing calendar...');
     let currentDate = new Date();
-    
+
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     // Make generateCalendar globally available
@@ -34,9 +34,9 @@ function initializeCalendar() {
             console.error('Calendar container not found!');
             return;
         }
-        
+
         calendarContainer.innerHTML = '';
-        
+
         // Create weekday headers
         weekdays.forEach(day => {
             const header = document.createElement('div');
@@ -48,7 +48,7 @@ function initializeCalendar() {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         const daysInMonth = lastDay.getDate();
-        
+
         // Add empty days for previous month
         for (let i = 0; i < firstDay.getDay(); i++) {
             calendarContainer.appendChild(createEmptyDay());
@@ -70,18 +70,18 @@ function initializeCalendar() {
 
         const dateObj = new Date(year, month, day);
         const today = new Date();
-        
+
         dateObj.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
-        
+
         // Check if date is in the past or is a weekend (Saturday = 6, Sunday = 0)
         const dayOfWeek = dateObj.getDay();
-        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-        
+        const isWeekend = (dayOfWeek === 0 );
+
         if (dateObj < today || isWeekend) {
             dayElement.classList.add('disabled');
             if (isWeekend) {
-                dayElement.title = 'Weekend - Not Available';
+                dayElement.title = 'Sunday - Not Available';
             } else {
                 dayElement.title = 'Past date - Not Available';
             }
@@ -89,7 +89,7 @@ function initializeCalendar() {
             dayElement.addEventListener('click', () => handleDateSelect(dayElement, year, month, day));
         }
 
-        if (dateInput && dateInput.value === dateObj.toISOString().slice(0,10)) {
+        if (dateInput && dateInput.value === dateObj.toISOString().slice(0, 10)) {
             dayElement.classList.add('selected');
         }
 
@@ -99,26 +99,26 @@ function initializeCalendar() {
     function handleDateSelect(dayElement, year, month, day) {
         document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
         dayElement.classList.add('selected');
-        
-        const selectedDate = `${year}-${(month+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+
+        const selectedDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         if (dateInput) dateInput.value = selectedDate;
-        
+
         if (document.getElementById('appointment-date-error')) {
             document.getElementById('appointment-date-error').style.display = 'none';
         }
-        
+
         generateTimeSlots();
-        const doctorElem = document.getElementById('doctor');
-        const doctorIdVal = doctorElem ? doctorElem.value : '';
-        if (clinicSelect && clinicSelect.value && doctorIdVal) {
-            updateTimeSlots(selectedDate, clinicSelect.value, doctorIdVal);
+      /*   const doctorElem = document.getElementById('doctor'); */
+        /*         const doctorIdVal = doctorElem ? doctorElem.value : ''; */
+        if (clinicSelect && clinicSelect.value) {
+            updateTimeSlots(selectedDate, clinicSelect.value);
         } else {
             // Disable all slots until a doctor is selected
             document.querySelectorAll('.time-slot').forEach(slot => {
                 slot.disabled = true;
                 slot.classList.add('disabled');
                 slot.classList.remove('selected');
-                slot.title = 'Select doctor first';
+                slot.title = 'Select clinic first';
             });
         }
     }
@@ -132,92 +132,62 @@ function initializeCalendar() {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: '' // No params needed for all slots
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.all_slots) {
-                allSlots = Object.keys(data.all_slots);
-                slotLabels = data.all_slots;
-                if (typeof callback === 'function') callback();
-            }
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.all_slots) {
+                    allSlots = Object.keys(data.all_slots);
+                    slotLabels = data.all_slots;
+                    if (typeof callback === 'function') callback();
+                }
+            });
     }
 
     // --- ENFORCE NON-CLICKABLE BOOKED SLOTS (FINALIZED) ---
-    function updateTimeSlots(selectedDate, clinicBranch, doctorId) {
+    function updateTimeSlots(selectedDate, clinicBranch) {
         document.querySelectorAll('.time-slot').forEach(slot => {
             slot.disabled = true;
             slot.classList.add('disabled');
             slot.title = 'Checking availability...';
         });
-
-        // Check if selected date is today and get current time
-        const now = new Date();
-        const selectedDateObj = new Date(selectedDate);
-        const isToday = selectedDateObj.toDateString() === now.toDateString();
-        
         fetch('fetch_booked_slots.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `date=${selectedDate}&branch=${encodeURIComponent(clinicBranch)}&doctor_id=${encodeURIComponent(doctorId)}`
+            body: `date=${selectedDate}&branch=${encodeURIComponent(clinicBranch)}`
         })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.all_slots) return;
-            document.querySelectorAll('.time-slot').forEach(slot => {
-                const slotTime = slot.dataset.slotTime;
-                const [time, period] = slotTime.split(' ');
-                const [hours, minutes] = time.split(':');
-                
-                // Convert slot time to Date object for comparison
-                const slotDate = new Date(selectedDate);
-                let slotHours = parseInt(hours);
-                
-                // Convert to 24-hour format
-                if (period.toLowerCase() === 'pm' && slotHours < 12) {
-                    slotHours += 12;
-                } else if (period.toLowerCase() === 'am' && slotHours === 12) {
-                    slotHours = 0;
+            .then(response => response.json())
+            .then(data => {
+                if (!data.all_slots) return;
+                console.log('Available slots:', data.available_slots);
+                console.log('Booked slots:', data.booked_slots);
+                document.querySelectorAll('.time-slot').forEach(slot => {
+                    const slotTime = slot.dataset.slotTime;
+                    // Only enable slots that are in available_slots
+                    if (data.available_slots && data.available_slots.includes(slotTime)) {
+                        slot.disabled = false;
+                        slot.classList.remove('disabled');
+                        slot.title = 'Available';
+                    } else {
+                        slot.disabled = true;
+                        slot.classList.add('disabled');
+                        slot.classList.remove('selected'); // Deselect if previously selected
+                        slot.title = 'Not available';
+                    }
+                });
+                // If the currently selected slot is now unavailable, clear selection
+                const selectedSlot = document.querySelector('.time-slot.selected');
+                if (selectedSlot && selectedSlot.disabled) {
+                    selectedSlot.classList.remove('selected');
+                    updateSelectedScheduleDisplay();
                 }
-                
-                slotDate.setHours(slotHours, parseInt(minutes), 0);
-                
-                // If it's today and the time has passed, disable the slot
-                if (isToday && slotDate <= now) {
-                    slot.disabled = true;
-                    slot.classList.add('disabled');
-                    slot.classList.remove('selected');
-                    slot.title = 'This time has already passed';
-                    return;
-                }
-
-                // Check availability for future time slots
-                if (data.available_slots && data.available_slots.includes(slotTime)) {
+            })
+            .catch(error => {
+                console.error('Error checking availability:', error);
+                document.querySelectorAll('.time-slot').forEach(slot => {
                     slot.disabled = false;
                     slot.classList.remove('disabled');
-                    slot.title = 'Available';
-                } else {
-                    slot.disabled = true;
-                    slot.classList.add('disabled');
-                    slot.classList.remove('selected');
-                    slot.title = 'Not available';
-                }
+                    slot.title = 'Available (could not verify with server)';
+                });
             });
-
-            // If the currently selected slot is now unavailable, clear selection
-            const selectedSlot = document.querySelector('.time-slot.selected');
-            if (selectedSlot && selectedSlot.disabled) {
-                selectedSlot.classList.remove('selected');
-                updateSelectedScheduleDisplay();
-            }
-        })
-        .catch(error => {
-            console.error('Error checking availability:', error);
-            document.querySelectorAll('.time-slot').forEach(slot => {
-                slot.disabled = false;
-                slot.classList.remove('disabled');
-                slot.title = 'Available (could not verify with server)';
-            });
-        });
     }
 
     // --- RESTORE AND ENHANCE TIME SLOT UI ---
@@ -237,7 +207,7 @@ function initializeCalendar() {
             });
         } else {
             // Fallback to original hardcoded slots (10:00 am - 7:00 pm, skipping 12:00 pm)
-            const fallbackSlots = [10, 11, 13, 14, 15, 16, 17, 18, 19];
+            const fallbackSlots = [10, 11, 13, 14, 15, 16, 17];
             fallbackSlots.forEach(hour => {
                 const formatted = formatSlotTimeForDB(hour);
                 const timeSlot = createTimeSlot(formatted);
@@ -291,42 +261,42 @@ function initializeCalendar() {
 
     function updateSelectedScheduleDisplay() {
         if (!dateInput || !dateInput.value) return;
-        
+
         const selectedTimeSlot = document.querySelector('.time-slot.selected');
         if (!selectedTimeSlot) return;
-        
+
         const timeText = selectedTimeSlot.textContent.trim();
         const timeValue = convertTo24Hour(timeText);
-        
+
         if (appointmentDatetimeInput) {
             appointmentDatetimeInput.value = `${dateInput.value} ${timeValue}`;
             console.log(`Selected datetime: ${appointmentDatetimeInput.value}`);
         }
-        
+
         // Set appointment time to time-only value (for database)
         const appointmentTimeInput = document.getElementById('appointment-time');
         if (appointmentTimeInput) {
             appointmentTimeInput.value = timeText;
             console.log(`Selected time: ${appointmentTimeInput.value}`);
         }
-        
+
         // Update the selected schedule display
         const selectedScheduleDisplay = document.getElementById("selected-schedule");
         if (selectedScheduleDisplay) {
-            const selectedBranch = clinicSelect ? clinicSelect.value || 'No branch selected' : 'No branch selected'; 
+            const selectedBranch = clinicSelect ? clinicSelect.value || 'No branch selected' : 'No branch selected';
             const formattedDate = formatDate(dateInput.value);
-            
+
             // Get doctor information if available
-            const doctorText = doctorSelect ? doctorSelect.options[doctorSelect.selectedIndex].text : 'No doctor selected';
-            
+            /* const doctorText = doctorSelect ? doctorSelect.options[doctorSelect.selectedIndex].text : 'No doctor selected';
+             */
             selectedScheduleDisplay.innerHTML = `
                 <strong>Your Selected Appointment:</strong><br>
                 Date: ${formattedDate}<br>
                 Time: ${timeText}<br>
-                Branch: ${selectedBranch}<br>
-                Doctor: ${doctorText}
+                Branch: ${selectedBranch}
+
             `;
-            
+
             // Clear any validation errors
             const errorContainer = document.getElementById('appointment-error-container');
             if (errorContainer) {
@@ -335,10 +305,10 @@ function initializeCalendar() {
             }
         }
     }
-    
+
     function formatDate(dateString) {
         if (!dateString) return '';
-        
+
         const date = new Date(dateString);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
@@ -348,16 +318,16 @@ function initializeCalendar() {
         const [time, period] = timeString.split(' ');
         let [hours, minutes] = time.split(':');
         hours = parseInt(hours);
-        
+
         if (period === 'PM' && hours < 12) hours += 12;
         if (period === 'AM' && hours === 12) hours = 0;
-        
+
         return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
     }
 
     function updateMonthYearDisplay(month, year) {
         if (!monthYearElement) return;
-        
+
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         monthYearElement.textContent = `${monthNames[month]} ${year}`;
     }
@@ -393,61 +363,61 @@ function initializeCalendar() {
     }
 
     // Navigation function to use with the validation system
-    window.validateAppointment = function() {
+    window.validateAppointment = function () {
         const clinicBranch = clinicSelect ? clinicSelect.value : null;
         const isValid = validateAppointmentSelection();
         if (!isValid) return false;
-        
+
         const errorContainer = document.getElementById('appointment-error-container');
         if (errorContainer) {
             errorContainer.textContent = '';
             errorContainer.style.display = 'none';
         }
-        
+
         return true;
     };
 
     // Clinic selection change handler
     if (clinicSelect) {
-        clinicSelect.addEventListener('change', function() {
+        clinicSelect.addEventListener('change', function () {
             const selectedDate = dateInput.value;
             const branch = this.value;
-            const doctorId = doctorSelect ? doctorSelect.value : '';
+            /*             const doctorId = doctorSelect ? doctorSelect.value : ''; */
             // Refresh slots UI
             generateTimeSlots();
-            if (selectedDate && branch && doctorId) {
-                updateTimeSlots(selectedDate, branch, doctorId);
+            if (selectedDate && branch) {
+                updateTimeSlots(selectedDate, branch);
             } else {
                 document.querySelectorAll('.time-slot').forEach(slot => {
                     slot.disabled = true;
                     slot.classList.add('disabled');
                     slot.classList.remove('selected');
-                    slot.title = 'Select date and doctor';
+                    slot.title = 'Select date ';
                 });
             }
         });
     }
-
-    // Doctor selection change handler
-    if (doctorSelect) {
-        doctorSelect.addEventListener('change', function() {
-            const selectedDate = dateInput.value;
-            const branch = clinicSelect.value;
-            const doctorId = this.value;
-            // Refresh slots UI
-            generateTimeSlots();
-            if (selectedDate && branch && doctorId) {
-                updateTimeSlots(selectedDate, branch, doctorId);
-            } else {
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.disabled = true;
-                    slot.classList.add('disabled');
-                    slot.classList.remove('selected');
-                    slot.title = 'Select date and branch';
-                });
-            }
-        });
-    }
+    /* 
+        // Doctor selection change handler
+        if (doctorSelect) {
+            doctorSelect.addEventListener('change', function() {
+                const selectedDate = dateInput.value;
+                const branch = clinicSelect.value;
+                const doctorId = this.value;
+                // Refresh slots UI
+                generateTimeSlots();
+                if (selectedDate && branch && doctorId) {
+                    updateTimeSlots(selectedDate, branch, doctorId);
+                } else {
+                    document.querySelectorAll('.time-slot').forEach(slot => {
+                        slot.disabled = true;
+                        slot.classList.add('disabled');
+                        slot.classList.remove('selected');
+                        slot.title = 'Select date and branch';
+                    });
+                }
+            });
+        } */
 
     // Event Listeners
     document.querySelector('.calendar-nav').addEventListener('click', (e) => {
