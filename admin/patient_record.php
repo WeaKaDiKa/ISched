@@ -49,7 +49,7 @@ $patients = $patientModel->getAllPatients();
 
             <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
 
-                <div class="flex justify-between items-center mb-3">
+                <div class="flex-col md:flex-row flex justify-between items-center mb-3">
                     <h1 class="text-[#0B2E61] text-xl font-semibold">Patient Records</h1>
                     <div class="flex items-center space-x-4">
                         <div class="relative">
