@@ -76,15 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $notifStmt->execute();
                 
                 // Send email notification if patient email is available
-                // Wrap in try-catch to prevent any email errors from breaking the appointment approval process
                 if (!empty($patientEmail)) {
-                    try {
-                        $formattedDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
-                        send_appointment_approval_email($patientEmail, $patientName, $formattedDate, $appointmentData['appointment_time']);
-                    } catch (Exception $e) {
-                        // Log error but continue with the appointment approval process
-                        error_log("Failed to send approval email: " . $e->getMessage());
-                    }
+                    $formattedDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
+                    send_appointment_approval_email($patientEmail, $patientName, $formattedDate, $appointmentData['appointment_time']);
                 }
             }
         } elseif ($action === 'decline') {
@@ -134,15 +128,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $notifStmt->execute();
                 
                 // Send email notification if patient email is available
-                // Wrap in try-catch to prevent any email errors from breaking the appointment cancellation process
                 if (!empty($patientEmail)) {
-                    try {
-                        $formattedDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
-                        send_appointment_cancellation_email($patientEmail, $patientName, $formattedDate, $appointmentData['appointment_time'], $reason);
-                    } catch (Exception $e) {
-                        // Log error but continue with the appointment cancellation process
-                        error_log("Failed to send cancellation email: " . $e->getMessage());
-                    }
+                    $formattedDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
+                    send_appointment_cancellation_email($patientEmail, $patientName, $formattedDate, $appointmentData['appointment_time'], $reason);
                 }
             }
         } else {
@@ -160,3 +148,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 echo json_encode(['success' => false, 'message' => 'Invalid request.']); 
+?>

@@ -17,19 +17,14 @@ try {
     // Silently handle any errors
 }
 ?>
-<header class="flex w-full items-center justify-between bg-blue-300 px-6 py-3 border-b border-gray-300">
+<header class="flex items-center justify-between bg-blue-300 px-6 py-3 border-b border-gray-300">
     <!-- Welcome Message Section -->
     <div class="flex items-center space-x-3 text-gray-900 text-sm font-normal">
-        <button id="sidebarToggle" aria-label="Toggle menu"
-            class="text-blue-600 hover:text-blue-700 focus:outline-none md:hidden flex">
-            <i class="fas fa-bars fa-lg"></i>
-        </button>
-        <span class="lg:block hidden"><?php echo $greeting; ?></span>
-        <span class="font-bold text-gray-900 text-base sm:block hidden">
+        <span><?php echo $greeting; ?></span>
+        <span class="font-bold text-gray-900 text-base">
             <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>!
         </span>
-
-        <span class="text-gray-900 lg:block hidden">
+        <span class="text-gray-900">
             | North Fairview Branch
         </span>
     </div>
@@ -37,8 +32,8 @@ try {
     <!-- Action Buttons Section -->
     <div class="flex items-center space-x-4">
         <a href="walk_in_appointment.php"
-            class="bg-purple-700 text-white text-xs font-semibold rounded-md hover:bg-purple-800 p-3 text-center">
-            Walk-in Form
+            class="bg-purple-700 text-white text-xs font-semibold rounded-md px-4 py-1 hover:bg-purple-800">
+            Walk-in Appointment Form
         </a>
         <?php include('admin_notification_bell.php'); ?>
         <img alt="Profile photo of <?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>"

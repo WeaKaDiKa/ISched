@@ -137,8 +137,20 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
                     </div>
                     <div class="form-group">
                         <label>Update Profile Picture:</label>
-                        <input id="profileInput" type="file" name="profile_picture" accept="image/*">
+                        <input id="profileInput" type="file" name="profile_picture" accept="image/*" onchange="previewImage(this);">
+                        <p class="form-hint">Accepted formats: JPG, JPEG, PNG (Max 2MB)</p>
                     </div>
+                    <script>
+                        function previewImage(input) {
+                            if (input.files && input.files[0]) {
+                                var reader = new FileReader();
+                                reader.onload = function(e) {
+                                    document.getElementById('profilePreview').src = e.target.result;
+                                }
+                                reader.readAsDataURL(input.files[0]);
+                            }
+                        }
+                    </script>
                 </div>
 
                 <div class="profile-info">

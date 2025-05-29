@@ -603,10 +603,12 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Booking - M&A Oida Dental Clinic</title>
     <link rel="stylesheet" href="assets/css/bookings.css?v=1.4">
-
+    <link rel="stylesheet" href="assets/css/homepage.css">
+    <link rel="stylesheet" href="assets/css/profile-icon.css">
+    <link rel="stylesheet" href="assets/css/notification.css">
+    <link rel="stylesheet" href="assets/css/selected-services.css">
     <link rel="stylesheet" href="assets/css/calendar.css?v=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-      <?php require_once 'includes/head.php' ?>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* Success Modal Styles */
@@ -1317,7 +1319,53 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                 prepareSummaryView();
             });
         }
-</script>
+
+        // Function to automatically select service from services page
+        function autoSelectService() {
+            const selectedService = sessionStorage.getItem('selectedService');
+            if (selectedService) {
+                // Find the service card with matching name
+                const serviceCards = document.querySelectorAll('.service-card');
+                serviceCards.forEach(card => {
+                    const serviceName = card.getAttribute('data-service-name');
+                    if (serviceName === selectedService) {
+                        // Click the checkbox
+                        const checkbox = card.querySelector('.service-checkbox');
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            card.classList.add('selected');
+                            // Add to window.selectedServices if not already present
+                            if (!window.selectedServices) window.selectedServices = [];
+                            const servicePrice = parseInt(card.getAttribute('data-service-price'), 10) || 0;
+                            if (!window.selectedServices.some(s => s.name === serviceName)) {
+                                window.selectedServices.push({ name: serviceName, price: servicePrice });
+                            }
+                            // Trigger change event to update the UI
+                            const event = new Event('change');
+                            checkbox.dispatchEvent(event);
+                        }
+                    }
+                });
+                // Update the Selected Services panel and payment summary
+                if (typeof updateSelectedServicesUI === 'function') {
+                    updateSelectedServicesUI();
+                }
+                if (typeof calculateTotal === 'function') {
+                    calculateTotal();
+                }
+                if (typeof updatePaymentSummary === 'function') {
+                    updatePaymentSummary();
+                }
+                // Clear the stored service
+                sessionStorage.removeItem('selectedService');
+            }
+        }
+
+        // Call autoSelectService when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            autoSelectService();
+        });
+    </script>
     
     <!-- Medical History Yes/No Toggle Script -->
     <script>
@@ -1504,6 +1552,108 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             }
         });
     </script>
+    
+    <!-- Service Card Selection Script -->
+    <script>
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded - initializing service card selection');
+            
+            // Direct approach to handle service card selection
+            function setupServiceCardSelection() {
+                // Get all service cards and the selected services list container
+                const serviceCards = document.querySelectorAll('.service-card');
+                const selectedServicesList = document.getElementById('selected-services-list');
+                
+                console.log('Found ' + serviceCards.length + ' service cards');
+                console.log('Selected services list element:', selectedServicesList);
+                
+                if (!selectedServicesList) {
+                    console.error('Selected services list element not found!');
+                    return;
+                }
+                
+                // Function to update the selected services panel
+                function updateSelectedServices() {
+                    // Clear the current list
+                    selectedServicesList.innerHTML = '';
+                    
+                    // Get all checked checkboxes
+                    const checkedServices = document.querySelectorAll('.service-checkbox:checked');
+                    console.log('Found ' + checkedServices.length + ' checked services');
+                    
+                    if (checkedServices.length === 0) {
+                        selectedServicesList.innerHTML = '<div class="no-services-selected">No services selected</div>';
+                        return;
+                    }
+                    
+                    // Add each selected service to the list
+                    checkedServices.forEach(checkbox => {
+                        const card = checkbox.closest('.service-card');
+                        if (!card) return;
+                        
+                        const serviceName = card.getAttribute('data-service-name');
+                        const servicePrice = card.getAttribute('data-service-price');
+                        
+                        console.log('Adding selected service:', serviceName, servicePrice);
+                        
+                        const serviceItem = document.createElement('div');
+                        serviceItem.className = 'selected-service-item';
+                        serviceItem.innerHTML = `
+                            <div class="selected-service-name">${serviceName}</div>
+                            <div class="selected-service-price">₱${servicePrice}</div>
+                        `;
+                        selectedServicesList.appendChild(serviceItem);
+                    });
+                }
+                
+                // Add click event to each service card
+                serviceCards.forEach(card => {
+                    card.onclick = function(e) {
+                        // Find the checkbox inside this card
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        if (!checkbox) {
+                            console.error('Checkbox not found in card');
+                            return;
+                        }
+                        
+                        // If the click was directly on the checkbox, don't do anything
+                        if (e.target === checkbox) {
+                            return;
+                        }
+                        
+                        // Toggle the checkbox state
+                        checkbox.checked = !checkbox.checked;
+                        console.log('Toggled checkbox to:', checkbox.checked);
+                        
+                        // Toggle the selected class on the card
+                        this.classList.toggle('selected', checkbox.checked);
+                        
+                        // Update the selected services list
+                        updateSelectedServices();
+                    };
+                });
+                
+                // Also handle checkbox changes directly
+                document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+                    checkbox.onchange = function() {
+                        const card = this.closest('.service-card');
+                        if (card) {
+                            card.classList.toggle('selected', this.checked);
+                            updateSelectedServices();
+                        }
+                    };
+                });
+                
+                // Initialize the selected services list
+                updateSelectedServices();
+                
+                console.log('Service card selection setup complete');
+            }
+            
+            // Run the setup
+            setupServiceCardSelection();
+        });
+    </script>
 </body>
 </html>
-

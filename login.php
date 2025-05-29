@@ -149,6 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <title>Login - ISched of M&A Oida Dental Clinic</title>
     <link rel="stylesheet" href="assets/css/style.css?v=2.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/script.js"></script>
 </head>
 
@@ -168,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <form id="login-form" action="login.php" method="POST">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="ex. Juandelacruz@gmail.com" required>
+                <input type="text" id="email" name="email" placeholder="ex. Juandelacruz@gmail.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
 
                 <label for="password">Password:</label>
                 <div class="password-container">
@@ -192,6 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </form>
         </div>
     </div>
+    <?php require_once 'includes/login_modal.php'; ?>
 </body>
 
 </html>
