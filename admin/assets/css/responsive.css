@@ -217,13 +217,7 @@ body {
         padding: 0.75rem !important;
     }
     
-    /* Improve form elements */
-    input, select, textarea {
-        font-size: 16px !important; /* Prevents zoom on iOS */
-        padding: 10px !important;
-        margin-bottom: 12px;
-        border-radius: 8px;
-    }
+
     
     /* Improve buttons */
     .btn {
@@ -357,14 +351,6 @@ body {
         padding: 12px;
     }
     
-    /* Improve form elements */
-    input,
-    select,
-    textarea {
-        font-size: 16px !important; /* Prevents zoom on iOS */
-        padding: 12px;
-    }
-    
     /* Improve table readability */
     .table-responsive {
         margin: 0 -15px;
@@ -400,40 +386,6 @@ body {
     }
 }
 
-/* Dark mode support *//* 
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #1a1a1a;
-        color: #ffffff;
-    }
-    
-    .card {
-        background-color: #2d2d2d;
-        border-color: #404040;
-    }
-    
-    .navbar {
-        background-color: #2d2d2d;
-        border-color: #404040;
-    }
-    
-    .form-control {
-        background-color: #2d2d2d;
-        border-color: #404040;
-        color: #ffffff;
-    }
-    
-    .table {
-        color: #ffffff;
-    }
-    
-    .table td,
-    .table th {
-        border-color: #404040;
-    }
-}
- */
-/* Print styles */
 @media print {
     .no-print {
         display: none !important;

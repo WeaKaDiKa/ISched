@@ -20,10 +20,10 @@ if (!isset($_SESSION['admin_id'])) {
 </head>
 
 <body class="bg-white text-gray-900">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <!-- Top bar -->
             <?php require_once 'header.php' ?>
             <!-- Breadcrumb -->
@@ -44,23 +44,24 @@ if (!isset($_SESSION['admin_id'])) {
             </nav>
 
             <!-- Content area -->
-            <div class="flex-1 overflow-y-auto p-4">
-                <div class="w-full max-w-6xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-[#0B2E61] text-xl font-semibold">Account Roles</h1>
-                        <a href="newrole.php"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Account</a>
+            <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h1 class="text-[#0B2E61] text-xl font-semibold">Account Roles</h1>
+                    <a href="newrole.php"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Account</a>
 
-                    </div>
+                </div>
+                <div class="my-4 w-full overflow-x-scroll">
                     <table id="example" class="display">
                         <thead>
                             <tr>
                                 <th>Profile</th>
-                                <th>Email</th>
+                          
                                 <th>ID</th>
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Age</th>
+                                <th>Email</th>
                                 <th>Mobile</th>
                                 <th>Gender</th>
                                 <th>Created At</th>
@@ -81,11 +82,12 @@ if (!isset($_SESSION['admin_id'])) {
                                 <tr>
                                     <td><img src="<?= htmlspecialchars($photo) ?>" style="width:100%">
                                     </td>
-                                    <td><?= htmlspecialchars($row['email']) ?></td>
+
                                     <td><?= htmlspecialchars($row['admin_id']) ?></td>
                                     <td><?= htmlspecialchars($row['first_name']) ?></td>
                                     <td><?= htmlspecialchars($row['last_name']) ?></td>
                                     <td><?= htmlspecialchars($row['age']) ?></td>
+                                    <td><?= htmlspecialchars($row['email']) ?></td>
                                     <td><?= htmlspecialchars($row['mobile']) ?></td>
                                     <td><?= htmlspecialchars($row['gender']) ?></td>
                                     <td><?= htmlspecialchars($row['created_at']) ?></td>
@@ -95,11 +97,13 @@ if (!isset($_SESSION['admin_id'])) {
                             $conn->close(); ?>
                         </tbody>
                     </table>
-
-
                 </div>
-            </div>
-        </main>
+
+
+            </section>
+    </div>
+
+    </main>
     </div>
 
     <script>

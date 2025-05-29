@@ -62,11 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_profile'])) {
 </head>
 
 <body class="bg-white text-gray-900">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <!-- Sidebar -->
         <?php require_once 'nav.php' ?>
         <!-- Main content -->
-        <main class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-x-hidden">
             <!-- Top bar -->
             <?php require_once 'header.php' ?>
             <!-- Breadcrumb Navigation -->
@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_profile'])) {
             <!-- End Breadcrumb Navigation -->
 
             <!-- Content area -->
-            <div class="flex-1 flex justify-center p-4  bg-gray-50">
-                <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6">
+            <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
+                <div class="flex justify-between items-center mb-3">
 
                     <form id="profileForm" method="post" enctype="multipart/form-data"
                         class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -206,8 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_profile'])) {
                     </form>
 
                 </div>
+            </section>
 
-            </div>
         </main>
     </div>
     <!-- Success Modal -->
