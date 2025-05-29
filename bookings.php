@@ -924,7 +924,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                 <input type="hidden" id="appointment-date" name="appointment_date" value="<?php echo htmlspecialchars($postData['appointment_date'] ?? ''); ?>">
                 <input type="hidden" id="appointment-time" name="appointment_time" value="<?php echo htmlspecialchars($postData['appointment_time'] ?? ''); ?>">
                 <input type="hidden" id="appointment-datetime" name="appointment_datetime" value="<?php echo htmlspecialchars($postData['appointment_datetime'] ?? ''); ?>">
-        <!--   <input type="hidden" id="selected-doctor-name" name="selected_doctor_name" value="<?php echo htmlspecialchars($postData['selected_doctor_name'] ?? ''); ?>">
+        <!--   <input type="hidden" id="selected-doctor-name" name="selected_doctor_name" value="<?php //echo htmlspecialchars($postData['selected_doctor_name'] ?? ''); ?>">
            -->      
                 <div class="info-text">
                     <div class="info-icon">i</div>
@@ -1001,6 +1001,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                                     <img src="assets/photos/gcash.png" alt="GCash">
                                     <img src="assets/photos/maya.png" alt="Maya">
                                     <img src="assets/photos/visa.png" alt="Credit/Debit Cards">
+                                                 <img src="assets/photos/Cash-App-Logo.png" alt="Credit/Debit Cards">
                                 </div>
                             </div>
     </div>
@@ -1145,20 +1146,23 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                     <div class="summary-title">Appointment Schedule:</div>
                     <p>
       <?php 
-                            $appointmentDate = $postData['appointment_date'] ?? '';
+              /*               $appointmentDate = $postData['appointment_date'] ?? '';
                             if ($appointmentDate) {
                                 $formattedDate = date('F j, Y', strtotime($appointmentDate));
                                 echo htmlspecialchars($formattedDate);
                             } else {
                                 echo 'Date not selected';
-                            }
+                            } */
                         ?>
+                        <span id="selected-date-sched"></span>
                         at 
-                        <?php echo htmlspecialchars($postData['appointment_time'] ?? 'Time not selected'); ?>
+                         <span id="selected-time-sched"></span>
+                        <!-- <?php //echo htmlspecialchars($postData['appointment_time'] ?? 'Time not selected'); ?> -->
                     </p>
                     <p>
-                        <?php echo htmlspecialchars($postData['clinic_branch'] ?? 'Branch not selected'); ?>
-                        (<?php echo htmlspecialchars($branchAddress); ?>)
+                             <span id="selected-branch"></span>
+                        <?php //echo htmlspecialchars($postData['clinic_branch'] ?? 'Branch not selected'); ?>
+                        <?php //echo htmlspecialchars($branchAddress); ?><span id="selected-address"></span>
                     </p>
                     
                <!--      <div class="summary-title">Selected Doctor:</div>

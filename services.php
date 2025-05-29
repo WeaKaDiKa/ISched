@@ -27,11 +27,8 @@ if (isset($_SESSION['user_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Services - ISched of M&A Oida Dental Clinic</title>
   <link rel="stylesheet" href="assets/css/services.css">
-  <link rel="stylesheet" href="assets/css/homepage.css">
-  <link rel="stylesheet" href="assets/css/profile-icon.css">
-  <link rel="stylesheet" href="assets/css/notification.css">
+  <?php require_once 'includes/head.php' ?>
   <script src="assets/js/services.js" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 
 <body>

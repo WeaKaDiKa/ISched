@@ -713,6 +713,29 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
         </div>
     </div>
 
+    <!-- Decline Appointment Modal -->
+    <div id="declineModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Decline Appointment</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">Please provide a reason for declining this appointment.</p>
+                    <textarea id="reasonText"
+                        class="mt-2 w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="4"
+                        maxlength="200" placeholder="Enter reason here..."></textarea>
+                    <div class="text-right text-xs text-gray-500"><span id="charCount">0</span>/200</div>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="cancelDecline"
+                        class="px-4 py-2 bg-gray-200 text-gray-900 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+                    <button id="confirmDecline"
+                        class="mt-3 px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">Decline
+                        Appointment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Success Modal -->
     <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">

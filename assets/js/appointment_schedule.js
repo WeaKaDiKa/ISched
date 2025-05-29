@@ -282,6 +282,9 @@ function initializeCalendar() {
 
         // Update the selected schedule display
         const selectedScheduleDisplay = document.getElementById("selected-schedule");
+          const selectedDateDisplay = document.getElementById("selected-date-sched");
+            const selectedTimeDisplay = document.getElementById("selected-time-sched");
+              const selectedBranchDisplay = document.getElementById("selected-branch");
         if (selectedScheduleDisplay) {
             const selectedBranch = clinicSelect ? clinicSelect.value || 'No branch selected' : 'No branch selected';
             const formattedDate = formatDate(dateInput.value);
@@ -296,6 +299,10 @@ function initializeCalendar() {
                 Branch: ${selectedBranch}
 
             `;
+
+            selectedDateDisplay.innerHTML=`${formattedDate}`;
+             selectedTimeDisplay.innerHTML=`${timeText}`;
+              selectedBranchDisplay.innerHTML=`${selectedBranch}`;
 
             // Clear any validation errors
             const errorContainer = document.getElementById('appointment-error-container');
