@@ -150,18 +150,11 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                             <div class="flex items-center space-x-4 mb-4 md:mb-0">
                                 <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                                    <?php
-                                    // Check if profile picture exists
-                                    $profilePicture = '';
-                                    if (!empty($patient['profile_picture'])) {
-                                        // User has a profile picture in the database
-                                        $profilePicture = '../' . $patient['profile_picture'];
-                                        echo '<img src="' . htmlspecialchars($profilePicture) . '" alt="Profile Picture" class="w-full h-full object-cover">';
-                                    } else {
-                                        // Use default avatar
-                                        echo '<img src="../assets/photo/default_avatar.png" alt="Profile Picture" class="w-full h-full object-cover">';
-                                    }
-                                    ?>
+                                    <?php if (!empty($patient['profile_picture'])): ?>
+                                        <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>" alt="Profile Picture" class="w-full h-full object-cover">
+                                    <?php else: ?>
+                                        <i class="fas fa-user text-gray-400 text-4xl"></i>
+                                    <?php endif; ?>
                                 </div>
                                 <div>
                                     <h1 class="text-2xl font-bold text-gray-900">
@@ -178,18 +171,12 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                 </div>
                             </div>
                             <div class="flex space-x-2">
-                                <?php 
-                                // Only show these buttons if NOT coming from patient_feedback.php
-                                $fromFeedback = isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'patient_feedback.php') !== false;
-                                if (!$fromFeedback): 
-                                ?>
-                                    <a href="edit_patient.php?id=<?php echo $patientId; ?>" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <i class="fas fa-edit mr-2"></i> Edit Profile
-                                    </a>
-                                    <a href="create_appointment.php?patient_id=<?php echo $patientId; ?>" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                        <i class="fas fa-calendar-plus mr-2"></i> New Appointment
-                                    </a>
-                                <?php endif; ?>
+                                <a href="edit_patient.php?id=<?php echo $patientId; ?>" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i class="fas fa-edit mr-2"></i> Edit Profile
+                                </a>
+                                <a href="create_appointment.php?patient_id=<?php echo $patientId; ?>" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    <i class="fas fa-calendar-plus mr-2"></i> New Appointment
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -206,13 +193,8 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                     <?php echo count($appointments); ?>
                                 </span>
                             </button>
-                            <?php if (!$fromFeedback): ?>
                             <button class="tab-button py-4 px-1 font-medium text-sm" data-tab="dental-records">
                                 <i class="fas fa-tooth mr-2"></i> Dental Records
-                            </button>
-                            <?php endif; ?>
-                            <button class="tab-button py-4 px-1 font-medium text-sm" data-tab="reviews">
-                                <i class="fas fa-comment-alt mr-2"></i> Reviews
                             </button>
                         </nav>
                     </div>
@@ -263,11 +245,9 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                         <div class="bg-white rounded-lg shadow-md p-6">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-xl font-semibold">Appointment History</h2>
-                                <?php if (!$fromFeedback): ?>
                                 <a href="create_appointment.php?patient_id=<?php echo $patientId; ?>" class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     <i class="fas fa-plus mr-1"></i> New Appointment
                                 </a>
-                                <?php endif; ?>
                             </div>
 
                             <?php if (empty($appointments)): ?>
@@ -285,9 +265,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Services</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <?php if (!$fromFeedback): ?>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                                <?php endif; ?>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -343,7 +321,6 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                             <?php echo htmlspecialchars(ucfirst($appointment['status'])); ?>
                                                         </span>
                                                     </td>
-                                                    <?php if (!$fromFeedback): ?>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <a href="view_appointment.php?id=<?php echo $appointment['id']; ?>" class="text-blue-600 hover:text-blue-900 mr-3">
                                                             <i class="fas fa-eye"></i>
@@ -352,7 +329,6 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                             <i class="fas fa-edit"></i>
                                                         </a>
                                                     </td>
-                                                    <?php endif; ?>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
@@ -376,74 +352,6 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                 <p class="text-gray-500">No dental records found for this patient.</p>
                                 <p class="text-gray-500 mt-2">Add a new record to track the patient's dental history.</p>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="reviews-tab">
-                        <div class="bg-white rounded-lg shadow-md p-6">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-xl font-semibold">Patient Reviews</h2>
-                            </div>
-
-                            <?php
-                            // Fetch patient's reviews
-                            $reviewsQuery = "SELECT * FROM reviews WHERE patient_id = ? ORDER BY date DESC";
-                            $reviewsStmt = $conn->prepare($reviewsQuery);
-                            $reviewsStmt->bind_param("i", $patientId);
-                            $reviewsStmt->execute();
-                            $reviewsResult = $reviewsStmt->get_result();
-                            
-                            $reviews = [];
-                            if ($reviewsResult && $reviewsResult->num_rows > 0) {
-                                while ($row = $reviewsResult->fetch_assoc()) {
-                                    $reviews[] = $row;
-                                }
-                            }
-                            ?>
-
-                            <?php if (count($reviews) > 0): ?>
-                                <div class="space-y-4">
-                                    <?php foreach ($reviews as $review): ?>
-                                        <?php $services = json_decode($review['services'], true); ?>
-                                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                            <div class="flex justify-between items-start">
-                                                <div>
-                                                    <div class="text-yellow-500 text-lg mb-1">
-                                                        <?php
-                                                        for ($i = 1; $i <= 5; $i++) {
-                                                            if ($i <= $review['rating']) {
-                                                                echo '★';
-                                                            } else {
-                                                                echo '☆';
-                                                            }
-                                                        }
-                                                        ?>
-                                                    </div>
-                                                    <p class="text-gray-700 mb-3"><?php echo htmlspecialchars($review['text']); ?></p>
-                                                    
-                                                    <?php if (!empty($services)): ?>
-                                                        <div class="flex flex-wrap gap-2 mb-2">
-                                                            <?php foreach ($services as $service): ?>
-                                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                                                    <?php echo htmlspecialchars($service); ?>
-                                                                </span>
-                                                            <?php endforeach; ?>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    <?php echo date('M d, Y', strtotime($review['date'])); ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php else: ?>
-                                <div class="text-center py-8">
-                                    <i class="fas fa-comment-slash text-gray-300 text-5xl mb-4"></i>
-                                    <p class="text-gray-500">This patient hasn't submitted any reviews yet.</p>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

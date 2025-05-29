@@ -20,18 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Handle accept booking requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'accept') {
     $appointmentId = intval($_POST['appointment_id']);
-    
+
     // Verify this appointment belongs to the current user
     $verifyStmt = $conn->prepare("SELECT id FROM appointments WHERE id = ? AND patient_id = ? AND status = 'pending'");
     $verifyStmt->bind_param("ii", $appointmentId, $_SESSION['user_id']);
     $verifyStmt->execute();
     $result = $verifyStmt->get_result();
-    
+
     if ($result->num_rows === 1) {
         // Update appointment status to booked
         $updateStmt = $conn->prepare("UPDATE appointments SET status = 'booked' WHERE id = ?");
         $updateStmt->bind_param("i", $appointmentId);
-        
+
         if ($updateStmt->execute()) {
             $acceptMessage = "Your appointment has been accepted successfully.";
         } else {
@@ -45,18 +45,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Handle cancellation requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel') {
     $appointmentId = intval($_POST['appointment_id']);
-    
+
     // Verify this appointment belongs to the current user
     $verifyStmt = $conn->prepare("SELECT id FROM appointments WHERE id = ? AND patient_id = ?");
     $verifyStmt->bind_param("ii", $appointmentId, $_SESSION['user_id']);
     $verifyStmt->execute();
     $result = $verifyStmt->get_result();
-    
+
     if ($result->num_rows === 1) {
         // Update appointment status to cancelled
         $updateStmt = $conn->prepare("UPDATE appointments SET status = 'cancelled' WHERE id = ?");
         $updateStmt->bind_param("i", $appointmentId);
-        
+
         if ($updateStmt->execute()) {
             $cancelMessage = "Your appointment has been cancelled successfully.";
         } else {
@@ -111,6 +111,7 @@ $userData = $userResult->fetch_assoc();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -126,31 +127,31 @@ $userData = $userResult->fetch_assoc();
             box-sizing: border-box;
             font-family: 'Arial', sans-serif;
         }
-        
+
         body {
             background-color: #f5f5f5;
             color: #333;
             line-height: 1.6;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 20px auto;
             padding: 0 20px;
         }
-        
+
         header {
             background: linear-gradient(to right, #1a76d2, #0d47a1);
             color: white;
             padding: 20px 0;
             text-align: center;
         }
-        
+
         h1 {
             font-size: 28px;
             margin-bottom: 10px;
         }
-        
+
         .user-info {
             background-color: white;
             border-radius: 8px;
@@ -158,7 +159,7 @@ $userData = $userResult->fetch_assoc();
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .bookings-container {
             background-color: white;
             border-radius: 8px;
@@ -166,7 +167,7 @@ $userData = $userResult->fetch_assoc();
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .booking-card {
             border: 1px solid #eaeaea;
             border-radius: 6px;
@@ -174,19 +175,19 @@ $userData = $userResult->fetch_assoc();
             margin-bottom: 15px;
             background-color: #fcfcfc;
         }
-        
+
         .booking-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-        
+
         .booking-id {
             font-weight: bold;
             color: #1a76d2;
         }
-        
+
         .booking-status {
             display: inline-block;
             padding: 5px 10px;
@@ -194,49 +195,49 @@ $userData = $userResult->fetch_assoc();
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .status-booked {
             background-color: #e3f2fd;
             color: #1976d2;
         }
-        
+
         .status-completed {
             background-color: #e8f5e9;
             color: #388e3c;
         }
-        
+
         .status-cancelled {
             background-color: #ffebee;
             color: #d32f2f;
         }
-        
+
         .status-rescheduled {
             background-color: #fff8e1;
             color: #ff8f00;
         }
-        
+
         .booking-details {
             margin-bottom: 15px;
         }
-        
+
         .booking-row {
             display: flex;
             margin-bottom: 5px;
         }
-        
+
         .booking-label {
             width: 150px;
             font-weight: bold;
         }
-        
+
         .booking-value {
             flex: 1;
         }
-        
+
         .booking-actions {
             text-align: right;
         }
-        
+
         .btn {
             display: inline-block;
             padding: 8px 15px;
@@ -247,54 +248,54 @@ $userData = $userResult->fetch_assoc();
             text-decoration: none;
             transition: background-color 0.3s;
         }
-        
+
         .btn-cancel {
             background-color: #f44336;
             color: white;
         }
-        
+
         .btn-cancel:hover {
             background-color: #d32f2f;
         }
-        
+
         .btn-accept {
             background-color: #4CAF50;
             color: white;
         }
-        
+
         .btn-accept:hover {
             background-color: #388E3C;
         }
-        
+
         .btn-reschedule {
             background-color: #ff9800;
             color: white;
             margin-right: 10px;
         }
-        
+
         .message {
             padding: 10px;
             margin-bottom: 15px;
             border-radius: 4px;
             text-align: center;
         }
-        
+
         .success {
             background-color: #dff0d8;
             color: #3c763d;
         }
-        
+
         .error {
             background-color: #f2dede;
             color: #a94442;
         }
-        
+
         .no-bookings {
             text-align: center;
             padding: 30px;
             color: #757575;
         }
-        
+
         .navigation {
             background-color: white;
             border-radius: 8px;
@@ -303,7 +304,7 @@ $userData = $userResult->fetch_assoc();
             margin-bottom: 20px;
             text-align: center;
         }
-        
+
         .nav-link {
             display: inline-block;
             margin: 0 10px;
@@ -311,11 +312,11 @@ $userData = $userResult->fetch_assoc();
             text-decoration: none;
             font-weight: bold;
         }
-        
+
         .nav-link:hover {
             text-decoration: underline;
         }
-        
+
         .back-btn {
             position: absolute;
             top: 20px;
@@ -325,7 +326,7 @@ $userData = $userResult->fetch_assoc();
             font-weight: bold;
             font-size: 16px;
         }
-        
+
         .back-btn:hover {
             text-decoration: underline;
         }
@@ -339,37 +340,37 @@ $userData = $userResult->fetch_assoc();
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             align-items: center;
             justify-content: center;
         }
-        
+
         .modal-content {
             background-color: #fff;
             border-radius: 8px;
             max-width: 500px;
             width: 90%;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
-        
+
         .modal-title {
             font-size: 20px;
             margin-bottom: 15px;
             color: #d32f2f;
         }
-        
+
         .modal-message {
             margin-bottom: 20px;
         }
-        
+
         .modal-buttons {
             display: flex;
             justify-content: center;
             gap: 15px;
         }
-        
+
         .modal-btn {
             padding: 8px 20px;
             border: none;
@@ -377,12 +378,12 @@ $userData = $userResult->fetch_assoc();
             cursor: pointer;
             font-size: 14px;
         }
-        
+
         .btn-confirm-cancel {
             background-color: #f44336;
             color: white;
         }
-        
+
         .btn-go-back {
             background-color: #9e9e9e;
             color: white;
@@ -395,24 +396,24 @@ $userData = $userResult->fetch_assoc();
             padding: 15px;
             border: 1px solid #eaeaea;
         }
-        
+
         .filter-row {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
         }
-        
+
         .filter-group {
             display: flex;
             align-items: center;
             margin-right: 20px;
         }
-        
+
         .filter-group label {
             margin-right: 8px;
             font-weight: bold;
         }
-        
+
         .filter-group select {
             padding: 6px 10px;
             border-radius: 4px;
@@ -420,32 +421,33 @@ $userData = $userResult->fetch_assoc();
         }
     </style>
 </head>
+
 <body>
     <header>
         <a href="profile.php" class="back-btn">Back</a>
         <h1>My Bookings</h1>
         <p>View and manage your dental appointments</p>
-        
+
         <!-- Notification bell removed as requested -->
     </header>
-    
+
     <div class="container">
         <?php if (isset($acceptMessage)): ?>
             <div class="message success"><?php echo $acceptMessage; ?></div>
         <?php endif; ?>
-        
+
         <?php if (isset($acceptError)): ?>
             <div class="message error"><?php echo $acceptError; ?></div>
         <?php endif; ?>
-        
+
         <?php if (isset($cancelMessage)): ?>
             <div class="message success"><?php echo $cancelMessage; ?></div>
         <?php endif; ?>
-        
+
         <?php if (isset($cancelError)): ?>
             <div class="message error"><?php echo $cancelError; ?></div>
         <?php endif; ?>
-        
+
         <div class="user-info">
             <h2>Patient Information</h2>
             <div class="booking-row">
@@ -461,27 +463,34 @@ $userData = $userResult->fetch_assoc();
                 <div class="booking-value"><?php echo $userData['phone_number']; ?></div>
             </div>
         </div>
-        
+
         <div class="bookings-container">
             <h2>Your Appointments</h2>
-            
+
             <div class="filter-controls">
                 <form action="" method="GET" id="filterForm">
                     <div class="filter-row">
                         <div class="filter-group">
                             <label for="status">Status:</label>
-                            <select name="status" id="status" onchange="document.getElementById('filterForm').submit();">
-                                <option value="all" <?php echo $statusFilter === 'all' ? 'selected' : ''; ?>>All Statuses</option>
-                                <option value="booked" <?php echo $statusFilter === 'booked' ? 'selected' : ''; ?>>Booked</option>
-                                <option value="completed" <?php echo $statusFilter === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                <option value="cancelled" <?php echo $statusFilter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                            <select name="status" id="status"
+                                onchange="document.getElementById('filterForm').submit();">
+                                <option value="all" <?php echo $statusFilter === 'all' ? 'selected' : ''; ?>>All Statuses
+                                </option>
+                                <option value="booked" <?php echo $statusFilter === 'booked' ? 'selected' : ''; ?>>Booked
+                                </option>
+                                <option value="completed" <?php echo $statusFilter === 'completed' ? 'selected' : ''; ?>>
+                                    Completed</option>
+                                <option value="cancelled" <?php echo $statusFilter === 'cancelled' ? 'selected' : ''; ?>>
+                                    Cancelled</option>
                             </select>
                         </div>
-                        
+
                         <div class="filter-group">
                             <label for="reschedule">Reschedule Status:</label>
-                            <select name="reschedule" id="reschedule" onchange="document.getElementById('filterForm').submit();">
-                                <option value="all" <?php echo $rescheduleFilter === 'all' ? 'selected' : ''; ?>>All</option>
+                            <select name="reschedule" id="reschedule"
+                                onchange="document.getElementById('filterForm').submit();">
+                                <option value="all" <?php echo $rescheduleFilter === 'all' ? 'selected' : ''; ?>>All
+                                </option>
                                 <option value="rescheduled_from" <?php echo $rescheduleFilter === 'rescheduled_from' ? 'selected' : ''; ?>>Rescheduled From</option>
                                 <option value="rescheduled_to" <?php echo $rescheduleFilter === 'rescheduled_to' ? 'selected' : ''; ?>>Rescheduled To</option>
                                 <option value="any_reschedule" <?php echo $rescheduleFilter === 'any_reschedule' ? 'selected' : ''; ?>>Any Reschedule</option>
@@ -490,7 +499,7 @@ $userData = $userResult->fetch_assoc();
                     </div>
                 </form>
             </div>
-            
+
             <?php if ($result->num_rows > 0): ?>
                 <?php while ($booking = $result->fetch_assoc()): ?>
                     <?php
@@ -516,7 +525,7 @@ $userData = $userResult->fetch_assoc();
                         <div class="booking-header">
                             <span class="booking-id">Appointment #<?php echo $booking['id']; ?></span>
                             <span class="booking-status status-<?php echo strtolower($booking['status']); ?>">
-                                <?php 
+                                <?php
                                 if ($booking['status'] === 'pending') {
                                     echo 'Pending';
                                 } elseif ($booking['status'] === 'booked' || $booking['status'] === 'approved') {
@@ -537,11 +546,12 @@ $userData = $userResult->fetch_assoc();
                                 <span class="booking-status status-rescheduled">Rescheduled To</span>
                             <?php endif; ?>
                         </div>
-                        
+
                         <div class="booking-details">
                             <div class="booking-row">
                                 <div class="booking-label">Date:</div>
-                                <div class="booking-value"><?php echo date('F j, Y', strtotime($booking['appointment_date'])); ?></div>
+                                <div class="booking-value">
+                                    <?php echo date('F j, Y', strtotime($booking['appointment_date'])); ?></div>
                             </div>
                             <div class="booking-row">
                                 <div class="booking-label">Time:</div>
@@ -559,13 +569,13 @@ $userData = $userResult->fetch_assoc();
                                 <div class="booking-row">
                                     <div class="booking-label">Doctor:</div>
                                     <div class="booking-value">
-                                        Dr. <?php echo $booking['doctor_first_name'] . ' ' . $booking['doctor_last_name']; ?> 
+                                        Dr. <?php echo $booking['doctor_first_name'] . ' ' . $booking['doctor_last_name']; ?>
                                         (<?php echo $booking['specialization']; ?>)
                                     </div>
                                 </div>
                             <?php endif; ?>
                         </div>
-                        
+
                         <?php if ($booking['status'] === 'pending'): ?>
                             <div class="booking-actions">
                                 <form method="POST" style="display: inline;">
@@ -573,8 +583,9 @@ $userData = $userResult->fetch_assoc();
                                     <input type="hidden" name="appointment_id" value="<?php echo $booking['id']; ?>">
                                     <button type="submit" class="btn btn-accept">Accept Booking</button>
                                 </form>
-                                
-                                <button class="btn btn-cancel" onclick="openCancelModal(<?php echo $booking['id']; ?>)">Cancel Appointment</button>
+
+                                <button class="btn btn-cancel" onclick="openCancelModal(<?php echo $booking['id']; ?>)">Cancel
+                                    Appointment</button>
                             </div>
                         <?php elseif ($booking['status'] === 'booked'): ?>
                             <div class="booking-actions">
@@ -583,8 +594,9 @@ $userData = $userResult->fetch_assoc();
                                     <input type="hidden" name="appointment_id" value="<?php echo $booking['id']; ?>">
                                     <button type="submit" class="btn btn-reschedule">Reschedule</button>
                                 </form>
-                                
-                                <button class="btn btn-cancel" onclick="openCancelModal(<?php echo $booking['id']; ?>)">Cancel Appointment</button>
+
+                                <button class="btn btn-cancel" onclick="openCancelModal(<?php echo $booking['id']; ?>)">Cancel
+                                    Appointment</button>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -592,12 +604,13 @@ $userData = $userResult->fetch_assoc();
             <?php else: ?>
                 <div class="no-bookings">
                     <p>You don't have any appointments yet.</p>
-                    <p>Click <a href="bookings.php" style="color: #1a76d2; font-weight: bold;">here</a> to book your first appointment.</p>
+                    <p>Click <a href="bookings.php" style="color: #1a76d2; font-weight: bold;">here</a> to book your first
+                        appointment.</p>
                 </div>
             <?php endif; ?>
         </div>
     </div>
-    
+
     <footer style="background-color: #333; color: white; padding: 20px 0; text-align: center; margin-top: 30px;">
         <div class="container">
             <p>&copy; <?php echo date('Y'); ?> M&A Oida Dental Clinic. All rights reserved.</p>
@@ -638,11 +651,12 @@ $userData = $userResult->fetch_assoc();
         }
 
         // Close the modal if clicked outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target === modal) {
                 closeCancelModal();
             }
         }
     </script>
 </body>
+
 </html>

@@ -1,6 +1,5 @@
 <?php
 require_once('db.php');
-require_once('email_functions.php');
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,36 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $appointmentData = $patientResult->fetch_assoc();
         $patientId = $appointmentData['patient_id'] ?? 0;
         
-        // Get patient email and name for sending notifications
-        $patientEmail = '';
-        $patientName = '';
-        if ($patientId > 0) {
-            $patientDataStmt = $conn->prepare("SELECT email, CONCAT(first_name, ' ', last_name) AS full_name FROM patients WHERE id = ?");
-            $patientDataStmt->bind_param('i', $patientId);
-            $patientDataStmt->execute();
-            $patientDataResult = $patientDataStmt->get_result();
-            $patientData = $patientDataResult->fetch_assoc();
-            if ($patientData) {
-                $patientEmail = $patientData['email'] ?? '';
-                $patientName = $patientData['full_name'] ?? '';
-            }
-        }
-        
         if ($action === 'approve') {
-            // First check if this appointment already exists with a different status
-            $checkDuplicateStmt = $conn->prepare("SELECT COUNT(*) as count FROM appointments WHERE id != ? AND reference_number = (SELECT reference_number FROM appointments WHERE id = ?)");
-            $checkDuplicateStmt->bind_param('ii', $appointment_id, $appointment_id);
-            $checkDuplicateStmt->execute();
-            $duplicateResult = $checkDuplicateStmt->get_result();
-            $duplicateData = $duplicateResult->fetch_assoc();
-            
-            if ($duplicateData && $duplicateData['count'] > 0) {
-                // Delete any duplicates with the same reference number
-                $deleteDuplicatesStmt = $conn->prepare("DELETE FROM appointments WHERE id != ? AND reference_number = (SELECT reference_number FROM appointments WHERE id = ?)");
-                $deleteDuplicatesStmt->bind_param('ii', $appointment_id, $appointment_id);
-                $deleteDuplicatesStmt->execute();
-            }
-            
             $sql = "UPDATE appointments SET status = 'booked' WHERE id = ?";
             
             // Add notification for the user if patient ID is valid
@@ -74,34 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $notifStmt = $conn->prepare("INSERT INTO notifications (user_id, message, type, reference_id) VALUES (?, ?, 'appointment', ?)");
                 $notifStmt->bind_param('isi', $patientId, $message, $appointment_id);
                 $notifStmt->execute();
-                
-                // Send email notification if patient email is available
-                // Wrap in try-catch to prevent any email errors from breaking the appointment approval process
-                if (!empty($patientEmail)) {
-                    try {
-                        $formattedDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
-                        send_appointment_approval_email($patientEmail, $patientName, $formattedDate, $appointmentData['appointment_time']);
-                    } catch (Exception $e) {
-                        // Log error but continue with the appointment approval process
-                        error_log("Failed to send approval email: " . $e->getMessage());
-                    }
-                }
             }
         } elseif ($action === 'decline') {
-            // First check if this appointment already exists with a different status
-            $checkDuplicateStmt = $conn->prepare("SELECT COUNT(*) as count FROM appointments WHERE id != ? AND reference_number = (SELECT reference_number FROM appointments WHERE id = ?)");
-            $checkDuplicateStmt->bind_param('ii', $appointment_id, $appointment_id);
-            $checkDuplicateStmt->execute();
-            $duplicateResult = $checkDuplicateStmt->get_result();
-            $duplicateData = $duplicateResult->fetch_assoc();
-            
-            if ($duplicateData && $duplicateData['count'] > 0) {
-                // Delete any duplicates with the same reference number
-                $deleteDuplicatesStmt = $conn->prepare("DELETE FROM appointments WHERE id != ? AND reference_number = (SELECT reference_number FROM appointments WHERE id = ?)");
-                $deleteDuplicatesStmt->bind_param('ii', $appointment_id, $appointment_id);
-                $deleteDuplicatesStmt->execute();
-            }
-            
             $sql = "UPDATE appointments SET status = 'cancelled' WHERE id = ?";
             
             // Add notification for declined appointment
@@ -132,18 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $notifStmt = $conn->prepare("INSERT INTO notifications (user_id, message, type, reference_id) VALUES (?, ?, 'appointment', ?)");
                 $notifStmt->bind_param('isi', $patientId, $message, $appointment_id);
                 $notifStmt->execute();
-                
-                // Send email notification if patient email is available
-                // Wrap in try-catch to prevent any email errors from breaking the appointment cancellation process
-                if (!empty($patientEmail)) {
-                    try {
-                        $formattedDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
-                        send_appointment_cancellation_email($patientEmail, $patientName, $formattedDate, $appointmentData['appointment_time'], $reason);
-                    } catch (Exception $e) {
-                        // Log error but continue with the appointment cancellation process
-                        error_log("Failed to send cancellation email: " . $e->getMessage());
-                    }
-                }
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid action.']);
