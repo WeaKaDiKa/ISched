@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_profile'])) {
                 <div class="flex justify-between items-center mb-3">
 
                     <form id="profileForm" method="post" enctype="multipart/form-data"
-                        class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
 
                         <!-- First Name -->
                         <div>
