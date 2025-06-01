@@ -199,13 +199,13 @@ $role = $_SESSION['admin_type'] ?? '';
         <?php endif; ?>
 
         <!-- Help & Support: All -->
-        <!--     <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'help_support.php' ? 'active-sidebar-link' : ''; ?>"
+        <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'help_support.php' ? 'active-sidebar-link' : ''; ?>"
             href="help_support.php">
             <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
-                <i class="fas fa-question-circle"></i>
+                <i class="fas fa-info"></i>
             </div>
             <span>Help & Support</span>
-        </a> -->
+        </a>
     </nav>
 
 

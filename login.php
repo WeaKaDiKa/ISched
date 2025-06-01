@@ -167,8 +167,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <form id="login-form" action="login.php" method="POST">
-                <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="ex. Juandelacruz@gmail.com" required>
+                <label for="email">Email/Username:</label>
+                <input type="text" id="email" name="email" placeholder="Email/Username" required>
 
                 <label for="password">Password:</label>
                 <div class="password-container">

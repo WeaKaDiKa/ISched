@@ -132,16 +132,14 @@ $patients = $patientModel->getAllPatients();
                                         <?php echo htmlspecialchars($patient['phone_number'] ?? 'No phone number'); ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button
-                                            class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-2"
-                                            onclick="viewPatient('<?= $patient['id'] ?>')">
-                                            <i class="fas fa-eye mr-1"></i> View
-                                        </button>
-
-                                        <!--       <a href="edit_patient.php?id=<?php //echo $patient['id']; ?>"
-                                                class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md">
-                                                <i class="fas fa-edit mr-1"></i> Edit
-                                            </a> -->
+                                        <a href="view_patient.php?id=<?php echo $patient['id']; ?>"
+                                            class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        <a href="edit_patient.php?id=<?php echo $patient['id']; ?>"
+                                            class="text-green-600 hover:text-green-900">
+                                            <i class="fas fa-edit mr-1"></i> Edit
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

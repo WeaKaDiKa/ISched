@@ -55,7 +55,7 @@ include_once('includes/custom_modal.php');
 
     <div class="nav-right">
       <a class="book-now text-decoration-none"
-        href="<?= isset($user) && $user !== null ? 'bookings.php' : 'login.php'; ?>" <?= !isset($user) || $user === null ? "onclick=\"alert('Please login to book an appointment.');\"" : '' ?>>
+        href="<?= isset($user) && $user !== null ? 'bookings.php' : 'login.php'; ?>">
         Book Now
       </a>
       <?php if (isset($user) && $user !== null): ?>

@@ -65,11 +65,43 @@ if (isset($_SESSION['user_id'])) {
     <p>&copy; 2025 ISched of M&A Oida Dental Clinic. All Rights Reserved.</p>
   </footer>
 
+  <!-- Modal Structure -->
+  <div id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div style="background-color: white; padding: 20px; border-radius: 5px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <p>Please login to book an appointment.</p>
+      <button id="closeModalBtn" style="margin-top: 15px; padding: 8px 20px; cursor: pointer; background-color: #3B82F6; color: white; border: none; border-radius: 4px;">OK</button>
+    </div>
+  </div>
+
   <script>
     document.querySelectorAll('.nav-links a, .nav-right a').forEach(link => {
       link.addEventListener('click', () => {
         document.getElementById('nav-toggle').checked = false;
       });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const bookNowLink = document.querySelector('.book-now');
+      const loginModal = document.getElementById('loginModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+
+      if (bookNowLink) {
+        bookNowLink.addEventListener('click', function(event) {
+          // Check if the link is pointing to login.php (user is not logged in)
+          if (bookNowLink.getAttribute('href') === 'login.php') {
+            event.preventDefault(); // Prevent the default link behavior
+            loginModal.style.display = 'flex'; // Show the modal
+          }
+          // If href is bookings.php, let the default behavior happen (navigate to bookings page)
+        });
+      }
+
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function() {
+          loginModal.style.display = 'none'; // Hide the modal
+          window.location.href = 'login.php'; // Redirect to login page
+        });
+      }
     });
   </script>
 
