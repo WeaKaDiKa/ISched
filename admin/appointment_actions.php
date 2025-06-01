@@ -1,5 +1,6 @@
 <?php
 require_once('db.php');
+require_once('mailfunction.php');
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,6 +23,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $appointmentDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
                 $appointmentTime = $appointmentData['appointment_time'];
                 $message = "Your appointment on {$appointmentDate} at {$appointmentTime} has been approved by the admin.";
+
+
+                $patientInfoStmt = $conn->prepare("SELECT email, CONCAT(first_name, ' ', last_name) AS name FROM patients WHERE id = ?");
+                $patientInfoStmt->bind_param('i', $patientId);
+                $patientInfoStmt->execute();
+                $patientInfoResult = $patientInfoStmt->get_result();
+                $patientInfo = $patientInfoResult->fetch_assoc();
+
+                if ($patientInfo) {
+                    $email = $patientInfo['email'];
+                    $name = $patientInfo['name'];
+                    $subject = ($action === 'approve') ? 'Appointment Approved' : 'Appointment Declined';
+
+                }
 
                 // Check if notifications table exists
                 $tableCheckResult = $conn->query("SHOW TABLES LIKE 'notifications'");
@@ -55,7 +70,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $appointmentTime = $appointmentData['appointment_time'];
                 $message = "Your appointment on {$appointmentDate} at {$appointmentTime} has been declined. Reason: {$reason}";
 
-                // Check if notifications table exists
+
+                $patientInfoStmt = $conn->prepare("SELECT email, CONCAT(first_name, ' ', last_name) AS name FROM patients WHERE id = ?");
+                $patientInfoStmt->bind_param('i', $patientId);
+                $patientInfoStmt->execute();
+                $patientInfoResult = $patientInfoStmt->get_result();
+                $patientInfo = $patientInfoResult->fetch_assoc();
+
+                if ($patientInfo) {
+                    $email = $patientInfo['email'];
+                    $name = $patientInfo['name'];
+                    $subject = ($action === 'approve') ? 'Appointment Approved' : 'Appointment Declined';
+
+                }
+
+
                 $tableCheckResult = $conn->query("SHOW TABLES LIKE 'notifications'");
                 if ($tableCheckResult->num_rows == 0) {
                     // Create notifications table if it doesn't exist
@@ -84,11 +113,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('i', $appointment_id);
         if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Appointment updated.']);
+            $emailSent = false;
+
+            if (isset($email, $name, $subject, $message)) {
+                $emailSent = phpmailsend($email, $name, $subject, $message);
+            }
+
+            $emailStatus = $emailSent ? ' Email sent successfully.' : ' Email failed to send.';
+            echo json_encode(['success' => true, 'message' => 'Appointment updated.' . $emailStatus]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Database error.']);
         }
-        exit;
+
+
     }
 }
 echo json_encode(['success' => false, 'message' => 'Invalid request.']);
