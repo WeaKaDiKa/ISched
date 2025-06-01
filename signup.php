@@ -1,12 +1,8 @@
 <?php
-
 require_once 'db.php'; // Include database connection
-require_once 'admin/vendor/phpmailer/src/PHPMailer.php';
-require_once 'admin/vendor/phpmailer/src/SMTP.php';
-require_once 'admin/vendor/phpmailer/src/Exception.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require_once 'mailfunction.php';
 
+// ... (all your helper functions remain unchanged here)
 // Helper functions
 function isEmailRegistered($conn, $email)
 {
@@ -53,14 +49,14 @@ function capitalizeNames($name)
     return implode(' ', $parts);
 }
 
-// Temporarily disabled password validation
-/*function validatePassword($password) {
+function validatePassword($password)
+{
     // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
     return strlen($password) >= 8 &&
-           preg_match("/[A-Z]/", $password) &&
-           preg_match("/[a-z]/", $password) &&
-           preg_match("/[0-9]/", $password);
-}*/
+        preg_match("/[A-Z]/", $password) &&
+        preg_match("/[a-z]/", $password) &&
+        preg_match("/[0-9]/", $password);
+}
 
 function validateAge($birthDate)
 {
@@ -96,85 +92,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // Sanitize and validate inputs
-        $first_name = capitalizeNames(filter_var(trim($_POST["first_name"]), FILTER_SANITIZE_STRING));
-        $middle_name = !empty($_POST["middle_name"]) ? capitalizeNames(filter_var(trim($_POST["middle_name"]), FILTER_SANITIZE_STRING)) : '';
-        $last_name = capitalizeNames(filter_var(trim($_POST["last_name"]), FILTER_SANITIZE_STRING));
+        function sanitize_string($string)
+        {
+            return htmlspecialchars(strip_tags(trim($string)), ENT_QUOTES, 'UTF-8');
+        }
+
+        // Sanitize inputs
+        $first_name = capitalizeNames(sanitize_string($_POST["first_name"]));
+        $middle_name = !empty($_POST["middle_name"]) ? capitalizeNames(sanitize_string($_POST["middle_name"])) : '';
+        $last_name = capitalizeNames(sanitize_string($_POST["last_name"]));
         $email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
         $phone_number = trim($_POST["phone_number"]);
-        $region = filter_var(trim($_POST["region"]), FILTER_SANITIZE_STRING);
-        $province = filter_var(trim($_POST["province"]), FILTER_SANITIZE_STRING);
-        $city = filter_var(trim($_POST["city"]), FILTER_SANITIZE_STRING);
-        $barangay = filter_var(trim($_POST["barangay"]), FILTER_SANITIZE_STRING);
+        $region = filter_var(trim($_POST["region"]), FILTER_SANITIZE_NUMBER_INT);
+        $province = filter_var(trim($_POST["province"]), FILTER_SANITIZE_NUMBER_INT);
+        $city = filter_var(trim($_POST["city"]), FILTER_SANITIZE_NUMBER_INT);
+        $barangay = filter_var(trim($_POST["barangay"]), FILTER_SANITIZE_NUMBER_INT);
         $zip_code = trim($_POST["zip_code"]);
         $date_of_birth = $_POST["date_of_birth"];
-        $gender = filter_var(trim($_POST["gender"]), FILTER_SANITIZE_STRING);
+        $gender = sanitize_string($_POST["gender"]);
         $password = $_POST["password"];
         $confirm_password = $_POST["confirm_password"];
 
-        // Validate email format
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        // Validations
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL))
             throw new Exception("Invalid email format");
-        }
-
-        // Check if email is already registered
-        if (isEmailRegistered($conn, $email)) {
+        if (isEmailRegistered($conn, $email))
             throw new Exception("Email is already registered");
-        }
-        if (isEmailPending($conn, $email)) {
+        if (isEmailPending($conn, $email))
             throw new Exception("A verification email has already been sent. Please check your inbox or spam folder.");
-        }
-
-        // Validate phone number
-        if (!validatePhoneNumber($phone_number)) {
+        if (!validatePhoneNumber($phone_number))
             throw new Exception("Invalid phone number format. Use 09XXXXXXXXX or +639XXXXXXXXX");
-        }
-
-        // Validate ZIP code
-        if (!validateZipCode($zip_code)) {
+        if (!validateZipCode($zip_code))
             throw new Exception("Invalid ZIP code format. Must be 4 digits.");
-        }
-
-        // Validate age
-        if (!validateAge($date_of_birth)) {
+        // if (!validatePassword($password))
+        //    throw new Exception("Password must be at least 8 characters and contain uppercase, lowercase, and numbers.");
+        if (!validateAge($date_of_birth))
             throw new Exception("You must be at least 18 years old to register.");
-        }
-
-        // Temporarily disabled password strength validation
-        /*if (!validatePassword($password)) {
-            throw new Exception("Password must be at least 8 characters and contain uppercase, lowercase, and numbers");
-        }*/
-
-        // Check if passwords match
-        if ($password !== $confirm_password) {
+        if ($password !== $confirm_password)
             throw new Exception("Passwords do not match");
-        }
 
         $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-        // Generate OTP and set expiration
+        // Generate OTP and expiration
         $otp = rand(100000, 999999);
-        // Use MySQL NOW() + INTERVAL for consistent server time
         $stmt = $conn->prepare("SELECT DATE_ADD(NOW(), INTERVAL 10 MINUTE) as otp_expires");
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
-        $otp_expires = $row['otp_expires'];
+        $otp_expires = (new DateTime($row['otp_expires']))->format('Y-m-d H:i:s');
 
-        error_log("OTP Generation Time: " . date("Y-m-d H:i:s"));
-        error_log("OTP: $otp, Expires: $otp_expires");
-
-        // Always set role as 'user' for new registrations
         $role = 'user';
 
-        // Store in pending_patients with debug
+        // Insert to pending_patients
         $stmt = $conn->prepare("INSERT INTO pending_patients (first_name, middle_name, last_name, email, 
                               phone_number, region, province, city, barangay, zip_code, date_of_birth, 
                               password_hash, gender, role, otp, otp_expires) 
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         $stmt->bind_param(
-            "ssssssssssssssss",
+            "sssssiiiiissssss",
             $first_name,
             $middle_name,
             $last_name,
@@ -194,47 +170,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         );
 
         if ($stmt->execute()) {
-            error_log("Inserted into pending_patients successfully");
-            // Send OTP email
-            $mail = new PHPMailer(true);
-            try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'oidaclinic1@gmail.com';
-                $mail->Password = 'lkys fezt vzam bzof';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
+            // Prepare email content
+            $full_name = "$first_name $last_name";
+            $subject = 'Your OTP Code';
+            $message = "Dear $first_name,\n\nYour OTP code is: $otp\n\nThis code will expire in 10 minutes at: $otp_expires\n\nBest regards,\nM&A Oida Dental Clinic";
 
-                $mail->setFrom('oidaclinic1@gmail.com', 'M&A Oida Dental Clinic');
-                $mail->addAddress($email);
-                $mail->Subject = 'Your OTP Code';
-                $mail->Body = "Dear $first_name,\n\nYour OTP code is: $otp\n\nThis code will expire in 10 minutes at: $otp_expires\n\nBest regards,\nM&A Oida Dental Clinic";
+            // Try sending the email
+            $emailSent = phpmailsend($email, $full_name, $subject, $message);
 
-                $mail->send();
-                error_log("OTP email sent successfully to: $email");
+            if ($emailSent) {
                 echo json_encode([
                     "status" => "success",
                     "message" => "Registration initiated. Please check your email for the OTP code."
                 ]);
-            } catch (Exception $e) {
-                error_log("Failed to send OTP email: " . $e->getMessage());
-
-                // Delete the pending registration if email fails
+            } else {
                 $stmt = $conn->prepare("DELETE FROM pending_patients WHERE email = ?");
-                if ($stmt) {
-                    $stmt->bind_param("s", $email);
-                    $stmt->execute();
-                    $stmt->close();
-                } else {
-                    error_log("Failed to prepare DELETE statement: " . $conn->error);
-                }
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $stmt->close();
 
                 throw new Exception("Failed to send verification email. Please try again later.");
             }
 
         } else {
-            error_log("Failed to insert into pending_patients: " . $stmt->error);
             throw new Exception("Database error. Please try again.");
         }
 
@@ -245,6 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "message" => $e->getMessage()
         ]);
     }
+
     exit();
 }
 
@@ -258,10 +217,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - ISched of M&A Oida Dental Clinic</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <?php require_once 'includes/head.php' ?>
     <script src="assets/js/signup.js"></script>
     <link rel="stylesheet" href="assets/css/signup.css?v=2.1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 </head>
 
 <body>
@@ -349,7 +308,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <option value="">Select a Gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
-                            <option value="Female">Prefer not to say</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                     </div>
 

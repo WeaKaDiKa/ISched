@@ -5,20 +5,16 @@ use PHPMailer\PHPMailer\Exception;
 require 'admin/vendor/phpmailer/src/Exception.php';
 require 'admin/vendor/phpmailer/src/PHPMailer.php';
 require 'admin/vendor/phpmailer/src/SMTP.php';
-
 function phpmailsend($email, $name, $subject, $message)
-{ 
+{
     $mail = new PHPMailer(true);
 
     try {
-     
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-
         $mail->Username = 'clinicoidadental@gmail.com';
         $mail->Password = 'zufxwtvbjjxvhblg';
-
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
@@ -34,11 +30,10 @@ function phpmailsend($email, $name, $subject, $message)
         ";
 
         $mail->send();
-        $_SESSION['mailermessage'] = 'Email sent successfully.';
-        $_SESSION['mailetype'] = 'success';
+
+        return true;
     } catch (Exception $e) {
 
-        $_SESSION['mailermessage'] = 'Email could not be sent. Error: ' . $mail->ErrorInfo;
-        $_SESSION['mailetype'] = 'error';
+        return false;
     }
 }

@@ -30,12 +30,10 @@ function phpmailsend($email, $name, $subject, $message)
         ";
 
         $mail->send();
-        $_SESSION['mailermessage'] = 'Email sent successfully.';
-        $_SESSION['mailetype'] = 'success';
+
         return true;
     } catch (Exception $e) {
-        $_SESSION['mailermessage'] = 'Email could not be sent. Error: ' . $mail->ErrorInfo;
-        $_SESSION['mailetype'] = 'error';
+
         return false;
     }
 }
