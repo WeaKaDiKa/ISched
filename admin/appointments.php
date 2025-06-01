@@ -282,16 +282,11 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                 </thead>
                                 <tbody>
                                     <?php
-                                    // Fetch pending appointments with debug info
-// Simplified query to get ALL appointments regardless of status for debugging
                                     $sql = "SELECT a.*, CONCAT('APT-', LPAD(a.id, 6, '0')) as reference_number,
                 p.first_name, p.middle_name, p.last_name, p.id as patient_id
         FROM appointments a 
-        LEFT JOIN patients p ON a.patient_id = p.id 
-        ORDER BY a.id DESC LIMIT 10";
-
-                                    // Debug SQL query
-                                    echo "<!-- Debug SQL: " . htmlspecialchars($sql) . " -->";
+        LEFT JOIN patients p ON a.patient_id = p.id WHERE a.status = 'pending'
+        ORDER BY a.id DESC";
                                     $result = $conn->query($sql);
 
                                     if (!$result) {
@@ -299,7 +294,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                     }
 
                                     // Debug all appointments in the database
-                                    $debug_sql = "SELECT id, patient_id, status FROM appointments ORDER BY id DESC LIMIT 10";
+                                    $debug_sql = "SELECT id, patient_id, status FROM appointments ORDER BY id DESC";
                                     $debug_result = $conn->query($debug_sql);
                                     if ($debug_result) {
                                         echo "<!-- Recent appointments in database: ";
@@ -310,11 +305,8 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                     }
 
                                     if ($result && $result->num_rows > 0):
-                                        // Debug count
-                                        echo "<!-- Found " . $result->num_rows . " pending appointments -->";
+
                                         while ($row = $result->fetch_assoc()):
-                                            // Debug row data
-                                            echo "<!-- Appointment data: " . json_encode($row) . " -->";
 
                                             $patientName = trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']);
                                             $ref = $row['reference_number'] ?? ('APP-' . date('Y') . '-' . str_pad($row['id'], 5, '0', STR_PAD_LEFT));
@@ -485,7 +477,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 p.first_name, p.middle_name, p.last_name, p.id as patient_id 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
-        WHERE a.parent_appointment_id IS NOT NULL AND a.parent_appointment_id > 0 
+        WHERE a.status = 'rescheduled'
         ORDER BY a.appointment_date ASC, a.appointment_time ASC";
                                     $result = $conn->query($sql);
 
@@ -1017,28 +1009,6 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             }
         });
 
-        // Table search functionality
-        document.querySelector('input[aria-label="Search"]').addEventListener('input', function () {
-            const query = this.value.toLowerCase();
-            // Hanapin ang kasalukuyang visible na section
-            const sections = ['pending', 'upcoming', 'rescheduled', 'canceled'];
-            let visibleSection = null;
-            for (const sec of sections) {
-                const el = document.getElementById(sec + '-section');
-                if (el && el.style.display !== 'none') {
-                    visibleSection = el;
-                    break;
-                }
-            }
-            if (!visibleSection) return;
-            const rows = visibleSection.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                // Skip 'No ... appointments found.' row
-                if (row.children.length === 1 && row.children[0].hasAttribute('colspan')) return;
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        });
 
         document.querySelectorAll('a[href="admin_login.php"]').forEach(btn => {
             btn.addEventListener('click', function (e) {

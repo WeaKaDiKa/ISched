@@ -54,8 +54,9 @@ include_once('includes/custom_modal.php');
     </ul>
 
     <div class="nav-right">
-      <a href="<?= isset($user) && $user !== null ? 'bookings.php' : 'login.php'; ?>" <?= !isset($user) || $user === null ? "onclick=\"alert('Please login to book an appointment.');\"" : '' ?>>
-        <button class="book-now">Book Now</button>
+      <a class="book-now text-decoration-none"
+        href="<?= isset($user) && $user !== null ? 'bookings.php' : 'login.php'; ?>" <?= !isset($user) || $user === null ? "onclick=\"alert('Please login to book an appointment.');\"" : '' ?>>
+        Book Now
       </a>
       <?php if (isset($user) && $user !== null): ?>
         <?php include('user_notification_bell.php'); ?>
@@ -81,3 +82,4 @@ include_once('includes/custom_modal.php');
     });
   });
 </script>
+<?php include_once('includes/custom_modal.php'); ?>

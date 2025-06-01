@@ -1,17 +1,8 @@
 /* Notification Bell Styles */
-:root {
-  /* Type colors */
-  --appointment-color: #4a89dc;
-  --cancellation-color: #dc4a4a;
-  --reschedule-color: #dc8c4a;
-  --review-color: #dcce4a;
-  --reminder-color: #4adc7d;
-  --message-color: #9c4adc;
-}
-
 .notification-wrapper {
   position: relative;
   margin-right: 15px;
+  z-index: 1001;
 }
 
 .notification-toggle {
@@ -48,17 +39,17 @@
   position: absolute;
   right: -10px;
   top: 40px;
-  width: 380px;
+  width: 400px;
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 1002;
   overflow: hidden;
   max-height: 500px;
 }
 
 .notification-dropdown.show {
-  display: block;
+  display: block !important;
 }
 
 .notification-header {
@@ -69,13 +60,15 @@
   background-color: #124085;
   color: white;
   font-weight: bold;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  font-size: 18px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .notification-list {
   max-height: 400px;
   overflow-y: auto;
+  padding: 0;
 }
 
 .notification-item {
@@ -89,15 +82,30 @@
   background-color: #f8f9fa;
 }
 
-.notification-item.unread {
-  border-left-width: 4px;
-  border-left-style: solid;
+.notification-content {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
 }
 
-.notification-item-header {
-  display: flex;
-  align-items: center;
+.notification-time {
+  color: #888;
+  font-size: 12px;
+  text-align: right;
+  margin-top: 8px;
+  display: block;
+}
+
+.no-notifications {
+  padding: 30px 20px;
+  text-align: center;
+  color: #888;
+}
+
+.no-notifications i {
+  font-size: 24px;
   margin-bottom: 10px;
+  display: block;
 }
 
 .notification-type-icon {

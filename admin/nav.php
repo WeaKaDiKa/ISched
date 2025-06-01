@@ -25,7 +25,7 @@
     }
 
     #sidebarToggle {
-      
+
         align-items: center;
         justify-content: center;
         width: 44px;
@@ -199,7 +199,7 @@ $role = $_SESSION['admin_type'] ?? '';
         <?php endif; ?>
 
         <!-- Help & Support: All -->
-    <!--     <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'help_support.php' ? 'active-sidebar-link' : ''; ?>"
+        <!--     <a class="relative flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 <?php echo $currentPage == 'help_support.php' ? 'active-sidebar-link' : ''; ?>"
             href="help_support.php">
             <div class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-lg text-gray-700">
                 <i class="fas fa-question-circle"></i>
@@ -217,25 +217,25 @@ $role = $_SESSION['admin_type'] ?? '';
 </aside>
 
 <script>
-/*     // Sidebar toggle logic
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebarToggle');
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
- */
+    /*     // Sidebar toggle logic
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+     */
 
-  /*   const currentPage = window.location.pathname.split('/').pop();
-    const navMap = {
-        'dashboard.php': 'nav-dashboard',
-        'appointments.php': 'nav-appointments',
-        'patient_records.php': 'nav-patient-records',
-        'patient_feedback.php': 'nav-patient-feedback',
-        'account_settings.php': 'nav-account-settings'
-    };
-    if (navMap[currentPage]) {
-        document.getElementById(navMap[currentPage]).classList.add('active');
-    } */
+    /*   const currentPage = window.location.pathname.split('/').pop();
+      const navMap = {
+          'dashboard.php': 'nav-dashboard',
+          'appointments.php': 'nav-appointments',
+          'patient_records.php': 'nav-patient-records',
+          'patient_feedback.php': 'nav-patient-feedback',
+          'account_settings.php': 'nav-account-settings'
+      };
+      if (navMap[currentPage]) {
+          document.getElementById(navMap[currentPage]).classList.add('active');
+      } */
 
     document.addEventListener('DOMContentLoaded', function () {
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -264,36 +264,36 @@ $role = $_SESSION['admin_type'] ?? '';
             }
         });
 
-    /*     // Add touch swipe support for mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.addEventListener('touchstart', function (event) {
-            touchStartX = event.changedTouches[0].screenX;
-        }, false);
-
-        document.addEventListener('touchend', function (event) {
-            touchEndX = event.changedTouches[0].screenX;
-            handleSwipe();
-        }, false);
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const swipeDistance = touchEndX - touchStartX;
-
-            if (Math.abs(swipeDistance) > swipeThreshold) {
-                if (swipeDistance > 0) {
-                    // Swipe right - open sidebar
-                    sidebar.classList.add('active');
-                } else {
-                    // Swipe left - close sidebar
-                    sidebar.classList.remove('active');
+        /*     // Add touch swipe support for mobile
+            let touchStartX = 0;
+            let touchEndX = 0;
+    
+            document.addEventListener('touchstart', function (event) {
+                touchStartX = event.changedTouches[0].screenX;
+            }, false);
+    
+            document.addEventListener('touchend', function (event) {
+                touchEndX = event.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+    
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const swipeDistance = touchEndX - touchStartX;
+    
+                if (Math.abs(swipeDistance) > swipeThreshold) {
+                    if (swipeDistance > 0) {
+                        // Swipe right - open sidebar
+                        sidebar.classList.add('active');
+                    } else {
+                        // Swipe left - close sidebar
+                        sidebar.classList.remove('active');
+                    }
                 }
             }
-        }
- */
+     */
         // Add loading indicator for better UX
-        document.addEventListener('click', function (event) {
+       /*  document.addEventListener('click', function (event) {
             const link = event.target.closest('a');
             if (link && !link.classList.contains('no-loader')) {
                 const loader = document.createElement('div');
@@ -301,6 +301,6 @@ $role = $_SESSION['admin_type'] ?? '';
                 loader.innerHTML = '<div class="spinner"></div>';
                 document.body.appendChild(loader);
             }
-        });
+        }); */
     }); 
 </script>

@@ -3,11 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Globals from PHP
   const isLoggedIn       = window.isLoggedIn;
   const currentUserName  = window.currentUserName || '';
+  const calculateAverage = window.calculateAverage;
+  const countByRating    = window.countByRating;
 
   // DOM elements
-  const filterToggle     = document.getElementById('filterToggle');
-  const filterDropdown   = document.getElementById('filterDropdown');
-  const applyFilter      = document.getElementById('applyFilter');
   const reviewsContainer = document.getElementById('reviewsContainer');
   const addBtn           = document.getElementById('addReviewBtn');
   const modal            = document.getElementById('reviewModal');
@@ -19,49 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const wordCount        = document.getElementById('wordCount');
   const anonToggle       = document.getElementById('anonToggle');
   const modalUser        = document.getElementById('modalUsername');
-
+  
+  // Rating summary elements
+  const averageRatingEl  = document.getElementById('averageRating');
+  const starDisplayEl    = document.getElementById('starDisplay');
+  const ratingFilters    = document.getElementById('ratingFilters');
+  
   let allReviews = [];
   let selectedRating = 0;
-
-  // --- Filter dropdown handlers ---
-  filterToggle.addEventListener('click', e => {
-    e.stopPropagation();
-    filterDropdown.classList.toggle('show');
-  });
-  document.addEventListener('click', e => {
-    if (!filterDropdown.contains(e.target) && e.target !== filterToggle) {
-      filterDropdown.classList.remove('show');
-    }
-  });
-  applyFilter.addEventListener('click', () => {
-    const timeVal   = document.querySelector('input[name="time"]:checked').value;
-    const ratingVal = document.querySelector('input[name="rating"]:checked').value;
-    let filtered = allReviews.slice();
-
-    // filter rating
-    if (ratingVal !== 'all') {
-      filtered = filtered.filter(r => String(r.rating) === ratingVal);
-    }
-
-    // filter time
-    if (timeVal !== 'all-time') {
-      const now = Date.now(), day = 1000 * 60 * 60 * 24;
-      let cutoff;
-      switch(timeVal) {
-        case 'past-few-days':   cutoff = now - day * 7;    break;
-        case 'past-few-weeks':  cutoff = now - day * 30;   break;
-        case 'past-few-months': cutoff = now - day * 180;  break;
-        case 'past-few-years':  cutoff = now - day * 365*2;break;
-      }
-      filtered = filtered.filter(r => {
-        const d = new Date(r.date_raw).getTime();
-        return d >= cutoff && d <= now;
-      });
-    }
-
-    renderReviews(filtered);
-    filterDropdown.classList.remove('show');
-  });
+  let currentFilter = 'all';
 
   // --- Modal open/close ---
   addBtn.addEventListener('click', () => {
@@ -69,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Please log in to add a review.');
       return window.location.href = 'login.php';
     }
-    modal.style.display = 'block';
+    modal.classList.add('show');
     modalUser.textContent = currentUserName;
     reviewText.value = '';
     wordCount.textContent = '0 / 500 words';
@@ -78,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     resetStars();
     serviceSel.selectedIndex = 0;
   });
-  closeBtn.addEventListener('click', () => modal.style.display = 'none');
+  closeBtn.addEventListener('click', () => modal.classList.remove('show'));
   modal.addEventListener('click', e => {
-    if (e.target === modal) modal.style.display = 'none';
+    if (e.target === modal) modal.classList.remove('show');
   });
 
   // --- Star rating ---
@@ -156,34 +121,127 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(r => r.json())
       .then(data => {
         allReviews = data;
-        renderReviews(allReviews);
+        filterReviews();
       })
       .catch(() => {
         reviewsContainer.innerHTML =
-          '<p class="error-message">Failed to load reviews.</p>';
+          '<p class="text-center text-red-500 py-8">Failed to load reviews.</p>';
       });
+  }
+  
+  function filterReviews() {
+    let filtered = allReviews;
+    
+    if (currentFilter !== 'all') {
+      const rating = parseInt(currentFilter);
+      filtered = allReviews.filter(r => r.rating === rating);
+    }
+    
+    renderReviews(filtered);
+  }
+  
+  // Set up rating filter buttons
+  if (ratingFilters) {
+    const filterButtons = ratingFilters.querySelectorAll('button');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        filterButtons.forEach(b => {
+          b.classList.remove('text-[#124085]', 'border-[#124085]');
+          b.classList.add('border-gray-200');
+        });
+        
+        btn.classList.remove('border-gray-200');
+        btn.classList.add('text-[#124085]', 'border-[#124085]');
+        
+        // Apply filter
+        currentFilter = btn.dataset.filter;
+        filterReviews();
+      });
+    });
   }
 
   function renderReviews(list) {
     if (!list.length) {
-      reviewsContainer.innerHTML = '<p class="no-reviews">No reviews found.</p>';
+      reviewsContainer.innerHTML = '<p class="text-center text-gray-500 py-8">No reviews found.</p>';
       return;
     }
+    
     reviewsContainer.innerHTML = list.map(r => {
-      const starsHtml = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-      const svc       = (r.services||[]).join(', ');
+      const service = (r.services || [])[0] || '';
+      
+      // Generate star HTML using Font Awesome
+      const starsHtml = Array(5).fill().map((_, i) => 
+        i < r.rating 
+          ? '<i class="fas fa-star text-[#124085] text-sm"></i>' 
+          : '<i class="far fa-star text-[#124085] text-sm"></i>'
+      ).join('');
+      
       return `
-        <div class="review-item">
-          <div class="review-header">
-            <img src="${r.profile_picture}" class="review-avatar" alt>
-            <div class="reviewer-name">${r.name}</div>
-            <div class="review-rating">${starsHtml}</div>
+        <article class="mb-6 border-b border-gray-200 pb-6">
+          <div class="flex items-center space-x-4 mb-1">
+            <img src="${r.profile_picture}" class="w-10 h-10 rounded-full object-cover" alt="">
+            <div class="text-sm font-normal">${r.name}</div>
           </div>
-          <div class="review-content">${r.text}</div>
-          <div class="review-service">${svc}</div>
-          <div class="review-date">${r.date_display}</div>
-        </div>`;
+          <div class="flex items-center space-x-1 mb-1 text-[#124085] text-sm">
+            ${starsHtml}
+          </div>
+          <div class="text-xs text-gray-500 mb-2">
+            ${r.date_display} | Service: ${service}
+          </div>
+          <p class="mb-3 text-sm">${r.text}</p>
+        </article>`;
     }).join('');
+    
+    // Update rating summary
+    updateRatingSummary();
+  }
+  
+  function updateRatingSummary() {
+    // Update average rating
+    const avgRating = calculateAverage(allReviews);
+    if (averageRatingEl) {
+      averageRatingEl.textContent = avgRating;
+    }
+    
+    // Update star counts
+    for (let i = 5; i >= 1; i--) {
+      const count = countByRating(allReviews, i);
+      const countElement = document.getElementById(`count-${i}`);
+      if (countElement) {
+        countElement.textContent = count;
+      }
+    }
+    
+    // Update star display
+    if (starDisplayEl) {
+      const fullStars = Math.floor(avgRating);
+      const hasHalfStar = avgRating % 1 >= 0.5;
+      
+      starDisplayEl.innerHTML = '';
+      
+      // Add full stars
+      for (let i = 0; i < fullStars; i++) {
+        starDisplayEl.innerHTML += '<i class="fas fa-star text-[#124085] text-xl"></i>';
+      }
+      
+      // Add half star if needed
+      if (hasHalfStar) {
+        starDisplayEl.innerHTML += '<i class="fas fa-star-half-alt text-[#124085] text-xl"></i>';
+      }
+      
+      // Add empty stars
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+      for (let i = 0; i < emptyStars; i++) {
+        starDisplayEl.innerHTML += '<i class="far fa-star text-[#124085] text-xl"></i>';
+      }
+      
+      // Update out of 5 text
+      const outOfFiveEl = document.querySelector('#averageRating + span');
+      if (outOfFiveEl) {
+        outOfFiveEl.textContent = ' out of 5';
+      }
+    }
   }
 
   // initial load

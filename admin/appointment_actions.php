@@ -13,16 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $patientResult = $patientStmt->get_result();
         $appointmentData = $patientResult->fetch_assoc();
         $patientId = $appointmentData['patient_id'] ?? 0;
-        
+
         if ($action === 'approve') {
             $sql = "UPDATE appointments SET status = 'booked' WHERE id = ?";
-            
+
             // Add notification for the user if patient ID is valid
             if ($patientId > 0) {
                 $appointmentDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
                 $appointmentTime = $appointmentData['appointment_time'];
-                $message = "Your appointment on {$appointmentDate} at {$appointmentTime} has been approved by the admin."; 
-                
+                $message = "Your appointment on {$appointmentDate} at {$appointmentTime} has been approved by the admin.";
+
                 // Check if notifications table exists
                 $tableCheckResult = $conn->query("SHOW TABLES LIKE 'notifications'");
                 if ($tableCheckResult->num_rows == 0) {
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     )";
                     $conn->query($createTableSql);
                 }
-                
+
                 // Insert notification
                 $notifStmt = $conn->prepare("INSERT INTO notifications (user_id, message, type, reference_id) VALUES (?, ?, 'appointment', ?)");
                 $notifStmt->bind_param('isi', $patientId, $message, $appointment_id);
@@ -47,14 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif ($action === 'decline') {
             $sql = "UPDATE appointments SET status = 'cancelled' WHERE id = ?";
-            
+
             // Add notification for declined appointment
             if ($patientId > 0) {
                 $reason = $_POST['reason'] ?? 'No reason provided';
                 $appointmentDate = date('F j, Y', strtotime($appointmentData['appointment_date']));
                 $appointmentTime = $appointmentData['appointment_time'];
-                $message = "Your appointment on {$appointmentDate} at {$appointmentTime} has been declined. Reason: {$reason}"; 
-                
+                $message = "Your appointment on {$appointmentDate} at {$appointmentTime} has been declined. Reason: {$reason}";
+
                 // Check if notifications table exists
                 $tableCheckResult = $conn->query("SHOW TABLES LIKE 'notifications'");
                 if ($tableCheckResult->num_rows == 0) {
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     )";
                     $conn->query($createTableSql);
                 }
-                
+
                 // Insert notification
                 $notifStmt = $conn->prepare("INSERT INTO notifications (user_id, message, type, reference_id) VALUES (?, ?, 'appointment', ?)");
                 $notifStmt->bind_param('isi', $patientId, $message, $appointment_id);
@@ -91,4 +91,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-echo json_encode(['success' => false, 'message' => 'Invalid request.']); 
+echo json_encode(['success' => false, 'message' => 'Invalid request.']);

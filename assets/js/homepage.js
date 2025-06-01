@@ -1,9 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 1) ACTIVE LINK HIGHLIGHT
-  const current = window.location.pathname.split("/").pop();
-  document.querySelectorAll(".nav-links a").forEach(a => {
-    if (a.getAttribute("href") === current) a.classList.add("active");
-  });
+
 
   // 2) NOTIFICATION TOGGLE
   const bell = document.querySelector(".notification-toggle");

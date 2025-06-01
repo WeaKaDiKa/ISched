@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="assets/css/profile-icon.css">
 <link rel="stylesheet" href="assets/css/notification.css">
-<link rel="stylesheet" href="assets/css/notifications.css">
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 
@@ -193,21 +193,33 @@
         width: 100%;
     }
 
+    /* Fix notification bell styles */
     .notification-wrapper {
         position: relative;
-    }
-
-    .notification-wrapper {
-        margin-left: 8px;
-        /* Better alignment */
+        margin-right: 15px;
+        z-index: 1001;
     }
 
     .notification-toggle {
-        font-size: 24px;
-        color: #003087;
+        background: none;
+        border: none;
+        color: #124085;
+        font-size: 20px;
         cursor: pointer;
-        padding: 10px;
-        transition: color 0.3s;
+        position: relative;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1001;
+    }
+
+    .notification-dropdown {
+        z-index: 1002;
+    }
+
+    .notification-dropdown.show {
+        display: block !important;
     }
 
     .notification-toggle:hover {
@@ -221,7 +233,7 @@
         top: 45px;
         right: 0;
         width: 340px;
-        max-height: 400px;
+ 
         overflow-y: auto;
         background-color: #fff;
         border: 1px solid #ccc;
@@ -241,6 +253,8 @@
         color: #555;
         font-style: italic;
     }
+
+
 
     /* Hero Section */
     .hero {

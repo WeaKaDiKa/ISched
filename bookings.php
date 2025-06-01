@@ -128,54 +128,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($
             }
             $checkStmt->close();
 
-            // Process diseases and allergies arrays
-            $medical_history = isset($allData['diseases']) && is_array($allData['diseases']) ? implode(', ', $allData['diseases']) : '';
-            $allergies = isset($allData['allergies']) && is_array($allData['allergies']) ? implode(', ', $allData['allergies']) : '';
-            
-            // Set default values if not provided
-            $doctorId = !empty($allData['doctor_id']) ? $allData['doctor_id'] : null;
-            $status = 'pending'; // Matches the enum options: 'booked','completed','cancelled'
-            // Debug status value
-            error_log("Setting appointment status to: $status");
-            $services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
-            $consent = isset($allData['consent']) ? 1 : 0;
-            $health = !empty($allData['health']) ? $allData['health'] : 'yes';
-            $blood_type = !empty($allData['blood_type']) ? $allData['blood_type'] : '';
-            $blood_pressure = !empty($allData['blood_pressure']) ? $allData['blood_pressure'] : '';
-            
-            // Ensure patient_id is an integer
-            $patientId = (int)$_SESSION['user_id'];
-            
-            // Debug the data being inserted
-            error_log("Inserting appointment with data: " . print_r($allData, true));
-            
-            // Simplified SQL with only required fields if other fields are causing issues
-            $sql = "INSERT INTO appointments (
-                patient_id, doctor_id, clinic_branch, appointment_date, appointment_time,
-                services, status, consent, blood_type, medical_history, allergies
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
-            $stmt = $conn->prepare($sql);
-            
-            if (!$stmt) {
-                throw new Exception("Prepare failed: " . $conn->error);
-            }
-            
-            $stmt->bind_param(
-                "issssissss",
-                $patientId,
-                $doctorId,
-                $allData['clinic_branch'],
-                $allData['appointment_date'],
-                $allData['appointment_time'],
-                $services_list,
-                $status,
-                $consent,
-                $blood_type,
-                $medical_history,
-                $allergies
-            );
-            
+$medical_history = isset($allData['diseases']) && is_array($allData['diseases']) ? implode(', ', $allData['diseases']) : '';
+$allergies = isset($allData['allergies']) && is_array($allData['allergies']) ? implode(', ', $allData['allergies']) : '';
+
+$doctorId = !empty($allData['doctor_id']) ? $allData['doctor_id'] : null;
+$status = 'pending';
+error_log("Setting appointment status to: $status");
+
+$services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
+$consent = isset($allData['consent']) ? 1 : 0;
+$health = !empty($allData['health']) ? $allData['health'] : 'yes';
+$blood_type = !empty($allData['blood_type']) ? $allData['blood_type'] : '';
+$blood_pressure = !empty($allData['blood_pressure']) ? $allData['blood_pressure'] : '';
+
+$patientId = (int)$_SESSION['user_id'];
+
+error_log("Inserting appointment with data: " . print_r($allData, true));
+
+$sql = "INSERT INTO appointments (
+    patient_id, doctor_id, clinic_branch, appointment_date, appointment_time,
+    services, status, consent, blood_type, medical_history, allergies
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    throw new Exception("Prepare failed: " . $conn->error);
+}
+
+$stmt->bind_param(
+    "iisssssisss",
+    $patientId,
+    $doctorId,
+    $allData['clinic_branch'],
+    $allData['appointment_date'],
+    $allData['appointment_time'],
+    $services_list,
+    $status,
+    $consent,
+    $blood_type,
+    $medical_history,
+    $allergies
+);
+
             error_log("About to execute SQL: " . $sql);
             error_log("With params - Patient: $patientId, Branch: {$allData['clinic_branch']}, Date: {$allData['appointment_date']}, Time: {$allData['appointment_time']}");
             
@@ -331,7 +326,7 @@ if ($servicesResult && $servicesResult->num_rows > 0) {
 }
 
 // Fetch doctors from database
-$doctors = [];
+/* $doctors = [];
 $doctorsQuery = "SELECT id, first_name, last_name, specialization, clinic_branch FROM doctors WHERE is_active = 1 ORDER BY clinic_branch, last_name";
 $doctorsResult = $conn->query($doctorsQuery);
 
@@ -344,9 +339,9 @@ if ($doctorsResult && $doctorsResult->num_rows > 0) {
         $doctors[$branch][] = $row;
     }
 }
-
+ */
 // Convert doctors to JSON for JavaScript
-$doctorsJson = json_encode($doctors);
+// $doctorsJson = json_encode($doctors);
 
 // Calculate total price for selected services
 function calculateTotal($services, $prices) {
@@ -360,7 +355,7 @@ $total = 0;
 }
 
 // Form processing logic
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+/* if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $section = $_POST['current_section'] ?? 'services';
     $errors = [];
     
@@ -464,57 +459,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $medical_history = isset($allData['diseases']) ? implode(', ', $allData['diseases']) : '';
             $allergies = isset($allData['allergies']) ? implode(', ', $allData['allergies']) : '';
             
-            // Prepare statement
-        $stmtbakuop = $conn->prepare("
-            INSERT INTO appointments (
-                    patient_id, doctor_id, clinic_branch, appointment_date, appointment_time, 
-                    services, status, health, pregnant, nursing, birth_control, 
-                    blood_pressure, blood_type, medical_history, allergies, consent, 
-                    religion, nationality, occupation, dental_insurance, previous_dentist
-            ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )
-        ");
-         $stmt = $conn->prepare("
-            INSERT INTO appointments (
-                    patient_id, clinic_branch, appointment_date, appointment_time, 
-                    services, status, health, pregnant, nursing, birth_control, 
-                    blood_pressure, blood_type, medical_history, allergies, consent, 
-                    religion, nationality, occupation, dental_insurance, previous_dentist
-            ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )
-        ");
-            
-            // Default status for new appointments
-            $status = 'pending'; // Matches the enum options: 'booked','completed','cancelled'
-            $services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
-            $consent = isset($allData['consent']) ? 1 : 0;
-            
-            // Store all values in variables first to pass by reference
-            $patient_id = $_SESSION['user_id'];
-          //  $doctor_id = isset($allData['doctor_id']) ? $allData['doctor_id'] : null;
-            $clinic_branch = $allData['clinic_branch'];
-            $appointment_date = $allData['appointment_date'];
-            $appointment_time = $allData['appointment_time'];
-            $health = $allData['health'];
-            $pregnant = isset($allData['pregnant']) ? $allData['pregnant'] : null;
-            $nursing = isset($allData['nursing']) ? $allData['nursing'] : null;
-            $birth_control = isset($allData['birth_control']) ? $allData['birth_control'] : null;
-            $blood_pressure = $allData['blood_pressure'];
-            $blood_type = $allData['blood_type'];
-            $religion = $allData['religion'];
-            $nationality = $allData['nationality'];
-            $occupation = isset($allData['occupation']) ? $allData['occupation'] : null;
-            $dental_insurance = isset($allData['dental_insurance']) ? $allData['dental_insurance'] : null;
-            $previous_dentist = isset($allData['previous_dentist']) ? $allData['previous_dentist'] : null;
 
-$typeString = 'isssssssssssssiisss';
+$stmt = $conn->prepare("
+    INSERT INTO appointments (
+        patient_id, clinic_branch, appointment_date, appointment_time, 
+        services, status, health, pregnant, nursing, birth_control, 
+        blood_pressure, blood_type, medical_history, allergies, consent, 
+        religion, nationality, occupation, dental_insurance
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    )
+");
+
+$status = 'pending';
+$services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
+$consent = isset($allData['consent']) ? 1 : 0;
+
+$patient_id = $_SESSION['user_id'];
+$clinic_branch = $allData['clinic_branch'];
+$appointment_date = $allData['appointment_date'];
+$appointment_time = $allData['appointment_time'];
+$health = $allData['health'];
+$pregnant = isset($allData['pregnant']) ? $allData['pregnant'] : null;
+$nursing = isset($allData['nursing']) ? $allData['nursing'] : null;
+$birth_control = isset($allData['birth_control']) ? $allData['birth_control'] : null;
+$blood_pressure = $allData['blood_pressure'];
+$blood_type = $allData['blood_type'];
+$religion = $allData['religion'];
+$nationality = $allData['nationality'];
+$occupation = isset($allData['occupation']) ? $allData['occupation'] : null;
+$dental_insurance = isset($allData['dental_insurance']) ? $allData['dental_insurance'] : null;
+
+$typeString = 'issssssssssssiisss';
 
 $stmt->bind_param(
     $typeString,
     $patient_id,
-    
     $clinic_branch,
     $appointment_date,
     $appointment_time,
@@ -532,8 +512,7 @@ $stmt->bind_param(
     $religion,
     $nationality,
     $occupation,
-    $dental_insurance,
-    $previous_dentist
+    $dental_insurance
 );
 
         if ($stmt->execute()) {
@@ -568,7 +547,7 @@ $stmt->bind_param(
             }
         }
     }
-}
+} */
 
 // Get any stored errors
 $errors = $_SESSION['validation_errors'] ?? $errors;
@@ -697,71 +676,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
 </script>
     <script src="assets/js/bookings.js?v=1.1" defer></script>
     <script src="assets/js/appointment_schedule.js?v=1.1" defer></script>
-    <script>
-    // Notification bell functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      const bellBtn = document.getElementById('notificationBellBtn');
-      const dropdown = document.querySelector('.notification-dropdown');
-      const wrapper = document.querySelector('.notification-wrapper');
-      const markAllReadBtn = document.getElementById('markAllReadBtn');
-      
-      // Toggle dropdown when bell is clicked
-      if (bellBtn) {
-        bellBtn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          dropdown.classList.toggle("show");
-        });
-      }
-      
-      // Close dropdown when clicking outside
-      document.addEventListener("click", function (e) {
-        if (wrapper && !wrapper.contains(e.target)) {
-          dropdown.classList.remove("show");
-        }
-      });
-      
-      // Mark individual notification as read
-      document.querySelectorAll('.notification-item').forEach(item => {
-        item.addEventListener('click', function() {
-          const notificationId = this.getAttribute('data-id');
-          markAsRead(notificationId);
-          this.classList.remove('unread');
-        });
-      });
-      
-      // Mark all notifications as read
-      if (markAllReadBtn) {
-        markAllReadBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          markAsRead(0); // 0 means mark all as read
-          document.querySelectorAll('.notification-item').forEach(item => {
-            item.classList.remove('unread');
-          });
-          document.querySelector('.notification-badge')?.remove();
-        });
-      }
-      
-      // Function to mark notification as read
-      function markAsRead(notificationId) {
-        fetch('mark_notification_read.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: 'action=mark_read&notification_id=' + notificationId
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (!data.success) {
-            console.error('Failed to mark notification as read');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      }
-    });
-    </script>
+
 </head>
 <body>
 <header>

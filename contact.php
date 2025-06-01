@@ -27,7 +27,6 @@ if (isset($_SESSION['user_id'])) {
   <title>Contact Us - ISched of M&A Oida Dental Clinic</title>
   <link rel="stylesheet" href="assets/css/contact.css">
   <?php require_once 'includes/head.php' ?>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script src="assets/js/contact.js" defer></script>
 </head>
 

@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['api'])) {
     SELECT r.*, p.profile_picture
       FROM reviews r
  LEFT JOIN patients p ON p.id = r.patient_id
-   ORDER BY r.date DESC
+   ORDER BY r.rating DESC, r.date DESC
   ");
   $out = [];
   while ($row = $res->fetch_assoc()) {
@@ -115,13 +115,95 @@ $servicesList = [
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Reviews - ISched of M&A Oida Dental Clinic</title>
   <link rel="stylesheet" href="assets/css/reviews.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <?php require_once 'includes/head.php' ?>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#124085',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom styles for star rating */
+    .star-rating .star.active {
+      color: #FFD700 !important;
+    }
+
+    .star-rating .star.hover {
+      color: #FFD700 !important;
+    }
+
+    /* Form styles */
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #D1D5DB;
+      border-radius: 0.375rem;
+      background-color: white;
+    }
+
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #124085;
+      box-shadow: 0 0 0 3px rgba(18, 64, 133, 0.1);
+    }
+
+    /* Modal positioning */
+    #reviewModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 900;
+      background-color: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    #reviewModal.show {
+      display: flex !important;
+    }
+
+    #reviewModal>div {
+      max-width: 500px;
+      width: 90%;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+  </style>
+
   <script>
     window.isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
     window.currentUserName = <?= json_encode($user ? "{$user['first_name']} {$user['last_name']}" : "") ?>;
+
+    // Calculate average rating
+    window.calculateAverage = function (reviews) {
+      if (!reviews || !reviews.length) return 0;
+      const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+      return (sum / reviews.length).toFixed(1);
+    };
+
+    // Count reviews by rating
+    window.countByRating = function (reviews, rating) {
+      return reviews.filter(r => r.rating === rating).length;
+    };
   </script>
   <script src="assets/js/reviews.js" defer></script>
+
 </head>
 
 <body>
@@ -130,84 +212,122 @@ $servicesList = [
     <?php include_once('includes/navbar.php'); ?>
   </header>
 
-  <section class="reviews-section">
-    <div class="reviews-page-header">
-      <div class="header-left">
-        <h1 class="header-title">Reviews</h1>
-      </div>
-      <div class="header-right">
-        <a href="myreviews.php" class="my-reviews">My Reviews</a>
-        <img id="filterToggle" class="filter-icon" src="assets/photos/filter.png" alt="Filter">
-      </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-base font-normal">Clinic Reviews</h2>
+      <a href="myreviews.php" class="text-[#124085] hover:underline text-sm font-semibold">My Reviews</a>
     </div>
 
-    <div id="filterDropdown" class="filter-dropdown">
-      <h3>Sort By Time:</h3>
-      <div class="filter-group">
-        <label><input type="radio" name="time" value="all-time" checked> All Time</label>
-        <label><input type="radio" name="time" value="past-few-days"> Past Few Days</label>
-        <label><input type="radio" name="time" value="past-few-weeks"> Past Few Weeks</label>
-        <label><input type="radio" name="time" value="past-few-months"> Past Few Months</label>
-        <label><input type="radio" name="time" value="past-few-years"> Past Few Years</label>
+    <section id="ratingSummary"
+      class="border border-transparent border-b-gray-200 border-t-transparent border-l-transparent border-r-transparent bg-[#fff8f3] rounded-md p-6 mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-6">
+      <div class="flex flex-col items-start sm:items-center sm:flex-row sm:space-x-4 mb-4 sm:mb-0">
+        <div id="averageRating" class="text-[#124085] font-semibold text-3xl leading-none">0.0</div>
+        <div class="text-[#124085] text-sm font-normal mt-1 sm:mt-0 sm:ml-0.5">out of 5</div>
       </div>
-      <hr>
-      <h3>Sort By Ratings:</h3>
-      <div class="filter-group">
-        <label><input type="radio" name="rating" value="all" checked> All Ratings</label>
-        <label><input type="radio" name="rating" value="5"> ★★★★★ 5 Star</label>
-        <label><input type="radio" name="rating" value="4"> ★★★★☆ 4 Star</label>
-        <label><input type="radio" name="rating" value="3"> ★★★☆☆ 3 Star</label>
-        <label><input type="radio" name="rating" value="2"> ★★☆☆☆ 2 Star</label>
-        <label><input type="radio" name="rating" value="1"> ★☆☆☆☆ 1 Star</label>
-      </div>
-      <button id="applyFilter" class="apply-filters">Filter</button>
-    </div>
 
-    <div id="reviewsContainer" class="reviews-container"></div>
-    <div class="add-review-wrapper">
-      <button id="addReviewBtn" class="cta-button">Add a Review</button>
+      <div id="ratingFilters" class="flex space-x-2 flex-wrap">
+        <button class="text-[#124085] border border-[#124085] rounded px-4 py-2 text-sm font-normal" type="button"
+          data-filter="all">All</button>
+        <button class="border border-gray-200 rounded px-4 py-2 text-sm font-normal" type="button" data-filter="5">5
+          Star (<span id="count-5">0</span>)</button>
+        <button class="border border-gray-200 rounded px-4 py-2 text-sm font-normal" type="button" data-filter="4">4
+          Star (<span id="count-4">0</span>)</button>
+        <button class="border border-gray-200 rounded px-4 py-2 text-sm font-normal" type="button" data-filter="3">3
+          Star (<span id="count-3">0</span>)</button>
+        <button class="border border-gray-200 rounded px-4 py-2 text-sm font-normal" type="button" data-filter="2">2
+          Star (<span id="count-2">0</span>)</button>
+        <button class="border border-gray-200 rounded px-4 py-2 text-sm font-normal" type="button" data-filter="1">1
+          Star (<span id="count-1">0</span>)</button>
+      </div>
+
+      <div aria-label="Star rating" class="flex space-x-1 mt-4 sm:mt-0 sm:ml-auto" id="starDisplay">
+        <i class="fas fa-star text-[#124085] text-xl"></i>
+        <i class="fas fa-star text-[#124085] text-xl"></i>
+        <i class="fas fa-star text-[#124085] text-xl"></i>
+        <i class="fas fa-star text-[#124085] text-xl"></i>
+        <i class="far fa-star text-[#124085] text-xl"></i>
+      </div>
+    </section>
+
+    <div id="reviewsContainer"></div>
+
+    <div class="text-center mt-6">
+      <button id="addReviewBtn"
+        class="bg-[#124085] text-white px-6 py-2 rounded-md hover:bg-[#0d3166] transition-colors duration-200">Add a
+        Review</button>
     </div>
-  </section>
+  </div>
 
   <!-- Review Modal -->
-  <div id="reviewModal" class="modal">
-    <div class="modal-content review-modal">
-      <span class="close">&times;</span>
-      <div class="modal-header">
-        <img
-          src="<?= $user ? get_profile_image_url($_SESSION['user_id'] ?? null) : 'assets/photos/default_avatar.png' ?>"
-          class="modal-avatar" id="modalAvatar">
-        <div id="modalUsername" class="modal-username"></div>
+  <div id="reviewModal">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <!-- Modal Header with close button -->
+      <div class="flex justify-between items-center border-b p-4">
+        <h3 class="text-lg font-medium text-gray-900">Add a Review</h3>
+        <button type="button" class="close text-gray-400 hover:text-gray-500 focus:outline-none">
+          <span class="text-2xl">&times;</span>
+        </button>
       </div>
-      <div class="modal-field">
-        <label for="serviceType">Type of Service</label>
-        <select id="serviceType" required>
-          <option value="" disabled selected>Select a service…</option>
-          <?php foreach ($servicesList as $svc): ?>
-            <option value="<?= htmlspecialchars($svc) ?>"><?= htmlspecialchars($svc) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="modal-field">
-        <label>Your Rating</label>
-        <div class="star-rating">
-          <?php for ($i = 1; $i <= 5; $i++): ?>
-            <span class="star" data-value="<?= $i ?>">★</span>
-          <?php endfor; ?>
+
+      <!-- Modal Body -->
+      <div class="p-6">
+        <!-- User Profile -->
+        <div class="flex items-center mb-6">
+          <img
+            src="<?= $user ? get_profile_image_url($_SESSION['user_id'] ?? null) : 'assets/photos/default_avatar.png' ?>"
+            class="w-12 h-12 rounded-full object-cover mr-3" id="modalAvatar">
+          <div id="modalUsername" class="text-sm font-medium text-gray-900"></div>
         </div>
-        <div class="rating-text">Select your rating</div>
+
+        <!-- Service Type -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Type of Service</label>
+          <div class="relative">
+            <select id="serviceType"
+              class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              required>
+              <option value="" disabled selected>Select a service...</option>
+              <?php foreach ($servicesList as $svc): ?>
+                <option value="<?= htmlspecialchars($svc) ?>"><?= htmlspecialchars($svc) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+          <div class="flex space-x-1 star-rating">
+            <?php for ($i = 1; $i <= 5; $i++): ?>
+              <span class="star text-2xl cursor-pointer text-gray-300 hover:text-yellow-400"
+                data-value="<?= $i ?>">★</span>
+            <?php endfor; ?>
+          </div>
+          <div class="rating-text text-sm text-gray-500 mt-1">Select your rating</div>
+        </div>
+
+        <!-- Feedback -->
+        <div class="mb-4">
+          <label for="reviewText" class="block text-sm font-medium text-gray-700 mb-1">Your Feedback</label>
+          <textarea id="reviewText" rows="4" maxlength="500"
+            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+            placeholder="Tell us about your experience..."></textarea>
+          <div id="wordCount" class="text-xs text-gray-500 text-right mt-1">0 / 500 words</div>
+        </div>
+
+        <!-- Anonymous Toggle -->
+        <div class="flex items-center mb-6">
+          <input id="anonToggle" type="checkbox"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+          <label for="anonToggle" class="ml-2 block text-sm text-gray-700">Review anonymously</label>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="submitReview" type="button"
+          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Submit Review
+        </button>
       </div>
-      <div class="modal-field">
-        <label for="reviewText">Your Feedback</label>
-        <textarea id="reviewText" rows="6" maxlength="500" placeholder="Tell us about your experience…"
-          required></textarea>
-        <div id="wordCount" class="word-count">0 / 500 words</div>
-      </div>
-      <div class="modal-field anon-field">
-        <input type="checkbox" id="anonToggle">
-        <label for="anonToggle">Review anonymously</label>
-      </div>
-      <button id="submitReview" class="cta-button">Submit Review</button>
     </div>
   </div>
 
