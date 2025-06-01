@@ -2,8 +2,6 @@
 require_once 'db.php'; // Include database connection
 require_once 'mailfunction.php';
 
-// ... (all your helper functions remain unchanged here)
-// Helper functions
 function isEmailRegistered($conn, $email)
 {
     $stmt = $conn->prepare("SELECT id FROM patients WHERE email = ?");
@@ -523,7 +521,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
             left: 0;
             top: 0;
             width: 100vw;

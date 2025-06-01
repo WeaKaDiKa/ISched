@@ -1,10 +1,6 @@
 <?php
-require 'db.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require_once 'db.php';
+require_once 'mailfunction.php';
 
 header('Content-Type: application/json');
 
@@ -39,35 +35,26 @@ try {
     // Update OTP in database
     $stmt = $conn->prepare("UPDATE pending_patients SET otp = ?, otp_expires = ? WHERE email = ?");
     $stmt->bind_param("sss", $otp, $otp_expires, $email);
-    
+
     if (!$stmt->execute()) {
         throw new Exception('Failed to update OTP');
     }
 
-    // Send new OTP email
-    $mail = new PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'oidaclinic1@gmail.com';
-        $mail->Password = 'lkys fezt vzam bzof';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        
-        $mail->setFrom('oidaclinic1@gmail.com', 'M&A Oida Dental Clinic');
-        $mail->addAddress($email);
-        $mail->Subject = 'Your New OTP Code';
-        $mail->Body = "Dear {$patient['first_name']},\n\nYour new OTP code is: $otp\n\nThis code will expire in 10 minutes.\n\nBest regards,\nM&A Oida Dental Clinic";
-        
-        $mail->send();
+    $subject = 'Resend OTP Code';
+    $message = "Your new OTP code is: $otp\n\nThis code will expire in 10 minutes at: $otp_expires\n\nBest regards,\nM&A Oida Dental Clinic";
+
+    // Try sending the email
+    $emailSent = phpmailsend($email, $email, $subject, $message);
+
+    if ($emailSent) {
         echo json_encode([
-            'status' => 'success',
-            'message' => 'New OTP sent successfully'
+            "status" => "success",
+            "message" => "OTP resend successful. Please check your email for the OTP code."
         ]);
-    } catch (Exception $e) {
-        throw new Exception('Failed to send new OTP email. Please try again later.');
+    } else {
+        throw new Exception("Failed to send verification email. Please try again later.");
     }
+
 
 } catch (Exception $e) {
     echo json_encode([

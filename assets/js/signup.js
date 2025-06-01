@@ -136,10 +136,13 @@ $(document).ready(function () {
                     $('#otpModal').modal('show');
                 } else {
                     alert(response.message);
+                    $('#otpEmail').val($('#signupForm input[name="email"]').val());
+                    $('#otpMessage').html('<div class="alert alert-success">OTP sent successfully! Please check your email.</div>');
+                    $('#otpModal').modal('show');
                 }
             },
             error: function () {
-                alert(response.message);
+                alert('Error' + response.message);
             }
         });
     });
@@ -174,7 +177,8 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                $('#otpMessage').html('<div class="alert alert-danger">An error occurred. Please try again.</div>');
+                $('#otpMessage').html('<div class="alert alert-danger">An error occurred. Please try again. ' + response.message + '</div>');
+    
             }
         });
     });
