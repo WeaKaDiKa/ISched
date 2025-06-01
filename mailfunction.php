@@ -7,7 +7,7 @@ require 'admin/vendor/phpmailer/src/PHPMailer.php';
 require 'admin/vendor/phpmailer/src/SMTP.php';
 
 function phpmailsend($email, $name, $subject, $message)
-{
+{ 
     $mail = new PHPMailer(true);
 
     try {
