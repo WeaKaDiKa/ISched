@@ -28,7 +28,6 @@ if ($dentalResult && $dentalResult->num_rows > 0) {
     $dental = $dentalResult->fetch_assoc();
     $teethData = json_decode($dental['teeth'], true);
 
-    $tooth_55 = $teethData['55'] ?? '';
 }
 
 
@@ -111,6 +110,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allergyPenicillin = isset($_POST['allergy_penicillin']) ? 1 : 0;
         $allergySulfaDrugs = isset($_POST['allergy_sulfa_drugs']) ? 1 : 0;
         $allergyAspirin = isset($_POST['allergy_aspirin']) ? 1 : 0;
+
+        $previousDentist = trim($_POST['previous_dentist'] ?? '');
+$lastDentalVisit = trim($_POST['last_dental_visit'] ?? '');
+$reasonForConsultation = trim($_POST['reason_for_consultation'] ?? '');
+$referral = trim($_POST['referral'] ?? '');
+
 
      if ($profileResult->num_rows > 0) {
     // Update existing profile with medical and dental info
@@ -249,34 +254,64 @@ $createProfileStmt->execute();
         : '';
 
     $teethJson = json_encode($teethData);
+$check = $conn->prepare("SELECT 1 FROM dentalhistory WHERE patientid = ?");
+$check->bind_param("i", $patientId);
+$check->execute();
+$check->store_result();
 
-    $check = $conn->prepare("SELECT 1 FROM dentalhistory WHERE patientid = ?");
-    $check->bind_param("i", $patientId);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-
-        $stmt = $conn->prepare("UPDATE dentalhistory SET 
+if ($check->num_rows > 0) {
+    $stmt = $conn->prepare("UPDATE dentalhistory SET 
         teeth = ?, 
         periodontal_screening = ?, 
         occlusion = ?, 
         appliance = ?, 
         tmd = ?, 
-        notes = ?
+        notes = ?,
+        previous_dentist = ?,
+        last_dental_visit = ?,
+        reason_for_consultation = ?,
+        referral = ?
         WHERE patientid = ?");
-        $stmt->bind_param("ssssssi", $teethJson, $periodontalScreening, $occlusion, $appliance, $tmd, $notes, $patientId);
-    } else {
+        
+    $stmt->bind_param(
+        "ssssssssssi",
+        $teethJson,
+        $periodontalScreening,
+        $occlusion,
+        $appliance,
+        $tmd,
+        $notes,
+        $previousDentist,
+        $lastDentalVisit,
+        $reasonForConsultation,
+        $referral,
+        $patientId
+    );
+} else {
+    $stmt = $conn->prepare("INSERT INTO dentalhistory 
+        (patientid, teeth, periodontal_screening, occlusion, appliance, tmd, notes, previous_dentist, last_dental_visit, reason_for_consultation, referral)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+    $stmt->bind_param(
+        "issssssssss",
+        $patientId,
+        $teethJson,
+        $periodontalScreening,
+        $occlusion,
+        $appliance,
+        $tmd,
+        $notes,
+        $previousDentist,
+        $lastDentalVisit,
+        $reasonForConsultation,
+        $referral
+    );
+}
 
-        $stmt = $conn->prepare("INSERT INTO dentalhistory 
-        (patientid, teeth, periodontal_screening, occlusion, appliance, tmd, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("issssss", $patientId, $teethJson, $periodontalScreening, $occlusion, $appliance, $tmd, $notes);
-    }
+$stmt->execute();
+header('location: edit_patient.php?id=' . $patientId);
+exit();
 
-    $stmt->execute();
-    header('location: edit_patient.php?id=' . $patientId);
-    exit();
 
 }
 // Get patient's appointments (both pending and approved)
@@ -883,7 +918,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                             class="block text-sm font-medium text-gray-700">Previous
                                                             Dentist</label>
                                                         <input type="text" name="previous_dentist" id="previous_dentist"
-                                                            value="<?php echo htmlspecialchars($patient['previous_dentist'] ?? ''); ?>"
+                                                            value="<?php echo htmlspecialchars($dental['previous_dentist'] ?? ''); ?>"
                                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                     </div>
                                                     <div>
@@ -892,7 +927,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                             Visit</label>
                                                         <input type="date" name="last_dental_visit"
                                                             id="last_dental_visit"
-                                                            value="<?php echo htmlspecialchars($patient['last_dental_visit'] ?? ''); ?>"
+                                                            value="<?php echo htmlspecialchars($dental['last_dental_visit'] ?? ''); ?>"
                                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                     </div>
                                                     <div>
@@ -901,7 +936,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                             Dental Consultation</label>
                                                         <input type="text" name="reason_for_consultation"
                                                             id="reason_for_consultation"
-                                                            value="<?php echo htmlspecialchars($patient['reason_for_consultation'] ?? ''); ?>"
+                                                            value="<?php echo htmlspecialchars($dental['reason_for_consultation'] ?? ''); ?>"
                                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                     </div>
                                                     <div>
@@ -909,7 +944,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                             class="block text-sm font-medium text-gray-700">Whom may we
                                                             thank for referring you?</label>
                                                         <input type="text" name="referral" id="referral"
-                                                            value="<?php echo htmlspecialchars($patient['referral'] ?? ''); ?>"
+                                                            value="<?php echo htmlspecialchars($dental['referral'] ?? ''); ?>"
                                                             class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                     </div>
                                                 </div>
