@@ -815,45 +815,49 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                 <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Upper)</h2>
                                                 <div class="grid grid-cols-10 gap-2">
 
-                                                    <input type="text" name="tooth[55]" placeholder="55"
-                                                        value="<?= $teethData['55'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    <?php
+                                                    $toothOptions = [
+                                                        'D' => 'Decayed',
+                                                        'M' => 'Missing due to Caries',
+                                                        'F' => 'Filled',
+                                                        'I' => 'Caries for Extraction',
+                                                        'RF' => 'Root Fragment',
+                                                        'MO' => 'Missing Other Causes',
+                                                        'Im' => 'Impacted Tooth',
+                                                        'J' => 'Jacket Crown',
+                                                        'A' => 'Amalgam Filling',
+                                                        'A-B' => 'Abutment',
+                                                        'P' => 'Pontic',
+                                                        'In' => 'Inlay',
+                                                        'XO' => 'Extraction due to other causes',
+                                                        'X' => 'Extraction due to Caries',
+                                                        'Cn' => 'Congenitally Missing',
+                                                        'Sp' => 'Supernumerary',
+                                                        'FX' => 'Fixed Cure Composite',
+                                                        'Rm' => 'Removable Denture',
+                                                        '✓' => 'Present Teeth'
+                                                    ];
 
-                                                    <input type="text" name="tooth[54]" placeholder="54"
-                                                        value="<?= $teethData['54'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    $toothIds = ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'];
 
-                                                    <input type="text" name="tooth[53]" placeholder="53"
-                                                        value="<?= $teethData['53'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // Default to Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal == $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
 
-                                                    <input type="text" name="tooth[52]" placeholder="52"
-                                                        value="<?= $teethData['52'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[51]" placeholder="51"
-                                                        value="<?= $teethData['51'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[61]" placeholder="61"
-                                                        value="<?= $teethData['61'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[62]" placeholder="62"
-                                                        value="<?= $teethData['62'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[63]" placeholder="63"
-                                                        value="<?= $teethData['63'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[64]" placeholder="64"
-                                                        value="<?= $teethData['64'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[65]" placeholder="65"
-                                                        value="<?= $teethData['65'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
 
                                                 </div>
                                             </div>
@@ -861,69 +865,42 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                             <div>
                                                 <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Upper)</h2>
                                                 <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
-                                                    <input type="text" name="tooth[18]" placeholder="18"
-                                                        value="<?= $teethData['18'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    <?php $toothIds = [
+                                                        '18',
+                                                        '17',
+                                                        '16',
+                                                        '15',
+                                                        '14',
+                                                        '13',
+                                                        '12',
+                                                        '11',
+                                                        '21',
+                                                        '22',
+                                                        '23',
+                                                        '24',
+                                                        '25',
+                                                        '26',
+                                                        '27',
+                                                        '28'
+                                                    ];
 
-                                                    <input type="text" name="tooth[17]" placeholder="17"
-                                                        value="<?= $teethData['17'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[16]" placeholder="16"
-                                                        value="<?= $teethData['16'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[15]" placeholder="15"
-                                                        value="<?= $teethData['15'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[14]" placeholder="14"
-                                                        value="<?= $teethData['14'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[13]" placeholder="13"
-                                                        value="<?= $teethData['13'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[12]" placeholder="12"
-                                                        value="<?= $teethData['12'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[11]" placeholder="11"
-                                                        value="<?= $teethData['11'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[21]" placeholder="21"
-                                                        value="<?= $teethData['21'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[22]" placeholder="22"
-                                                        value="<?= $teethData['22'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[23]" placeholder="23"
-                                                        value="<?= $teethData['23'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[24]" placeholder="24"
-                                                        value="<?= $teethData['24'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[25]" placeholder="25"
-                                                        value="<?= $teethData['25'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[26]" placeholder="26"
-                                                        value="<?= $teethData['26'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[27]" placeholder="27"
-                                                        value="<?= $teethData['27'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[28]" placeholder="28"
-                                                        value="<?= $teethData['28'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // Default ✓ Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal === $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
 
                                                 </div>
                                             </div>
@@ -931,69 +908,44 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                             <div>
                                                 <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Lower)</h2>
                                                 <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
-                                                    <input type="text" name="tooth[48]" placeholder="48"
-                                                        value="<?= $teethData['48'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    <?php
 
-                                                    <input type="text" name="tooth[47]" placeholder="47"
-                                                        value="<?= $teethData['47'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    $toothIds = [
+                                                        '48',
+                                                        '47',
+                                                        '46',
+                                                        '45',
+                                                        '44',
+                                                        '43',
+                                                        '42',
+                                                        '41',
+                                                        '31',
+                                                        '32',
+                                                        '33',
+                                                        '34',
+                                                        '35',
+                                                        '36',
+                                                        '37',
+                                                        '38'
+                                                    ];
 
-                                                    <input type="text" name="tooth[46]" placeholder="46"
-                                                        value="<?= $teethData['46'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[45]" placeholder="45"
-                                                        value="<?= $teethData['45'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[44]" placeholder="44"
-                                                        value="<?= $teethData['44'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[43]" placeholder="43"
-                                                        value="<?= $teethData['43'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[42]" placeholder="42"
-                                                        value="<?= $teethData['42'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[41]" placeholder="41"
-                                                        value="<?= $teethData['41'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[31]" placeholder="31"
-                                                        value="<?= $teethData['31'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[32]" placeholder="32"
-                                                        value="<?= $teethData['32'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[33]" placeholder="33"
-                                                        value="<?= $teethData['33'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[34]" placeholder="34"
-                                                        value="<?= $teethData['34'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[35]" placeholder="35"
-                                                        value="<?= $teethData['35'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[36]" placeholder="36"
-                                                        value="<?= $teethData['36'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[37]" placeholder="37"
-                                                        value="<?= $teethData['37'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[38]" placeholder="38"
-                                                        value="<?= $teethData['38'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // default to ✓ Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal === $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
 
                                                 </div>
                                             </div>
@@ -1001,45 +953,26 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                             <div>
                                                 <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Lower)</h2>
                                                 <div class="grid grid-cols-10 gap-2">
-                                                    <input type="text" name="tooth[85]" placeholder="85"
-                                                        value="<?= $teethData['85'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    <?php
 
-                                                    <input type="text" name="tooth[84]" placeholder="84"
-                                                        value="<?= $teethData['84'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    $toothIds = ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75'];
 
-                                                    <input type="text" name="tooth[83]" placeholder="83"
-                                                        value="<?= $teethData['83'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[82]" placeholder="82"
-                                                        value="<?= $teethData['82'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[81]" placeholder="81"
-                                                        value="<?= $teethData['81'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[71]" placeholder="71"
-                                                        value="<?= $teethData['71'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[72]" placeholder="72"
-                                                        value="<?= $teethData['72'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[73]" placeholder="73"
-                                                        value="<?= $teethData['73'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[74]" placeholder="74"
-                                                        value="<?= $teethData['74'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
-
-                                                    <input type="text" name="tooth[75]" placeholder="75"
-                                                        value="<?= $teethData['75'] ?? '' ?>"
-                                                        class="text-center border rounded p-1" />
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // default to ✓ Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal === $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?></div>
+                                                        </div>
+                                                    <?php endforeach; ?>
 
                                                 </div>
                                             </div>
