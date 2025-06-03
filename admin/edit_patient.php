@@ -1002,35 +1002,45 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                 <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Lower)</h2>
                                                 <div class="grid grid-cols-10 gap-2">
                                                     <input type="text" name="tooth[85]" placeholder="85"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_85'] ?? ''); ?>"
+                                                        value="<?= $teethData['85'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[84]" placeholder="84"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_84'] ?? ''); ?>"
+                                                        value="<?= $teethData['84'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[83]" placeholder="83"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_83'] ?? ''); ?>"
+                                                        value="<?= $teethData['83'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[82]" placeholder="82"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_82'] ?? ''); ?>"
+                                                        value="<?= $teethData['82'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[81]" placeholder="81"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_81'] ?? ''); ?>"
+                                                        value="<?= $teethData['81'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[71]" placeholder="71"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_71'] ?? ''); ?>"
+                                                        value="<?= $teethData['71'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[72]" placeholder="72"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_72'] ?? ''); ?>"
+                                                        value="<?= $teethData['72'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[73]" placeholder="73"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_73'] ?? ''); ?>"
+                                                        value="<?= $teethData['73'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[74]" placeholder="74"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_74'] ?? ''); ?>"
+                                                        value="<?= $teethData['74'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                     <input type="text" name="tooth[75]" placeholder="75"
-                                                        value="<?php echo htmlspecialchars($dental['tooth_75'] ?? ''); ?>"
+                                                        value="<?= $teethData['75'] ?? '' ?>"
                                                         class="text-center border rounded p-1" />
+
                                                 </div>
                                             </div>
 
