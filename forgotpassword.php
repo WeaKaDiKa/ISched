@@ -5,6 +5,19 @@ require_once 'mailfunction.php';
 $error = '';
 $success = '';
 
+// Check if otp and otp_expires columns exist in the patients table
+$columnsResult = $conn->query("SHOW COLUMNS FROM patients LIKE 'otp'");
+if ($columnsResult->num_rows == 0) {
+    // Add otp column if it doesn't exist
+    $conn->query("ALTER TABLE patients ADD COLUMN otp VARCHAR(6) NULL");
+}
+
+$columnsResult = $conn->query("SHOW COLUMNS FROM patients LIKE 'otp_expires'");
+if ($columnsResult->num_rows == 0) {
+    // Add otp_expires column if it doesn't exist
+    $conn->query("ALTER TABLE patients ADD COLUMN otp_expires DATETIME NULL");
+}
+
 // Initialize or get the current step
 if (!isset($_SESSION['password_reset_step'])) {
     $_SESSION['password_reset_step'] = 1;
@@ -74,14 +87,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (strtotime($row['otp_expires']) > time()) {
                 // OTP verified successfully
                 
-                // Clear session variables related to password reset
-                unset($_SESSION['password_reset_step']);
-                unset($_SESSION['reset_user_id']);
-                unset($_SESSION['reset_email']);
+                // Proceed to password reset step
+                $_SESSION['password_reset_step'] = 3;
+                $success = "OTP verified successfully. Please set your new password.";
                 
-                // Redirect to login page with a success message
-                header("Location: login.php?msg=otp_verified");
-                exit();
+                // Clear the OTP after verification for security
+                $clearOtpStmt = $conn->prepare("UPDATE patients SET otp = NULL, otp_expires = NULL WHERE id = ?");
+                $clearOtpStmt->bind_param("i", $user_id);
+                $clearOtpStmt->execute();
             } else {
                 $error = "OTP has expired. Please request a new one.";
                 $_SESSION['password_reset_step'] = 1;
