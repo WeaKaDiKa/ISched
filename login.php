@@ -8,7 +8,7 @@ require 'db.php';
 
 // Check for remember me cookie
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
-    $token = filter_var($_COOKIE['remember_me'], FILTER_SANITIZE_STRING);
+    $token = htmlspecialchars($_COOKIE['remember_me'], ENT_QUOTES, 'UTF-8');
     $stmt = $conn->prepare("SELECT user_id FROM remember_me_tokens WHERE token = ? AND expires > NOW()");
     $stmt->bind_param("s", $token);
     $stmt->execute();
@@ -17,7 +17,10 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
     if ($result->num_rows === 1) {
         $row = $result->fetch_assoc();
         $_SESSION['user_id'] = $row['user_id'];
-        session_regenerate_id(true);
+        // Regenerate session ID before any output
+        if (headers_sent() === false) {
+            session_regenerate_id(true);
+        }
     }
 }
 
@@ -100,9 +103,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     break;
             }
         }
-
-
-        session_regenerate_id(true);
+        
+        // Regenerate session ID before sending any output
+        if (headers_sent() === false) {
+            session_regenerate_id(true);
+        }
 
         // Handle Remember Me
         if ($remember) {

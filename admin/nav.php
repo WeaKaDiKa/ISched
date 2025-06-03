@@ -214,8 +214,8 @@ $role = $_SESSION['admin_type'] ?? '';
     </nav>
 
 
-    <a href="../login.php"
-        class="mt-auto flex justify-center items-center space-x-2 text-red-600 hover:text-red-700 font-semibold text-sm">
+    <a href="logout.php" id="logoutLink"
+        class="mt-auto flex justify-center items-center space-x-2 text-red-600 hover:text-red-700 font-semibold text-sm logout-btn">
         <i class="fas fa-sign-out-alt fa-lg"></i>
         <span>Logout</span>
     </a>
@@ -266,16 +266,15 @@ $role = $_SESSION['admin_type'] ?? '';
 </div>
 
 <!-- Logout Confirmation Modal -->
-<div id="logoutModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 hidden">
-    <div class="bg-white rounded-xl shadow-lg p-8 max-w-xs w-full text-center">
-        <h2 class="text-lg font-semibold text-blue-700 mb-2">Confirm logout</h2>
-        <hr class="my-2 border-blue-100">
-        <p class="text-gray-700 mb-6">Are you sure you want to log out?</p>
-        <div class="flex justify-center space-x-4">
+<div id="logoutModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-5 max-w-xs w-full text-center">
+        <h2 class="text-lg font-semibold mb-2">Logout Account</h2>
+        <p class="text-gray-600 mb-4">Are you sure you want to logout? Once you logout you need to login again. Are you OK?</p>
+        <div class="flex justify-between space-x-2">
             <button id="cancelLogout"
-                class="px-4 py-1 rounded bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200">Cancel</button>
+                class="flex-1 py-2 rounded bg-[#E0F7E6] text-gray-800 font-medium hover:bg-[#D0E7D6]">Cancel</button>
             <button id="confirmLogout"
-                class="px-4 py-1 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700">OK</button>
+                class="flex-1 py-2 rounded bg-[#F44336] text-white font-medium hover:bg-red-700">Yes, Logout!</button>
         </div>
     </div>
 </div>
@@ -448,11 +447,9 @@ $role = $_SESSION['admin_type'] ?? '';
         }
 
         // Logout modal logic
-        document.querySelectorAll('a.logout-btn[href="admin_login.php"]').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('logoutModal').classList.remove('hidden');
-            });
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('logoutModal').classList.remove('hidden');
         });
 
         const cancelLogoutBtn = document.querySelector('#logoutModal #cancelLogout');
@@ -466,7 +463,7 @@ $role = $_SESSION['admin_type'] ?? '';
 
         if (confirmLogoutBtn) {
             confirmLogoutBtn.onclick = function () {
-                window.location.href = 'admin_login.php';
+                window.location.href = 'logout.php';
             };
         }
 
