@@ -587,12 +587,6 @@ $userData = $userResult->fetch_assoc();
 
                         <?php if ($booking['status'] === 'pending'): ?>
                             <div class="booking-actions">
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="action" value="accept">
-                                    <input type="hidden" name="appointment_id" value="<?php echo $booking['id']; ?>">
-                                    <button type="submit" class="btn btn-accept">Accept Booking</button>
-                                </form>
-
                                 <button class="btn btn-cancel" onclick="openCancelModal(<?php echo $booking['id']; ?>)">Cancel
                                     Appointment</button>
                             </div>
