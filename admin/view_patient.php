@@ -57,7 +57,6 @@ while ($row = $appointmentsResult->fetch_assoc()) {
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Patient Details - M&A Oida Dental Clinic</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <?php require_once 'head.php' ?>
     <style>
         .appointment-card {

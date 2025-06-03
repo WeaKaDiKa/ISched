@@ -83,34 +83,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $checkProfileStmt->execute();
         $profileResult = $checkProfileStmt->get_result();
 
-        // Additional profile fields
-        $occupation = trim($_POST['occupation'] ?? '');
-        $emergencyContact = trim($_POST['emergency_contact'] ?? '');
-        $emergencyPhone = trim($_POST['emergency_phone'] ?? '');
-        $medicalHistory = trim($_POST['medical_history'] ?? '');
-
-        // Dental history fields
-        $nickname = trim($_POST['nickname'] ?? '');
-        $homeNumber = trim($_POST['home_number'] ?? '');
-        $officeNumber = trim($_POST['office_number'] ?? '');
-        $faxNumber = trim($_POST['fax_number'] ?? '');
-        $previousDentist = trim($_POST['previous_dentist'] ?? '');
-        $lastDentalVisit = $_POST['last_dental_visit'] ?? null;
-        $reasonForConsultation = trim($_POST['reason_for_consultation'] ?? '');
-        $referral = trim($_POST['referral'] ?? '');
-
         // Medical history fields
         $physicianName = trim($_POST['physician_name'] ?? '');
         $physicianSpecialty = trim($_POST['physician_specialty'] ?? '');
         $physicianOfficeAddress = trim($_POST['physician_office_address'] ?? '');
         $physicianOfficeNumber = trim($_POST['physician_office_number'] ?? '');
-        $goodHealth = $_POST['good_health'] ?? null;
-        $underTreatment = $_POST['under_treatment'] ?? null;
-        $seriousIllness = $_POST['serious_illness'] ?? null;
-        $hospitalized = $_POST['hospitalized'] ?? null;
-        $prescriptionMedication = $_POST['prescription_medication'] ?? null;
-        $tobaccoUse = $_POST['tobacco_use'] ?? null;
-        $substanceUse = $_POST['substance_use'] ?? null;
+        $goodHealth = $_POST['good_health']? 1 : 0;
+        $underTreatment = $_POST['under_treatment'] ? 1 : 0;
+        $seriousIllness = $_POST['serious_illness'] ? 1 : 0;
+        $hospitalized = $_POST['hospitalized'] ? 1 : 0;
+        $prescriptionMedication = $_POST['prescription_medication'] ? 1 : 0;
+        $tobaccoUse = $_POST['tobacco_use'] ? 1 : 0;
+        $substanceUse = $_POST['substance_use'] ? 1 : 0;
 
         // Medical details fields
         $bloodType = trim($_POST['blood_type'] ?? '');
@@ -128,39 +112,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allergySulfaDrugs = isset($_POST['allergy_sulfa_drugs']) ? 1 : 0;
         $allergyAspirin = isset($_POST['allergy_aspirin']) ? 1 : 0;
 
-        // Get insurance information
-        $insuranceInfo = trim($_POST['insurance_info'] ?? '');
+     if ($profileResult->num_rows > 0) {
+    // Update existing profile with medical and dental info
+$updateProfileQuery = "UPDATE patient_profiles SET 
+    physician_name = ?, 
+    physician_specialty = ?, 
+    physician_office_address = ?, 
+    physician_office_number = ?, 
+    good_health = ?, 
+    under_treatment = ?, 
+    serious_illness = ?, 
+    hospitalized = ?, 
+    prescription_medication = ?, 
+    tobacco_use = ?, 
+    substance_use = ?, 
+    blood_type = ?, 
+    blood_pressure = ?, 
+    heart_attack = ?, 
+    thyroid_problem = ?, 
+    heart_disease = ?, 
+    diabetes = ?, 
+    allergy_local_anesthetic = ?, 
+    allergy_penicillin = ?, 
+    allergy_sulfa_drugs = ?, 
+    allergy_aspirin = ? 
+    WHERE patient_id = ?";
 
-        if ($profileResult->num_rows > 0) {
-            // Update existing profile with medical history and insurance info
-            $updateProfileQuery = "UPDATE patient_profiles SET 
-                                  medical_history = ?,
-                                  insurance_info = ?
-                                  WHERE patient_id = ?";
+$updateProfileStmt = $conn->prepare($updateProfileQuery);
+$updateProfileStmt->bind_param(
+    "ssssiiiiiiissiiiiiiiii",
+    $physicianName,
+    $physicianSpecialty,
+    $physicianOfficeAddress,
+    $physicianOfficeNumber,
+    $goodHealth,
+    $underTreatment,
+    $seriousIllness,
+    $hospitalized,
+    $prescriptionMedication,
+    $tobaccoUse,
+    $substanceUse,
+    $bloodType,
+    $bloodPressure,
+    $heartAttack,
+    $thyroidProblem,
+    $heartDisease,
+    $diabetes,
+    $allergyLocalAnesthetic,
+    $allergyPenicillin,
+    $allergySulfaDrugs,
+    $allergyAspirin,
+    $patientId
+);
+$updateProfileStmt->execute();
 
-            $updateProfileStmt = $conn->prepare($updateProfileQuery);
-            $updateProfileStmt->bind_param(
-                "ssi",
-                $medicalHistory,
-                $insuranceInfo,
-                $patientId
-            );
-            $updateProfileStmt->execute();
-        } else {
-            // Create new profile with medical history and insurance info
-            $createProfileQuery = "INSERT INTO patient_profiles 
-                                 (patient_id, medical_history, insurance_info) 
-                                 VALUES (?, ?, ?)";
+}
+else {
+  $createProfileQuery = "INSERT INTO patient_profiles (
+    patient_id, physician_name, physician_specialty, physician_office_address, physician_office_number,
+    good_health, under_treatment, serious_illness, hospitalized, prescription_medication, 
+    tobacco_use, substance_use, blood_type, blood_pressure,
+    heart_attack, thyroid_problem, heart_disease, diabetes, 
+    allergy_local_anesthetic, allergy_penicillin, allergy_sulfa_drugs, allergy_aspirin
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            $createProfileStmt = $conn->prepare($createProfileQuery);
-            $createProfileStmt->bind_param(
-                "iss",
-                $patientId,
-                $medicalHistory,
-                $insuranceInfo
-            );
-            $createProfileStmt->execute();
-        }
+$createProfileStmt = $conn->prepare($createProfileQuery);
+$createProfileStmt->bind_param(
+    "issssiiiiiiissiiiiiii",
+    $patientId,
+    $physicianName,
+    $physicianSpecialty,
+    $physicianOfficeAddress,
+    $physicianOfficeNumber,
+    $goodHealth,
+    $underTreatment,
+    $seriousIllness,
+    $hospitalized,
+    $prescriptionMedication,
+    $tobaccoUse,
+    $substanceUse,
+    $bloodType,
+    $bloodPressure,
+    $heartAttack,
+    $thyroidProblem,
+    $heartDisease,
+    $diabetes,
+    $allergyLocalAnesthetic,
+    $allergyPenicillin,
+    $allergySulfaDrugs,
+    $allergyAspirin
+);
+$createProfileStmt->execute();
+
+}
+
 
         $successMessage = "Patient information updated successfully!";
 
@@ -437,7 +482,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                             </div>
                         </div>
 
-                        <form method="POST" action="">
+                        <form method="POST">
                             <!-- Tab Content -->
                             <div id="info-tab" class="tab-content">
                                 <div class="grid grid-cols-1 gap-6">
