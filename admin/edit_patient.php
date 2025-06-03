@@ -1123,9 +1123,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                         <li><input type="checkbox" name="appliance[]" value="Stayplate"
                                                                 <?php echo (isset($dental['appliance']) && in_array('Stayplate', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>>
                                                             Stayplate</li>
-                                                        <li><input type="checkbox" name="appliance[]" value="Others"
-                                                                <?php echo (isset($dental['appliance']) && in_array('Others', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>> Others
-                                                        </li>
+                                                      
                                                     </ul>
                                                 </li>
                                                 <li><strong>TMD:</strong>
