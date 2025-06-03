@@ -171,8 +171,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $errorMessage = "Error updating patient information. Please try again.";
     }
-}
 
+    $toothIds = array_merge(
+        ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'],
+        ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28'],
+        ['48', '47', '46', '45', '44', '43', '42', '41', '31', '32', '33', '34', '35', '36', '37', '38'],
+        ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75']
+    );
+
+    $submittedTeeth = $_POST['tooth'] ?? [];
+    $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
+
+    $teethData = [];
+    foreach ($toothIds as $id) {
+        $teethData[$id] = isset($submittedTeeth[$id]) ? trim($submittedTeeth[$id]) : "";
+    }
+
+    $periodontalScreening = isset($_POST['periodontal_screening']) && is_array($_POST['periodontal_screening'])
+        ? implode(',', array_map('trim', $_POST['periodontal_screening']))
+        : '';
+
+    $occlusion = isset($_POST['occlusion']) && is_array($_POST['occlusion'])
+        ? implode(',', array_map('trim', $_POST['occlusion']))
+        : '';
+
+    $appliance = isset($_POST['appliance']) && is_array($_POST['appliance'])
+        ? implode(',', array_map('trim', $_POST['appliance']))
+        : '';
+
+    $tmd = isset($_POST['tmd']) && is_array($_POST['tmd'])
+        ? implode(',', array_map('trim', $_POST['tmd']))
+        : '';
+
+    $teethJson = json_encode($teethData);
+
+    $check = $conn->prepare("SELECT 1 FROM dentalhistory WHERE patientid = ?");
+    $check->bind_param("i", $patientId);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows > 0) {
+
+        $stmt = $conn->prepare("UPDATE dentalhistory SET 
+        teeth = ?, 
+        periodontal_screening = ?, 
+        occlusion = ?, 
+        appliance = ?, 
+        tmd = ?, 
+        notes = ?
+        WHERE patientid = ?");
+        $stmt->bind_param("ssssssi", $teethJson, $periodontalScreening, $occlusion, $appliance, $tmd, $notes, $patientId);
+    } else {
+
+        $stmt = $conn->prepare("INSERT INTO dentalhistory 
+        (patientid, teeth, periodontal_screening, occlusion, appliance, tmd, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("issssss", $patientId, $teethJson, $periodontalScreening, $occlusion, $appliance, $tmd, $notes);
+    }
+
+    $stmt->execute();
+    header('location: edit_patient.php?id=' . $patientId);
+    exit();
+
+}
 // Get patient's appointments (both pending and approved)
 $appointmentsQuery = "SELECT a.*, 
                      CONCAT('APP-', LPAD(a.id, 6, '0')) as reference_number,
@@ -190,6 +251,8 @@ $appointments = [];
 while ($row = $appointmentsResult->fetch_assoc()) {
     $appointments[] = $row;
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -970,7 +1033,8 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                                 <?php endforeach; ?>
                                                             </select>
                                                             <div class="text-center text-sm mt-1 font-medium">
-                                                                <?= $toothId ?></div>
+                                                                <?= $toothId ?>
+                                                            </div>
                                                         </div>
                                                     <?php endforeach; ?>
 
@@ -1053,14 +1117,14 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                 </li>
                                                 <li><strong>Appliances:</strong>
                                                     <ul>
-                                                        <li><input type="checkbox" name="appliances[]"
-                                                                value="Orthodontic" <?php echo (isset($dental['appliances']) && in_array('Orthodontic', explode(',', $dental['appliances']))) ? 'checked' : ''; ?>>
+                                                        <li><input type="checkbox" name="appliance[]"
+                                                                value="Orthodontic" <?php echo (isset($dental['appliance']) && in_array('Orthodontic', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>>
                                                             Orthodontic</li>
-                                                        <li><input type="checkbox" name="appliances[]" value="Stayplate"
-                                                                <?php echo (isset($dental['appliances']) && in_array('Stayplate', explode(',', $dental['appliances']))) ? 'checked' : ''; ?>>
+                                                        <li><input type="checkbox" name="appliance[]" value="Stayplate"
+                                                                <?php echo (isset($dental['appliance']) && in_array('Stayplate', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>>
                                                             Stayplate</li>
-                                                        <li><input type="checkbox" name="appliances[]" value="Others"
-                                                                <?php echo (isset($dental['appliances']) && in_array('Others', explode(',', $dental['appliances']))) ? 'checked' : ''; ?>> Others
+                                                        <li><input type="checkbox" name="appliance[]" value="Others"
+                                                                <?php echo (isset($dental['appliance']) && in_array('Others', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>> Others
                                                         </li>
                                                     </ul>
                                                 </li>
