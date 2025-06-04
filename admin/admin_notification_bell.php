@@ -33,7 +33,7 @@ while ($row = $result->fetch_assoc()) {
 ?>
 
 <!-- Notification Bell -->
-<div class="relative inline-block">
+<div class="inline-block">
     <button id="notificationBellBtn" class="text-gray-900 hover:text-gray-700 focus:outline-none relative">
         <i class="fas fa-bell fa-lg"></i>
         <?php if ($unreadCount > 0): ?>
@@ -44,7 +44,7 @@ while ($row = $result->fetch_assoc()) {
     </button>
     
     <!-- Notification Dropdown -->
-    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl overflow-hidden z-50" style="max-height: 500px; overflow-y: auto;">
+    <div id="notificationDropdown" class="absolute m-3 right-0 mt-5 md:w-96 w-auto bg-white rounded-lg shadow-xl overflow-hidden z-50 hidden" style="max-height: 500px; overflow-y: auto;">
         <div class="py-3 px-4 bg-blue-600 text-white flex justify-between items-center">
             <span class="font-bold text-white text-base">Notifications</span>
             <?php if ($unreadCount > 0): ?>
