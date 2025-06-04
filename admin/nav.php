@@ -266,7 +266,6 @@ $role = $_SESSION['admin_type'] ?? '';
 </div>
 
 <!-- Logout Confirmation Modal -->
-<<<<<<< HEAD
 <div id="logoutModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
     <div class="bg-white rounded-lg shadow-lg p-5 max-w-xs w-full text-center">
         <h2 class="text-lg font-semibold mb-2">Logout Account</h2>
@@ -276,18 +275,6 @@ $role = $_SESSION['admin_type'] ?? '';
                 class="flex-1 py-2 rounded bg-[#E0F7E6] text-gray-800 font-medium hover:bg-[#D0E7D6]">Cancel</button>
             <button id="confirmLogout"
                 class="flex-1 py-2 rounded bg-[#F44336] text-white font-medium hover:bg-red-700">Yes, Logout!</button>
-=======
-<div id="logoutModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 hidden">
-    <div class="bg-white rounded-xl shadow-lg p-8 max-w-xs w-full text-center">
-        <h2 class="text-lg font-semibold text-blue-700 mb-2">Confirm logout</h2>
-        <hr class="my-2 border-blue-100">
-        <p class="text-gray-700 mb-6">Are you sure you want to log out?</p>
-        <div class="flex justify-center space-x-4">
-            <button id="cancelLogout"
-                class="px-4 py-1 rounded bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200">Cancel</button>
-            <button id="confirmLogout"
-                class="px-4 py-1 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700">OK</button>
->>>>>>> 2d5b32b383db3a0f557e68ee59a0f31fceda888f
         </div>
     </div>
 </div>
