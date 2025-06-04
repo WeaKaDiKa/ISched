@@ -51,6 +51,33 @@
   display: block !important;
 }
 
+/* Convert to modal on medium screens and below */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-height: 80%;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 0;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Optional: add a dark overlay behind the modal */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+}
+
 .notification-header {
   display: flex;
   justify-content: space-between;
@@ -209,20 +236,60 @@
 }
 
 /* Type-specific colors */
-.type-appointment { border-left-color: var(--appointment-color); }
-.type-cancellation { border-left-color: var(--cancellation-color); }
-.type-reschedule { border-left-color: var(--reschedule-color); }
-.type-review { border-left-color: var(--review-color); }
-.type-reminder { border-left-color: var(--reminder-color); }
-.type-message { border-left-color: var(--message-color); }
+.type-appointment {
+  border-left-color: var(--appointment-color);
+}
+
+.type-cancellation {
+  border-left-color: var(--cancellation-color);
+}
+
+.type-reschedule {
+  border-left-color: var(--reschedule-color);
+}
+
+.type-review {
+  border-left-color: var(--review-color);
+}
+
+.type-reminder {
+  border-left-color: var(--reminder-color);
+}
+
+.type-message {
+  border-left-color: var(--message-color);
+}
 
 /* Icon background colors */
-.icon-appointment { background-color: #e6f0ff; color: var(--appointment-color); }
-.icon-cancellation { background-color: #ffe6e6; color: var(--cancellation-color); }
-.icon-reschedule { background-color: #fff0e6; color: var(--reschedule-color); }
-.icon-review { background-color: #fffde6; color: var(--review-color); }
-.icon-reminder { background-color: #e6ffef; color: var(--reminder-color); }
-.icon-message { background-color: #f2e6ff; color: var(--message-color); }
+.icon-appointment {
+  background-color: #e6f0ff;
+  color: var(--appointment-color);
+}
+
+.icon-cancellation {
+  background-color: #ffe6e6;
+  color: var(--cancellation-color);
+}
+
+.icon-reschedule {
+  background-color: #fff0e6;
+  color: var(--reschedule-color);
+}
+
+.icon-review {
+  background-color: #fffde6;
+  color: var(--review-color);
+}
+
+.icon-reminder {
+  background-color: #e6ffef;
+  color: var(--reminder-color);
+}
+
+.icon-message {
+  background-color: #f2e6ff;
+  color: var(--message-color);
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -230,7 +297,7 @@
     width: 320px;
     right: -80px;
   }
-  
+
   .notification-dropdown:before {
     right: 90px;
   }
