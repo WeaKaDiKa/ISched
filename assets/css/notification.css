@@ -1,7 +1,6 @@
 /* Notification Bell Styles */
 .notification-wrapper {
   position: relative;
-  margin-right: 15px;
   z-index: 1001;
 }
 

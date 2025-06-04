@@ -193,67 +193,6 @@
         width: 100%;
     }
 
-    /* Fix notification bell styles */
-    .notification-wrapper {
-        position: relative;
-        margin-right: 15px;
-        z-index: 1001;
-    }
-
-    .notification-toggle {
-        background: none;
-        border: none;
-        color: #124085;
-        font-size: 20px;
-        cursor: pointer;
-        position: relative;
-        padding: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1001;
-    }
-
-    .notification-dropdown {
-        z-index: 1002;
-    }
-
-    .notification-dropdown.show {
-        display: block !important;
-    }
-
-    .notification-toggle:hover {
-        color: #0d6efd;
-    }
-
-
-    .notification-dropdown {
-        display: none;
-        position: absolute;
-        top: 45px;
-        right: 0;
-        width: 340px;
- 
-        overflow-y: auto;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        padding: 10px;
-        z-index: 1000;
-    }
-
-    .notification-wrapper.show .notification-dropdown {
-        display: block;
-    }
-
-    .notification-dropdown .empty-message {
-        text-align: center;
-        padding: 20px;
-        color: #555;
-        font-style: italic;
-    }
-
 
 
     /* Hero Section */
