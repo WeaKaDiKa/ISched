@@ -414,10 +414,123 @@ if ($admin_id) {
 <script>
 let cropper = null;
 
+<<<<<<< HEAD
 function showCropModal(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
+=======
+                    // Set image source
+                    cropImage.src = e.target.result;
+
+                    // Show modal
+                    cropModal.classList.remove('hidden');
+
+                    // Initialize cropper
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        dragMode: 'move',
+                        autoCropArea: 1,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: false,
+                        cropBoxResizable: false,
+                        toggleDragModeOnDblclick: false,
+                    });
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateAllProfilePhotos(imageUrl) {
+            // Update the profile photo on the account settings page
+            const accountProfilePhoto = document.getElementById('currentProfilePhoto');
+            if(accountProfilePhoto) {
+                accountProfilePhoto.src = imageUrl;
+            }
+
+            // Update the profile photo in the sidebar if it exists (on pages that include nav.php)
+            const sidebarProfilePhoto = document.getElementById('currentProfilePhotoSidebar');
+            if (sidebarProfilePhoto) {
+                sidebarProfilePhoto.src = imageUrl;
+            }
+        }
+
+        function saveCroppedImage() {
+            if (!cropper) return;
+
+            // Get cropped canvas
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300
+            });
+
+            // Convert to blob
+            canvas.toBlob(function (blob) {
+                // Create form data
+                const formData = new FormData();
+                formData.append('profile_photo', blob, 'profile.jpg');
+
+                // Show loading state
+                document.body.style.cursor = 'wait';
+
+                // Upload using fetch to the current page (account_settings.php)
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Create object URL for the blob
+                            const imageUrl = URL.createObjectURL(blob);
+
+                            // Update all profile photos
+                            updateAllProfilePhotos(imageUrl);
+
+                            // Show success message
+                            showSuccessModal('Profile photo updated successfully');
+
+                            // No need to store in sessionStorage if updating directly
+
+                        } else {
+                            alert('Failed to update profile photo: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating your profile photo');
+                    })
+                    .finally(() => {
+                        closeCropModal();
+                        document.body.style.cursor = 'default';
+                    });
+            }, 'image/jpeg', 0.95);
+        }
+
+        function showSuccessModal(message) {
+            const modal = document.getElementById('successModal');
+            const content = document.getElementById('successModalContent');
+            const messageElement = content.querySelector('p');
+
+            // Update success message
+            messageElement.textContent = message;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-90', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeCropModal() {
+>>>>>>> 2d5b32b383db3a0f557e68ee59a0f31fceda888f
             const cropModal = document.getElementById('cropModal');
             const cropImage = document.getElementById('cropImage');
             
@@ -431,6 +544,7 @@ function showCropModal(input) {
             if (cropper) {
                 cropper.destroy();
             }
+<<<<<<< HEAD
             cropper = new Cropper(cropImage, {
                 aspectRatio: 1,
                 viewMode: 1,
@@ -443,6 +557,114 @@ function showCropModal(input) {
                 cropBoxMovable: false,
                 cropBoxResizable: false,
                 toggleDragModeOnDblclick: false,
+=======
+            // Reset file input
+            const profilePhotoInput = document.getElementById('profilePhotoInput');
+            if (profilePhotoInput) {
+                 profilePhotoInput.value = '';
+            }
+        }
+
+         function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const content = document.getElementById('successModalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function showTab(tab) {
+            document.getElementById('personal-details-tab').classList.add('hidden');
+            document.getElementById('reset-password-tab').classList.add('hidden');
+            document.getElementById(tab).classList.remove('hidden');
+            // Update tab styles
+            document.getElementById('tab-personal').classList.remove('text-blue-600', 'border-blue-600', 'border-b-2');
+            document.getElementById('tab-reset').classList.remove('text-blue-600', 'border-blue-600', 'border-b-2');
+            document.getElementById('tab-personal').classList.add('text-gray-500');
+            document.getElementById('tab-reset').classList.add('text-gray-500');
+            if (tab === 'personal-details-tab') {
+                document.getElementById('tab-personal').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                document.getElementById('tab-personal').classList.remove('text-gray-500');
+            } else {
+                document.getElementById('tab-reset').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                document.getElementById('tab-reset').classList.remove('text-gray-500');
+            }
+        }
+        function togglePassword(fieldId, iconSpan) {
+            const input = document.getElementById(fieldId);
+            const icon = iconSpan.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        // Handle form submission with AJAX
+        document.getElementById('profileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            formData.append('ajax', 'true');
+            formData.append('update_profile', '1'); // Ensure PHP sees this as a profile update
+
+            fetch('account_settings.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // Debug: log the full response
+                    if (data.success) {
+                        document.querySelectorAll('.user-name').forEach(element => {
+                            element.textContent = data.name;
+                        });
+                        showSuccessModal();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating your profile.');
+                });
+        });
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const content = document.getElementById('successModalContent');
+
+            // Update success message to mention profile photo
+            document.querySelector('#successModalContent p').textContent = 'Your profile photo has been updated successfully.';
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-90', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const content = document.getElementById('successModalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        // Show Personal Details tab by default
+        showTab('personal-details-tab');
+        // Sidebar toggle logic
+
+        document.querySelectorAll('a.logout-btn[href="admin_login.php"]').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('logoutModal').classList.remove('hidden');
+>>>>>>> 2d5b32b383db3a0f557e68ee59a0f31fceda888f
             });
         };
         reader.readAsDataURL(input.files[0]);
