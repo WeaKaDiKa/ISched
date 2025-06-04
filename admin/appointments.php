@@ -225,6 +225,18 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                     <h1 class="text-blue-900 font-bold text-lg select-none">
                         Appointments
                     </h1>
+                    <div class="d-flex">
+                        <button onclick="saveAsPDF()"
+                            class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 mr-2">
+                            Save as PDF
+                        </button>
+
+                        <button onclick="printDiv('printthis')"
+                            class="border border-gray-400 text-gray-700 px-4 py-2 rounded hover:bg-gray-100">
+                            Print
+                        </button>
+
+                    </div>
                     <!--    <div class="relative">
                             <input aria-label="Search"
                                 class="border border-gray-400 rounded text-sm pl-7 pr-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-600"
@@ -340,7 +352,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                         type="button" title="Approve"
                                                         onclick="showConfirmModal('approve', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
                                                             class="fas fa-check"></i></button>
-                                                    
+
                                                     <button
                                                         class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
                                                         type="button" title="Details"
@@ -707,6 +719,33 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
 
         </main>
     </div>
+    <script>
+        function saveAsPDF() {
+            var content = document.getElementById('content').innerHTML;
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'generate_pdf.php';
+            var hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.name = 'content';
+            hiddenField.value = content;
+            form.appendChild(hiddenField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function printDiv(divName) {
+            var printContents = document.getElementById(divName).innerHTML;
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = '<div class="print-area">' + printContents + '</div>';
+
+
+            window.print();
+
+            document.body.innerHTML = originalContents;
+        }
+    </script>
     <!-- Appointment Details Modal -->
     <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative">
