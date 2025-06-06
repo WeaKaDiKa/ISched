@@ -31,12 +31,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             throw new Exception("Invalid request method");
         }
 
-        $login_id = trim($_POST['email'] ?? $_POST['admin_id'] ?? '');
+        $login_id = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $remember = isset($_POST['remember']) || isset($_POST['rememberMe']);
 
         if (empty($login_id) || empty($password)) {
-            throw new Exception("Email/Admin ID and password are required");
+            throw new Exception("Email and password are required");
         }
 
         $is_email = filter_var($login_id, FILTER_VALIDATE_EMAIL);
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt->bind_param("s", $login_id);
                 $stmt->execute();
                 $result = $stmt->get_result();
-
+                $stmt->close();
                 if ($result->num_rows !== 1) {
                     throw new Exception("Invalid credentials");
                 }
@@ -87,19 +87,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $redirect = 'admin/dashboard.php'; // default fallback
                         break;
                 }
+            } else {
+
+                $user = $result->fetch_assoc();
+                if (!password_verify($password, $user['password_hash'])) {
+                    throw new Exception("Invalid email or password");
+                }
+
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+                $_SESSION['user_role'] = $user['role'];
+
+                $redirect = 'index.php'; // fallback for regular patients
             }
-
-            $user = $result->fetch_assoc();
-            if (!password_verify($password, $user['password_hash'])) {
-                throw new Exception("Invalid email or password");
-            }
-
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
-            $_SESSION['user_role'] = $user['role'];
-
-            $redirect = 'index.php'; // fallback for regular patients
-
 
         } else {
             throw new Exception("Invalid email");
@@ -120,12 +120,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt = $conn->prepare("DELETE FROM remember_me_tokens WHERE user_id = ?");
             $stmt->bind_param("i", $user['id']);
             $stmt->execute();
-
+            $stmt->close();
             // Insert new token
             $stmt = $conn->prepare("INSERT INTO remember_me_tokens (user_id, token, expires) VALUES (?, ?, ?)");
             $stmt->bind_param("iss", $user['id'], $token, $expires);
             $stmt->execute();
-
+            $stmt->close();
             setcookie('remember_me', $token, time() + (86400 * 30), '/', '', true, true);
         }
 
