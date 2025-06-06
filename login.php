@@ -48,9 +48,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->bind_param("s", $login_id);
             $stmt->execute();
             $result = $stmt->get_result();
-
+            $stmt->close();
             if ($result->num_rows !== 1) {
-                throw new Exception("Invalid email or password");
+
+                // Admin login
+                $stmt = $conn->prepare("SELECT id, admin_id, type, password, name FROM admin_logins WHERE email = ?");
+                $stmt->bind_param("s", $login_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows !== 1) {
+                    throw new Exception("Invalid credentials");
+                }
+
+                $user = $result->fetch_assoc();
+                if (!password_verify($password, $user['password'])) {
+                    throw new Exception("Invalid credentials");
+                }
+
+                $_SESSION['admin_id'] = $user['admin_id'];
+                $_SESSION['admin_type'] = $user['type'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['type'];
+
+                switch ($_SESSION['admin_type']) {
+                    case 'admin':
+                        $redirect = 'admin/dashboard.php';
+                        break;
+                    case 'dentist':
+                        $redirect = 'admin/appointments.php';
+                        break;
+                    case 'dental_helper':
+                    case 'helper':
+                        $redirect = 'admin/patient_record.php';
+                        break;
+                    default:
+                        $redirect = 'admin/dashboard.php'; // default fallback
+                        break;
+                }
             }
 
             $user = $result->fetch_assoc();
@@ -66,44 +102,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
         } else {
-            // Admin login
-            $stmt = $conn->prepare("SELECT id, admin_id, type, password, name FROM admin_logins WHERE admin_id = ?");
-            $stmt->bind_param("s", $login_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            throw new Exception("Invalid email");
 
-            if ($result->num_rows !== 1) {
-                throw new Exception("Invalid credentials");
-            }
-
-            $user = $result->fetch_assoc();
-            if (!password_verify($password, $user['password'])) {
-                throw new Exception("Invalid credentials");
-            }
-
-            $_SESSION['admin_id'] = $user['admin_id'];
-            $_SESSION['admin_type'] = $user['type'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['type'];
-
-            switch ($_SESSION['admin_type']) {
-                case 'admin':
-                    $redirect = 'admin/dashboard.php';
-                    break;
-                case 'dentist':
-                    $redirect = 'admin/appointments.php';
-                    break;
-                case 'dental_helper':
-                case 'helper':
-                    $redirect = 'admin/patient_record.php';
-                    break;
-                default:
-                    $redirect = 'admin/dashboard.php'; // default fallback
-                    break;
-            }
         }
-        
+
         // Regenerate session ID before sending any output
         if (headers_sent() === false) {
             session_regenerate_id(true);
@@ -172,8 +174,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <form id="login-form" action="login.php" method="POST">
-                <label for="email">Email/Username:</label>
-                <input type="text" id="email" name="email" placeholder="Email/Username" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
 
                 <label for="password">Password:</label>
                 <div class="password-container">

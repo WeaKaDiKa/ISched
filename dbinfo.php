@@ -1,6 +1,6 @@
 <?php
 
-$servername = "sq1l04.infinityfree.com";
+$servername = "sql213.infinityfree.com";
 $username = "if0_38975384"; 
 $password = "2qHptzN96wi4"; 
 $dbname = "if0_38975384_dental_clinic";

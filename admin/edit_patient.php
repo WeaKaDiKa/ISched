@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $physicianSpecialty = trim($_POST['physician_specialty'] ?? '');
         $physicianOfficeAddress = trim($_POST['physician_office_address'] ?? '');
         $physicianOfficeNumber = trim($_POST['physician_office_number'] ?? '');
-        $goodHealth = $_POST['good_health']? 1 : 0;
+        $goodHealth = $_POST['good_health'] ? 1 : 0;
         $underTreatment = $_POST['under_treatment'] ? 1 : 0;
         $seriousIllness = $_POST['serious_illness'] ? 1 : 0;
         $hospitalized = $_POST['hospitalized'] ? 1 : 0;
@@ -112,14 +112,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allergyAspirin = isset($_POST['allergy_aspirin']) ? 1 : 0;
 
         $previousDentist = trim($_POST['previous_dentist'] ?? '');
-$lastDentalVisit = trim($_POST['last_dental_visit'] ?? '');
-$reasonForConsultation = trim($_POST['reason_for_consultation'] ?? '');
-$referral = trim($_POST['referral'] ?? '');
+        $lastDentalVisit = trim($_POST['last_dental_visit'] ?? '');
+        $reasonForConsultation = trim($_POST['reason_for_consultation'] ?? '');
+        $referral = trim($_POST['referral'] ?? '');
 
 
-     if ($profileResult->num_rows > 0) {
-    // Update existing profile with medical and dental info
-$updateProfileQuery = "UPDATE patient_profiles SET 
+        if ($profileResult->num_rows > 0) {
+            // Update existing profile with medical and dental info
+            $updateProfileQuery = "UPDATE patient_profiles SET 
     physician_name = ?, 
     physician_specialty = ?, 
     physician_office_address = ?, 
@@ -143,37 +143,36 @@ $updateProfileQuery = "UPDATE patient_profiles SET
     allergy_aspirin = ? 
     WHERE patient_id = ?";
 
-$updateProfileStmt = $conn->prepare($updateProfileQuery);
-$updateProfileStmt->bind_param(
-    "ssssiiiiiiissiiiiiiiii",
-    $physicianName,
-    $physicianSpecialty,
-    $physicianOfficeAddress,
-    $physicianOfficeNumber,
-    $goodHealth,
-    $underTreatment,
-    $seriousIllness,
-    $hospitalized,
-    $prescriptionMedication,
-    $tobaccoUse,
-    $substanceUse,
-    $bloodType,
-    $bloodPressure,
-    $heartAttack,
-    $thyroidProblem,
-    $heartDisease,
-    $diabetes,
-    $allergyLocalAnesthetic,
-    $allergyPenicillin,
-    $allergySulfaDrugs,
-    $allergyAspirin,
-    $patientId
-);
-$updateProfileStmt->execute();
+            $updateProfileStmt = $conn->prepare($updateProfileQuery);
+            $updateProfileStmt->bind_param(
+                "ssssiiiiiiissiiiiiiiii",
+                $physicianName,
+                $physicianSpecialty,
+                $physicianOfficeAddress,
+                $physicianOfficeNumber,
+                $goodHealth,
+                $underTreatment,
+                $seriousIllness,
+                $hospitalized,
+                $prescriptionMedication,
+                $tobaccoUse,
+                $substanceUse,
+                $bloodType,
+                $bloodPressure,
+                $heartAttack,
+                $thyroidProblem,
+                $heartDisease,
+                $diabetes,
+                $allergyLocalAnesthetic,
+                $allergyPenicillin,
+                $allergySulfaDrugs,
+                $allergyAspirin,
+                $patientId
+            );
+            $updateProfileStmt->execute();
 
-}
-else {
-  $createProfileQuery = "INSERT INTO patient_profiles (
+        } else {
+            $createProfileQuery = "INSERT INTO patient_profiles (
     patient_id, physician_name, physician_specialty, physician_office_address, physician_office_number,
     good_health, under_treatment, serious_illness, hospitalized, prescription_medication, 
     tobacco_use, substance_use, blood_type, blood_pressure,
@@ -181,35 +180,35 @@ else {
     allergy_local_anesthetic, allergy_penicillin, allergy_sulfa_drugs, allergy_aspirin
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-$createProfileStmt = $conn->prepare($createProfileQuery);
-$createProfileStmt->bind_param(
-    "issssiiiiiiissiiiiiii",
-    $patientId,
-    $physicianName,
-    $physicianSpecialty,
-    $physicianOfficeAddress,
-    $physicianOfficeNumber,
-    $goodHealth,
-    $underTreatment,
-    $seriousIllness,
-    $hospitalized,
-    $prescriptionMedication,
-    $tobaccoUse,
-    $substanceUse,
-    $bloodType,
-    $bloodPressure,
-    $heartAttack,
-    $thyroidProblem,
-    $heartDisease,
-    $diabetes,
-    $allergyLocalAnesthetic,
-    $allergyPenicillin,
-    $allergySulfaDrugs,
-    $allergyAspirin
-);
-$createProfileStmt->execute();
+            $createProfileStmt = $conn->prepare($createProfileQuery);
+            $createProfileStmt->bind_param(
+                "issssiiiiiiissiiiiiii",
+                $patientId,
+                $physicianName,
+                $physicianSpecialty,
+                $physicianOfficeAddress,
+                $physicianOfficeNumber,
+                $goodHealth,
+                $underTreatment,
+                $seriousIllness,
+                $hospitalized,
+                $prescriptionMedication,
+                $tobaccoUse,
+                $substanceUse,
+                $bloodType,
+                $bloodPressure,
+                $heartAttack,
+                $thyroidProblem,
+                $heartDisease,
+                $diabetes,
+                $allergyLocalAnesthetic,
+                $allergyPenicillin,
+                $allergySulfaDrugs,
+                $allergyAspirin
+            );
+            $createProfileStmt->execute();
 
-}
+        }
 
 
         $successMessage = "Patient information updated successfully!";
@@ -254,13 +253,13 @@ $createProfileStmt->execute();
         : '';
 
     $teethJson = json_encode($teethData);
-$check = $conn->prepare("SELECT 1 FROM dentalhistory WHERE patientid = ?");
-$check->bind_param("i", $patientId);
-$check->execute();
-$check->store_result();
+    $check = $conn->prepare("SELECT 1 FROM dentalhistory WHERE patientid = ?");
+    $check->bind_param("i", $patientId);
+    $check->execute();
+    $check->store_result();
 
-if ($check->num_rows > 0) {
-    $stmt = $conn->prepare("UPDATE dentalhistory SET 
+    if ($check->num_rows > 0) {
+        $stmt = $conn->prepare("UPDATE dentalhistory SET 
         teeth = ?, 
         periodontal_screening = ?, 
         occlusion = ?, 
@@ -272,45 +271,45 @@ if ($check->num_rows > 0) {
         reason_for_consultation = ?,
         referral = ?
         WHERE patientid = ?");
-        
-    $stmt->bind_param(
-        "ssssssssssi",
-        $teethJson,
-        $periodontalScreening,
-        $occlusion,
-        $appliance,
-        $tmd,
-        $notes,
-        $previousDentist,
-        $lastDentalVisit,
-        $reasonForConsultation,
-        $referral,
-        $patientId
-    );
-} else {
-    $stmt = $conn->prepare("INSERT INTO dentalhistory 
+
+        $stmt->bind_param(
+            "ssssssssssi",
+            $teethJson,
+            $periodontalScreening,
+            $occlusion,
+            $appliance,
+            $tmd,
+            $notes,
+            $previousDentist,
+            $lastDentalVisit,
+            $reasonForConsultation,
+            $referral,
+            $patientId
+        );
+    } else {
+        $stmt = $conn->prepare("INSERT INTO dentalhistory 
         (patientid, teeth, periodontal_screening, occlusion, appliance, tmd, notes, previous_dentist, last_dental_visit, reason_for_consultation, referral)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        
-    $stmt->bind_param(
-        "issssssssss",
-        $patientId,
-        $teethJson,
-        $periodontalScreening,
-        $occlusion,
-        $appliance,
-        $tmd,
-        $notes,
-        $previousDentist,
-        $lastDentalVisit,
-        $reasonForConsultation,
-        $referral
-    );
-}
 
-$stmt->execute();
-header('location: edit_patient.php?id=' . $patientId);
-exit();
+        $stmt->bind_param(
+            "issssssssss",
+            $patientId,
+            $teethJson,
+            $periodontalScreening,
+            $occlusion,
+            $appliance,
+            $tmd,
+            $notes,
+            $previousDentist,
+            $lastDentalVisit,
+            $reasonForConsultation,
+            $referral
+        );
+    }
+
+    $stmt->execute();
+    header('location: edit_patient.php?id=' . $patientId);
+    exit();
 
 
 }
@@ -1128,97 +1127,174 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                             </div>
 
                                             <div class="section-title">Legend</div>
-                                            <table class="legend-table">
-                                                <tr>
-                                                    <td><strong>D</strong> - Decayed</td>
-                                                    <td><strong>J</strong> - Jacket Crown</td>
-                                                    <td><strong>X</strong> - Extraction due to Caries</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>M</strong> - Missing due to Caries</td>
-                                                    <td><strong>A</strong> - Amalgam Filling</td>
-                                                    <td><strong>XO</strong> - Extraction due to other causes</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>F</strong> - Filled</td>
-                                                    <td><strong>A-B</strong> - Abutment</td>
-                                                    <td><strong>✓</strong> - Present Teeth</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>I</strong> - Caries for Extraction</td>
-                                                    <td><strong>P</strong> - Pontic</td>
-                                                    <td><strong>Cn</strong> - Congenitally Missing</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>RF</strong> - Root Fragment</td>
-                                                    <td><strong>In</strong> - Inlay</td>
-                                                    <td><strong>Sp</strong> - Supernumerary</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>MO</strong> - Missing Other Causes</td>
-                                                    <td><strong>FX</strong> - Fixed Cure Composite</td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Im</strong> - Impacted Tooth</td>
-                                                    <td><strong>Rm</strong> - Removable Denture</td>
-                                                </tr>
-                                            </table>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                <div class="space-y-1">
+                                                    <p><strong>D</strong> - Decayed</p>
+                                                    <p><strong>M</strong> - Missing due to Caries</p>
+                                                    <p><strong>F</strong> - Filled</p>
+                                                    <p><strong>I</strong> - Caries for Extraction</p>
+                                                    <p><strong>RF</strong> - Root Fragment</p>
+                                                    <p><strong>MO</strong> - Missing Other Causes</p>
+                                                    <p><strong>Im</strong> - Impacted Tooth</p>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <p><strong>J</strong> - Jacket Crown</p>
+                                                    <p><strong>A</strong> - Amalgam Filling</p>
+                                                    <p><strong>A-B</strong> - Abutment</p>
+                                                    <p><strong>P</strong> - Pontic</p>
+                                                    <p><strong>In</strong> - Inlay</p>
+                                                    <p><strong>FX</strong> - Fixed Cure Composite</p>
+                                                    <p><strong>Rm</strong> - Removable Denture</p>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <p><strong>X</strong> - Extraction due to Caries</p>
+                                                    <p><strong>XO</strong> - Extraction due to other causes</p>
+                                                    <p><strong>✓</strong> - Present Teeth</p>
+                                                    <p><strong>Cn</strong> - Congenitally Missing</p>
+                                                    <p><strong>Sp</strong> - Supernumerary</p>
+                                                </div>
+                                            </div>
+
 
                                             <div class="section-title">Additional Notes</div>
-                                            <ul>
-                                                <li><strong>Periodontal Screening:</strong>
-                                                    <ul>
-                                                        <li><input type="checkbox" name="periodontal_screening[]"
-                                                                value="Gingivitis" <?php echo (isset($dental['periodontal_screening']) && in_array('Gingivitis', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?>> Gingivitis</li>
-                                                        <li><input type="checkbox" name="periodontal_screening[]"
-                                                                value="Early Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Early Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?>> Early Periodontics</li>
-                                                        <li><input type="checkbox" name="periodontal_screening[]"
-                                                                value="Moderate Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Moderate Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?>> Moderate Periodontics</li>
-                                                        <li><input type="checkbox" name="periodontal_screening[]"
-                                                                value="Advanced Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Advanced Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?>> Advanced Periodontics</li>
-                                                    </ul>
-                                                </li>
-                                                <li><strong>Occlusion:</strong>
-                                                    <ul>
-                                                        <li><input type="checkbox" name="occlusion[]"
-                                                                value="Class (Molar)" <?php echo (isset($dental['occlusion']) && in_array('Class (Molar)', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>> Class (Molar)</li>
-                                                        <li><input type="checkbox" name="occlusion[]" value="Overjet"
-                                                                <?php echo (isset($dental['occlusion']) && in_array('Overjet', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>> Overjet
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                <!-- Periodontal Screening -->
+                                                <div>
+                                                    <strong class="block mb-2">Periodontal Screening:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Gingivitis" <?php echo (isset($dental['periodontal_screening']) && in_array('Gingivitis', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Gingivitis
+                                                            </label>
                                                         </li>
-                                                        <li><input type="checkbox" name="occlusion[]" value="Overbite"
-                                                                <?php echo (isset($dental['occlusion']) && in_array('Overbite', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>> Overbite
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Early Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Early Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Early Periodontics
+                                                            </label>
                                                         </li>
-                                                        <li><input type="checkbox" name="occlusion[]"
-                                                                value="Midline Deviation" <?php echo (isset($dental['occlusion']) && in_array('Midline Deviation', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>> Midline Deviation</li>
-                                                        <li><input type="checkbox" name="occlusion[]" value="Crossbite"
-                                                                <?php echo (isset($dental['occlusion']) && in_array('Crossbite', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>> Crossbite
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Moderate Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Moderate Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Moderate Periodontics
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Advanced Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Advanced Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Advanced Periodontics
+                                                            </label>
                                                         </li>
                                                     </ul>
-                                                </li>
-                                                <li><strong>Appliances:</strong>
-                                                    <ul>
-                                                        <li><input type="checkbox" name="appliance[]"
-                                                                value="Orthodontic" <?php echo (isset($dental['appliance']) && in_array('Orthodontic', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>>
-                                                            Orthodontic</li>
-                                                        <li><input type="checkbox" name="appliance[]" value="Stayplate"
-                                                                <?php echo (isset($dental['appliance']) && in_array('Stayplate', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>>
-                                                            Stayplate</li>
-                                                      
+                                                </div>
+
+                                                <!-- Occlusion -->
+                                                <div>
+                                                    <strong class="block mb-2">Occlusion:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Class (Molar)" <?php echo (isset($dental['occlusion']) && in_array('Class (Molar)', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Class (Molar)
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Overjet" <?php echo (isset($dental['occlusion']) && in_array('Overjet', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Overjet
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Overbite" <?php echo (isset($dental['occlusion']) && in_array('Overbite', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Overbite
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Midline Deviation" <?php echo (isset($dental['occlusion']) && in_array('Midline Deviation', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Midline Deviation
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Crossbite" <?php echo (isset($dental['occlusion']) && in_array('Crossbite', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>
+                                                                    class="mr-2">
+                                                                Crossbite
+                                                            </label>
+                                                        </li>
                                                     </ul>
-                                                </li>
-                                                <li><strong>TMD:</strong>
-                                                    <ul>
-                                                        <li><input type="checkbox" name="tmd[]" value="Clenching" <?php echo (isset($dental['tmd']) && in_array('Clenching', explode(',', $dental['tmd']))) ? 'checked' : ''; ?>>
-                                                            Clenching</li>
-                                                        <li><input type="checkbox" name="tmd[]" value="Clicking" <?php echo (isset($dental['tmd']) && in_array('Clicking', explode(',', $dental['tmd']))) ? 'checked' : ''; ?>>
-                                                            Clicking</li>
-                                                        <li><input type="checkbox" name="tmd[]" value="Trismus" <?php echo (isset($dental['tmd']) && in_array('Trismus', explode(',', $dental['tmd']))) ? 'checked' : ''; ?>>
-                                                            Trismus</li>
-                                                        <li><input type="checkbox" name="tmd[]" value="Muscle Spasm"
-                                                                <?php echo (isset($dental['tmd']) && in_array('Muscle Spasm', explode(',', $dental['tmd']))) ? 'checked' : ''; ?>> Muscle Spasm</li>
+                                                </div>
+
+                                                <!-- Appliances -->
+                                                <div>
+                                                    <strong class="block mb-2">Appliances:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="appliance[]"
+                                                                    value="Orthodontic" <?php echo (isset($dental['appliance']) && in_array('Orthodontic', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>
+                                                                    class="mr-2">
+                                                                Orthodontic
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="appliance[]"
+                                                                    value="Stayplate" <?php echo (isset($dental['appliance']) && in_array('Stayplate', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>
+                                                                    class="mr-2">
+                                                                Stayplate
+                                                            </label>
+                                                        </li>
                                                     </ul>
-                                                </li>
-                                            </ul>
+                                                </div>
+
+                                                <!-- TMD -->
+                                                <div>
+                                                    <strong class="block mb-2">TMD:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Clenching"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Clenching', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Clenching
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Clicking"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Clicking', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Clicking
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Trismus"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Trismus', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Trismus
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Muscle Spasm"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Muscle Spasm', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Muscle Spasm
+                                                            </label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
