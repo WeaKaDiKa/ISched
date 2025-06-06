@@ -447,17 +447,11 @@ $role = $_SESSION['admin_type'] ?? '';
         }
 
         // Logout modal logic
-<<<<<<< HEAD
-        document.getElementById('logoutLink').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('logoutModal').classList.remove('hidden');
-=======
         document.querySelectorAll('a.logout-btn[href="admin_login.php"]').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 document.getElementById('logoutModal').classList.remove('hidden');
             });
->>>>>>> 2d5b32b383db3a0f557e68ee59a0f31fceda888f
         });
 
         const cancelLogoutBtn = document.querySelector('#logoutModal #cancelLogout');
@@ -471,11 +465,7 @@ $role = $_SESSION['admin_type'] ?? '';
 
         if (confirmLogoutBtn) {
             confirmLogoutBtn.onclick = function () {
-<<<<<<< HEAD
-                window.location.href = 'logout.php';
-=======
                 window.location.href = 'admin_login.php';
->>>>>>> 2d5b32b383db3a0f557e68ee59a0f31fceda888f
             };
         }
 
@@ -485,6 +475,3 @@ $role = $_SESSION['admin_type'] ?? '';
 </body>
 
 </html>
-</script>
-</script>
-</script>
