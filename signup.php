@@ -2,6 +2,7 @@
 require_once 'db.php'; // Include database connection
 require_once 'mailfunction.php';
 
+
 function isEmailRegistered($conn, $email)
 {
     $stmt = $conn->prepare("SELECT id FROM patients WHERE email = ?");
@@ -111,13 +112,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST["password"];
         $confirm_password = $_POST["confirm_password"];
 
-        // Validations
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL))
             throw new Exception("Invalid email format");
         if (isEmailRegistered($conn, $email))
             throw new Exception("Email is already registered");
-        if (isEmailPending($conn, $email))
-            throw new Exception("A verification email has already been sent. Please check your inbox or spam folder.");
+        if (isEmailPending($conn, $email)) {
+            $_SESSION['otpemail'] = $email;
+            echo json_encode([
+                "status" => "success",
+                "message" => "A verification email has already been sent. Please check your inbox or spam folder."
+            ]);
+            exit();
+        }
+        //    throw new Exception("A verification email has already been sent. Please check your inbox or spam folder.");
         if (!validatePhoneNumber($phone_number))
             throw new Exception("Invalid phone number format. Use 09XXXXXXXXX or +639XXXXXXXXX");
         if (!validateZipCode($zip_code))
@@ -172,11 +180,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $full_name = "$first_name $last_name";
             $subject = 'Your OTP Code';
             $message = "Dear $first_name,\n\nYour OTP code is: $otp\n\nThis code will expire in 120 seconds at: $otp_expires\n\nBest regards,\nM&A Oida Dental Clinic";
-
+            $_SESSION['otpemail'] = $email;
             // Try sending the email
             $emailSent = phpmailsend($email, $full_name, $subject, $message);
 
             if ($emailSent) {
+
                 echo json_encode([
                     "status" => "success",
                     "message" => "Registration initiated. Please check your email for the OTP code."
@@ -222,6 +231,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+
     <div class="container">
         <div class="signup-box">
             <!-- HEADER: logo + title -->
@@ -502,14 +512,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <!-- OTP Modal -->
-    <div id="otpModal" class="modal" style="display:none;">
+    <div id="otpModal" class="modal" style="display:none">
         <div class="modal-content">
             <span class="close" id="closeOtpModal">&times;</span>
             <h2>Verify Your Email</h2>
             <div id="otpMessage"></div>
             <div id="otpTimer" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
             <form id="otpForm">
-                <input type="hidden" name="email" id="otpEmail">
+                <input type="hidden" name="email" id="otpEmail"
+                    value="<?php echo isset($_SESSION['otpemail']) ? htmlspecialchars($_SESSION['otpemail'], ENT_QUOTES, 'UTF-8') : ''; ?>">
                 <label for="otpInput">OTP:</label>
                 <input type="text" name="otp" id="otpInput" required placeholder="Enter the code sent to your email">
                 <button type="submit">Verify</button>
@@ -518,6 +529,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p class="login-link" style="text-align:center;">Already verified? <a href="login.php">Log In</a></p>
         </div>
     </div>
+
+    <?php if (isset($_SESSION['otpemail'])): ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById('otpModal').style.display = 'block';
+            });
+        </script>
+    <?php endif; ?>
+    <script>
+        document.getElementById('closeOtpModal').addEventListener('click', function () {
+            document.getElementById('otpModal').style.display = 'none';
+        });
+    </script>
     <style>
         .modal {
             display: none;

@@ -274,10 +274,34 @@ if (empty($postData) && isset($_SESSION['form_data'])) {
 // Fetch user data if logged in
 if (isset($_SESSION['user_id'])) {
   $stmt = $conn->prepare("
-      SELECT first_name, last_name, email, date_of_birth, 
-      region, province, city, barangay, zip_code, gender, phone_number 
-      FROM patients 
-      WHERE id = ?
+SELECT 
+    p.first_name, 
+    p.middle_name, 
+    p.last_name, 
+    p.email,
+    p.phone_number, 
+    p.date_of_birth, 
+    p.gender, 
+    p.region AS region_id, 
+    p.province AS province_id, 
+    p.city AS city_id, 
+    p.barangay AS barangay_id, 
+    p.zip_code,
+    p.profile_picture,
+
+  
+    COALESCE(reg.region_description, 'Unknown Region') AS region_name,
+    COALESCE(prov.province_name, 'Unknown Province') AS province_name,
+    COALESCE(city.municipality_name, 'Unknown City') AS city_name,
+    COALESCE(brgy.barangay_name, 'Unknown Barangay') AS barangay_name
+
+FROM patients p
+LEFT JOIN refregion reg ON p.region = reg.region_id
+LEFT JOIN refprovince prov ON p.province = prov.province_id
+LEFT JOIN refcity city ON p.city = city.municipality_id
+LEFT JOIN refbrgy brgy ON p.barangay = brgy.brgy_id
+WHERE p.id = ?
+
   ");
   $stmt->bind_param("i", $_SESSION['user_id']);
   $stmt->execute();
@@ -1018,10 +1042,10 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                             <div class="summary-box" id="summary-address">
                                 <?php 
                                     $address = [
-                                        $postData['barangay'] ?? $userData['barangay'] ?? '',
-                                        $postData['city'] ?? $userData['city'] ?? '',
-                                        $postData['province'] ?? $userData['province'] ?? '',
-                                        $postData['region'] ?? $userData['region'] ?? '',
+                                        $postData['barangay'] ?? $userData['barangay_name'] ?? '',
+                                        $postData['city'] ?? $userData['city_name'] ?? '',
+                                        $postData['province'] ?? $userData['province_name'] ?? '',
+                                        $postData['region'] ?? $userData['region_name'] ?? '',
                                         $postData['zip_code'] ?? $userData['zip_code'] ?? ''
                                     ];
                                     echo htmlspecialchars(implode(', ', array_filter($address)));

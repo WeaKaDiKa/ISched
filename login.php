@@ -44,65 +44,124 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($is_email) {
             // Patient login
-            $stmt = $conn->prepare("SELECT id, first_name, last_name, password_hash, role FROM patients WHERE email = ?");
+            $stmt = $conn->prepare("SELECT id, first_name, last_name, password_hash, role, attemptleft FROM patients WHERE email = ?");
+
             $stmt->bind_param("s", $login_id);
             $stmt->execute();
             $result = $stmt->get_result();
             $stmt->close();
             if ($result->num_rows !== 1) {
-
-                // Admin login
-                $stmt = $conn->prepare("SELECT id, admin_id, type, password, name FROM admin_logins WHERE email = ?");
-                $stmt->bind_param("s", $login_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $stmt->close();
-                if ($result->num_rows !== 1) {
-                    throw new Exception("Invalid credentials");
-                }
-
-                $user = $result->fetch_assoc();
-                if (!password_verify($password, $user['password'])) {
-                    throw new Exception("Invalid credentials");
-                }
-
-                $_SESSION['admin_id'] = $user['admin_id'];
-                $_SESSION['admin_type'] = $user['type'];
-                $_SESSION['user_name'] = $user['name'];
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_role'] = $user['type'];
-
-                switch ($_SESSION['admin_type']) {
-                    case 'admin':
-                        $redirect = 'admin/dashboard.php';
-                        break;
-                    case 'dentist':
-                        $redirect = 'admin/appointments.php';
-                        break;
-                    case 'dental_helper':
-                    case 'helper':
-                        $redirect = 'admin/patient_record.php';
-                        break;
-                    default:
-                        $redirect = 'admin/dashboard.php'; // default fallback
-                        break;
-                }
+                throw new Exception("Email is not registered");
             } else {
-
                 $user = $result->fetch_assoc();
+                $attempt = $user['attemptleft'];
+
+                if ($attempt <= 0) {
+                    throw new Exception("You have 0 attempts left. Recover your account using forget password");
+                }
+
                 if (!password_verify($password, $user['password_hash'])) {
-                    throw new Exception("Invalid email or password");
+                    $attempt--;
+
+           
+                    $attempt = max($attempt, 0);
+
+        
+                    $updateStmt = $conn->prepare("UPDATE patients SET attemptleft = ? WHERE email = ?");
+                    $updateStmt->bind_param("is", $attempt, $login_id);
+                    $updateStmt->execute();
+                    $updateStmt->close();
+
+                    if ($attempt === 0) {
+                        throw new Exception("Invalid password. You have 0 attempts left. Recover your account using forget password");
+                    } elseif ($attempt === 1) {
+                        throw new Exception("Invalid password. You have 1 attempt left");
+                    } else {
+                        throw new Exception("Invalid password. You have $attempt attempts left");
+                    }
+                } else {
+       
+                    $updateStmt = $conn->prepare("UPDATE patients SET attemptleft = 3 WHERE email = ?");
+                    $updateStmt->bind_param("s", $login_id);
+                    $updateStmt->execute();
+                    $updateStmt->close();
                 }
 
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
                 $_SESSION['user_role'] = $user['role'];
 
-                $redirect = 'index.php'; // fallback for regular patients
+                $redirect = 'index.php';
             }
 
+
         } else {
-            throw new Exception("Invalid email");
+
+            // Admin login
+            $stmt = $conn->prepare("SELECT id, admin_id, type, password, name, attemptleft FROM admin_logins WHERE admin_id = ?");
+            $stmt->bind_param("s", $login_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->close();
+
+            if ($result->num_rows !== 1) {
+                throw new Exception("Invalid email");
+            }
+
+            $user = $result->fetch_assoc();
+            $attempt = $user['attemptleft'];
+            if ($attempt <= 0) {
+                throw new Exception("You have 0 attempts left. Recover your account using forget password");
+            }
+            if (!password_verify($password, $user['password'])) {
+                $attempt--;
+
+       
+                $attempt = max($attempt, 0);
+
+    
+                $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = ? WHERE admin_id = ?");
+                $updateStmt->bind_param("is", $attempt, $login_id);
+                $updateStmt->execute();
+                $updateStmt->close();
+
+                if ($attempt === 0) {
+                    throw new Exception("Invalid password. You have 0 attempts left. Recover your account using forget password");
+                } elseif ($attempt === 1) {
+                    throw new Exception("Invalid password. You have 1 attempt left");
+                } else {
+                    throw new Exception("Invalid password. You have $attempt attempts left");
+                }
+            } else {
+                $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = 3 WHERE admin_id = ?");
+                $updateStmt->bind_param("s", $login_id);
+                $updateStmt->execute();
+                $updateStmt->close();
+            }
+
+
+            $_SESSION['admin_id'] = $user['admin_id'];
+            $_SESSION['admin_type'] = $user['type'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_role'] = $user['type'];
+
+            switch ($_SESSION['admin_type']) {
+                case 'admin':
+                    $redirect = 'admin/dashboard.php';
+                    break;
+                case 'dentist':
+                    $redirect = 'admin/appointments.php';
+                    break;
+                case 'dental_helper':
+                case 'helper':
+                    $redirect = 'admin/patient_record.php';
+                    break;
+                default:
+                    $redirect = 'admin/dashboard.php';
+                    break;
+            }
+
 
         }
 
@@ -175,7 +234,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <form id="login-form" action="login.php" method="POST">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <input type="text" id="email" name="email" placeholder="Enter your email" required>
 
                 <label for="password">Password:</label>
                 <div class="password-container">

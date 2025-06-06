@@ -56,14 +56,15 @@ try {
     try {
         // Always set role as 'user' regardless of what's in pending_patients
         $role = 'user';
-        
+
         // Insert into patients table with role
         $stmt = $conn->prepare("INSERT INTO patients (first_name, middle_name, last_name, email, 
                               phone_number, region, province, city, barangay, zip_code, 
                               date_of_birth, password_hash, gender, role, created_at) 
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
-        $stmt->bind_param("ssssssssssssss", 
+        $stmt->bind_param(
+            "ssssssssssssss",
             $patient['first_name'],
             $patient['middle_name'],
             $patient['last_name'],
@@ -96,7 +97,8 @@ try {
         $conn->commit();
 
         // Discard any buffered output and echo JSON response
-        ob_end_clean(); 
+        ob_end_clean();
+        unset($_SESSION['otpemail']);
         echo json_encode([
             'status' => 'success',
             'message' => 'Account verified successfully!'
@@ -110,7 +112,7 @@ try {
 
 } catch (Exception $e) {
     // error_log("Error in OTP verification: " . $e->getMessage()); // Debug logging
-    
+
     // Discard any buffered output and echo JSON error response
     ob_end_clean();
     echo json_encode([
