@@ -107,7 +107,7 @@
 $role = $_SESSION['admin_type'] ?? '';
 ?>
 <aside id="sidebar"
-    class="flex flex-col bg-white border-r border-gray-200 w-64 min-w-[256px] py-6 px-4 transition-all duration-300 overflow-y-auto">
+    class="flex flex-col bg-white border-r border-gray-200 w-64 min-w-[256px] py-6 px-4 transition-all duration-300">
     <div class="flex items-center justify-between mb-10">
         <div class="flex items-center space-x-2">
             <img alt="M&amp;A Oida Dental Clinic logo" class="w-8 h-8" src="assets/photo/logo.jpg" />
@@ -447,11 +447,9 @@ $role = $_SESSION['admin_type'] ?? '';
         }
 
         // Logout modal logic
-        document.querySelectorAll('a.logout-btn[href="admin_login.php"]').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('logoutModal').classList.remove('hidden');
-            });
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('logoutModal').classList.remove('hidden');
         });
 
         const cancelLogoutBtn = document.querySelector('#logoutModal #cancelLogout');
@@ -465,7 +463,7 @@ $role = $_SESSION['admin_type'] ?? '';
 
         if (confirmLogoutBtn) {
             confirmLogoutBtn.onclick = function () {
-                window.location.href = 'admin_login.php';
+                window.location.href = 'logout.php';
             };
         }
 
@@ -475,3 +473,6 @@ $role = $_SESSION['admin_type'] ?? '';
 </body>
 
 </html>
+</script>
+</script>
+</script>

@@ -532,6 +532,7 @@ $userData = $userResult->fetch_assoc();
                     ?>
                     <div class="booking-card">
                         <div class="booking-header">
+    <button class="btn btn-details" style="margin-left:auto;" onclick="showAppointmentDetails(
                             <span class="booking-id">Appointment #<?php echo $booking['id']; ?></span>
                             <span class="booking-status status-<?php echo strtolower($booking['status']); ?>">
                                 <?php
@@ -620,9 +621,22 @@ $userData = $userResult->fetch_assoc();
         </div>
     </footer>
 
+    <!-- Appointment Details Modal -->
+    <link rel="stylesheet" href="assets/css/appointment-modal.css">
+    <div id="appointmentDetailsOverlay" class="modal-overlay" style="display:none;">
+      <div class="appointment-modal">
+        <button class="modal-close" onclick="closeAppointmentDetails()">&times;</button>
+        <h2 class="modal-title">Appointment Details</h2>
+        <div class="modal-details" id="appointmentDetailsContent">
+          <!-- Details will be injected by JS -->
+        </div>
+      </div>
+    </div>
+
     <!-- Cancel Appointment Modal -->
     <div id="cancelModal" class="modal">
         <div class="modal-content">
+            <span class="close-modal">&times;</span>
             <h3 class="modal-title">Cancel Appointment</h3>
             <p class="modal-message">Are you sure you want to cancel this appointment? This action cannot be undone.</p>
             <div class="modal-buttons">
@@ -660,6 +674,25 @@ $userData = $userResult->fetch_assoc();
             }
         }
     </script>
+<script>
+function showAppointmentDetails(bookingId, patientName, services, date, time, branch, status) {
+  const overlay = document.getElementById('appointmentDetailsOverlay');
+  const content = document.getElementById('appointmentDetailsContent');
+  content.innerHTML = `
+    <div><span class="label">Booking ID:</span> <span class="value">${bookingId}</span></div>
+    <div><span class="label">Patient Name:</span> <span class="value">${patientName}</span></div>
+    <div><span class="label">Service:</span> <span class="value">${services}</span></div>
+    <div><span class="label">Date:</span> <span class="value">${date}</span></div>
+    <div><span class="label">Time:</span> <span class="value">${time}</span></div>
+    <div><span class="label">Clinic Branch:</span> <span class="value">${branch}</span></div>
+    <div><span class="label">Status:</span> <span class="value status-${status.toLowerCase()}">${status}</span></div>
+  `;
+  overlay.style.display = 'flex';
+}
+function closeAppointmentDetails() {
+  document.getElementById('appointmentDetailsOverlay').style.display = 'none';
+}
+</script>
 </body>
 
 </html>

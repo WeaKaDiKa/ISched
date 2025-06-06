@@ -45,7 +45,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 ?>
-<div class="modal-backdrop" style="display:none;"></div>
+
 <!-- Notification Bell -->
 <div class="notification-wrapper">
     <button class="notification-toggle" id="notificationBellBtn">

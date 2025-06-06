@@ -29,20 +29,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_profile'])) {
         }
     }
 
-    // Insert dummy to get AUTO_INCREMENT ID
-    $conn->query("INSERT INTO admin_logins (profile_photo, email, name, first_name, last_name, age, mobile, gender, type, password) VALUES ('', '', '', '', '', 0, '', '', '', '')");
-    $last_id = $conn->insert_id;
-    $admin_id = 'ADM-' . str_pad($last_id, 3, '0', STR_PAD_LEFT);
+    // Check if email already exists
+    $check_email = $conn->prepare("SELECT COUNT(*) as count FROM admin_logins WHERE email = ?");
+    $check_email->bind_param("s", $email);
+    $check_email->execute();
+    $result = $check_email->get_result();
+    $row = $result->fetch_assoc();
+    
+    if ($row['count'] > 0) {
+        $_SESSION['error'] = "Email address already exists. Please use a different email.";
+        header("Location: newrole.php");
+        exit();
+    }
+    $check_email->close();
 
-    // Update with real values
-    $stmt = $conn->prepare("UPDATE admin_logins SET admin_id=?, profile_photo=?, email=?, name=?, first_name=?, last_name=?, age=?, mobile=?, gender=?, type=?, password=? WHERE id=?");
-    $stmt->bind_param("ssssssissssi", $admin_id, $target_file, $email, $name, $first_name, $last_name, $age, $mobile, $gender, $type, $new_hash, $last_id);
+    // Generate admin_id first
+    $result = $conn->query("SELECT MAX(CAST(SUBSTRING(admin_id, 5) AS UNSIGNED)) as max_id FROM admin_logins WHERE admin_id LIKE 'ADM-%'");
+    $row = $result->fetch_assoc();
+    $next_id = ($row['max_id'] ?? 0) + 1;
+    $admin_id = 'ADM-' . str_pad($next_id, 3, '0', STR_PAD_LEFT);
+
+    // Insert with all values at once
+    $stmt = $conn->prepare("INSERT INTO admin_logins (admin_id, profile_photo, email, name, first_name, last_name, age, mobile, gender, type, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssissss", $admin_id, $target_file, $email, $name, $first_name, $last_name, $age, $mobile, $gender, $type, $new_hash);
 
     if ($stmt->execute()) {
         header("Location: roles.php");
         exit();
     } else {
-
+        // Handle error
+        $error = $stmt->error;
+        // You might want to display this error to the user
     }
 
     $stmt->close();
@@ -79,6 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_profile'])) {
             <!-- Content area -->
             <section class="mx-5 bg-white rounded-lg border border-gray-300 shadow-md p-4 mt-6">
                 <div class="flex justify-between items-center mb-3">
+                    <?php if (isset($_SESSION['error'])): ?>
+                        <div class="w-full mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                            <?php 
+                            echo $_SESSION['error'];
+                            unset($_SESSION['error']);
+                            ?>
+                        </div>
+                    <?php endif; ?>
 
                     <form id="profileForm" method="post" enctype="multipart/form-data"
                         class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">

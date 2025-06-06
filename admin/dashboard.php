@@ -209,7 +209,7 @@ if ($admin_id) {
                                     </div>
                                 </a>
                                 <!-- Patients card -->
-                                <a href="patient_records.php"
+                                <a href="patient_record.php"
                                     class="block rounded-lg p-6 bg-white bg-opacity-90 shadow hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-[200px]">
                                     <div class="flex items-center space-x-4">
                                         <div
