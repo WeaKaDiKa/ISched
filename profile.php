@@ -200,19 +200,19 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
         <div class="info-column">
           <div class="form-group">
             <label>Region:</label>
-            <input type="text" value="<?= htmlspecialchars($user['region_name'] ?? $user['region_id']) ?>" readonly>
+            <input type="text" value="<?= htmlspecialchars($user['region_name'] ?? '') ?>" readonly>
           </div>
           <div class="form-group">
             <label>Province:</label>
-            <input type="text" value="<?= htmlspecialchars($user['province_name'] ?? $user['province_id']) ?>" readonly>
+            <input type="text" value="<?= htmlspecialchars($user['province_name'] ?? '') ?>" readonly>
           </div>
           <div class="form-group">
             <label>City/Municipality:</label>
-            <input type="text" value="<?= htmlspecialchars($user['city_name'] ?? $user['city_id']) ?>" readonly>
+            <input type="text" value="<?= htmlspecialchars($user['city_name'] ?? '') ?>" readonly>
           </div>
           <div class="form-group">
             <label>Barangay:</label>
-            <input type="text" value="<?= htmlspecialchars($user['barangay_name'] ?? $user['barangay_id']) ?>" readonly>
+            <input type="text" value="<?= htmlspecialchars($user['barangay_name'] ?? '') ?>" readonly>
           </div>
           <div class="form-group">
             <label>Zip Code:</label>
@@ -222,7 +222,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       </div>
 
       <div class="action-buttons">
-    <!--     <a href="myreviews.php" class="notifications-btn" style="text-decoration: none;">
+        <!--     <a href="myreviews.php" class="notifications-btn" style="text-decoration: none;">
           <button
             style="background-color: #4a89dc; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
             My Reviews
