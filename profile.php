@@ -61,7 +61,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       align-items: center;
       justify-content: center;
     }
-    
+
     .modal-content {
       background-color: white;
       border-radius: 8px;
@@ -69,36 +69,36 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       padding: 20px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-    
+
     .modal-header {
       text-align: center;
       margin-bottom: 20px;
     }
-    
+
     .modal-header h2 {
       color: #333;
       font-size: 20px;
       margin: 0;
     }
-    
+
     .error-message {
       color: #d9534f;
       font-size: 14px;
       text-align: center;
       margin-bottom: 15px;
     }
-    
+
     .form-group {
       margin-bottom: 15px;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
       color: #555;
     }
-    
+
     .form-group input {
       width: 100%;
       padding: 8px;
@@ -108,7 +108,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       box-shadow: none;
       outline: none;
     }
-    
+
     .submit-btn {
       background-color: #7B68EE;
       color: white;
@@ -120,11 +120,11 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       cursor: pointer;
       margin-top: 10px;
     }
-    
+
     .submit-btn:hover {
       background-color: #6A5ACD;
     }
-    
+
     .close {
       position: absolute;
       right: 15px;
@@ -143,13 +143,13 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
 
       <!-- Notification bell removed as requested -->
 
-      <div class="bookings-btn">
-        <!-- LINKED to mybookings.php now -->
-        <a href="mybookings.php">
+      <!--      <div class="bookings-btn">
+         LINKED to mybookings.php now 
+      <a href="mybookings.php">
           <button>MY BOOKINGS</button>
-        </a>
+        </a> 
         <p class="booking-note">Check your bookings here!</p>
-      </div>
+      </div> -->
     </div>
 
     <div class="profile-content">
@@ -222,12 +222,12 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       </div>
 
       <div class="action-buttons">
-        <a href="myreviews.php" class="notifications-btn" style="text-decoration: none;">
+    <!--     <a href="myreviews.php" class="notifications-btn" style="text-decoration: none;">
           <button
             style="background-color: #4a89dc; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
             My Reviews
           </button>
-        </a>
+        </a> -->
         <button class="edit-password-btn" id="editPasswordBtn">Edit Password</button>
         <button class="logout-btn" id="logoutBtn">Logout</button>
         <form action="logout.php" method="POST" id="logoutForm" style="display: none;">
@@ -242,27 +242,30 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       <div class="modal-header">
         <h2>Change Password</h2>
       </div>
-      
-      <?php if(isset($_GET['error']) && $_GET['error'] == 'incorrect'): ?>
-      <div class="error-message">Current Password is not correct</div>
+
+      <?php if (isset($_GET['error']) && $_GET['error'] == 'incorrect'): ?>
+        <div class="error-message">Current Password is not correct</div>
       <?php endif; ?>
-      
+
       <form id="passwordForm" action="update_password.php" method="POST">
         <div class="form-group">
           <label for="current_password">Current Password</label>
-          <input type="password" id="current_password" name="current_password" required style="background-color: #FFF9E6; border: 1px solid #ccc;">
+          <input type="password" id="current_password" name="current_password" required
+            style="background-color: #FFF9E6; border: 1px solid #ccc;">
         </div>
-        
+
         <div class="form-group">
           <label for="new_password">New Password</label>
-          <input type="password" id="new_password" name="new_password" required style="background-color: #FFF9E6; border: 1px solid #ccc;">
+          <input type="password" id="new_password" name="new_password" required
+            style="background-color: #FFF9E6; border: 1px solid #ccc;">
         </div>
-        
+
         <div class="form-group">
           <label for="confirm_password">Confirm Password</label>
-          <input type="password" id="confirm_password" name="confirm_password" required style="background-color: #FFF9E6; border: 1px solid #ccc;">
+          <input type="password" id="confirm_password" name="confirm_password" required
+            style="background-color: #FFF9E6; border: 1px solid #ccc;">
         </div>
-        
+
         <button type="submit" class="submit-btn">Submit</button>
       </form>
     </div>
@@ -274,41 +277,41 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
     const editPasswordBtn = document.getElementById('editPasswordBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const logoutForm = document.getElementById('logoutForm');
-    
+
     // When the user clicks the button, open the modal
-    editPasswordBtn.onclick = function() {
+    editPasswordBtn.onclick = function () {
       modal.style.display = 'flex';
     }
-    
+
     // When the user clicks anywhere outside of the modal content, close it
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       if (event.target == modal) {
         modal.style.display = 'none';
       }
     }
-    
+
     // Check for URL parameters on page load
-    window.onload = function() {
-      <?php if(isset($_GET['error']) && isset($_GET['message'])): ?>
+    window.onload = function () {
+      <?php if (isset($_GET['error']) && isset($_GET['message'])): ?>
         showErrorModal('<?php echo htmlspecialchars($_GET['message']); ?>');
       <?php endif; ?>
-      
-      <?php if(isset($_GET['success']) && $_GET['success'] == 'password_updated'): ?>
+
+      <?php if (isset($_GET['success']) && $_GET['success'] == 'password_updated'): ?>
         showSuccessModal('Password updated successfully!');
       <?php endif; ?>
     }
-    
+
     // Form validation
-    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    document.getElementById('passwordForm').addEventListener('submit', function (e) {
       const newPassword = document.getElementById('new_password').value;
       const confirmPassword = document.getElementById('confirm_password').value;
-      
+
       if (newPassword !== confirmPassword) {
         e.preventDefault();
         showErrorModal('New password and confirm password do not match!');
       }
     });
-    
+
     // Error Modal Function
     function showErrorModal(message) {
       // Create modal elements
@@ -323,7 +326,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       errorModal.style.display = 'flex';
       errorModal.style.alignItems = 'center';
       errorModal.style.justifyContent = 'center';
-      
+
       const modalContent = document.createElement('div');
       modalContent.style.backgroundColor = 'white';
       modalContent.style.color = '#333';
@@ -331,7 +334,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       modalContent.style.borderRadius = '8px';
       modalContent.style.width = '300px';
       modalContent.style.textAlign = 'center';
-      
+
       // Create warning icon (triangle with exclamation mark)
       const warningIcon = document.createElement('div');
       warningIcon.innerHTML = `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -340,20 +343,20 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
         <path d="M12 16H12.01" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>`;
       warningIcon.style.marginBottom = '15px';
-      
+
       const title = document.createElement('h3');
       title.textContent = 'Something went wrong';
       title.style.marginTop = '0';
       title.style.marginBottom = '10px';
       title.style.fontSize = '18px';
       title.style.color = '#333';
-      
+
       const messageText = document.createElement('p');
       messageText.textContent = message;
       messageText.style.marginBottom = '20px';
       messageText.style.color = '#666';
       messageText.style.fontSize = '14px';
-      
+
       const okButton = document.createElement('button');
       okButton.textContent = 'Go Back';
       okButton.style.padding = '8px 0';
@@ -364,20 +367,20 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       okButton.style.cursor = 'pointer';
       okButton.style.width = '100%';
       okButton.style.fontWeight = 'bold';
-      
-      okButton.onclick = function() {
+
+      okButton.onclick = function () {
         document.body.removeChild(errorModal);
       };
-      
+
       modalContent.appendChild(warningIcon);
       modalContent.appendChild(title);
       modalContent.appendChild(messageText);
       modalContent.appendChild(okButton);
       errorModal.appendChild(modalContent);
-      
+
       document.body.appendChild(errorModal);
     }
-    
+
     // Success Modal Function
     function showSuccessModal(message) {
       // Create modal elements
@@ -392,7 +395,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       successModal.style.display = 'flex';
       successModal.style.alignItems = 'center';
       successModal.style.justifyContent = 'center';
-      
+
       const modalContent = document.createElement('div');
       modalContent.style.backgroundColor = 'white';
       modalContent.style.color = '#333';
@@ -400,7 +403,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       modalContent.style.borderRadius = '8px';
       modalContent.style.width = '300px';
       modalContent.style.textAlign = 'center';
-      
+
       // Create success icon (green circle with checkmark)
       const successIcon = document.createElement('div');
       successIcon.innerHTML = `<div style="width: 60px; height: 60px; border-radius: 50%; background-color: #00C851; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
@@ -408,7 +411,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
           <path d="M5 12L10 17L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>`;
-      
+
       const title = document.createElement('h3');
       title.textContent = 'Success';
       title.style.marginTop = '0';
@@ -416,14 +419,14 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       title.style.fontSize = '24px';
       title.style.fontWeight = 'bold';
       title.style.color = '#333';
-      
+
       const messageText = document.createElement('p');
       messageText.innerHTML = 'Your password has been successfully updated.<br>You can now use your new password to login.';
       messageText.style.marginBottom = '20px';
       messageText.style.color = '#666';
       messageText.style.fontSize = '14px';
       messageText.style.lineHeight = '1.5';
-      
+
       const okButton = document.createElement('button');
       okButton.textContent = 'OK';
       okButton.style.padding = '8px 0';
@@ -434,25 +437,25 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       okButton.style.cursor = 'pointer';
       okButton.style.width = '100%';
       okButton.style.fontWeight = 'bold';
-      
-      okButton.onclick = function() {
+
+      okButton.onclick = function () {
         document.body.removeChild(successModal);
       };
-      
+
       modalContent.appendChild(successIcon);
       modalContent.appendChild(title);
       modalContent.appendChild(messageText);
       modalContent.appendChild(okButton);
       successModal.appendChild(modalContent);
-      
+
       document.body.appendChild(successModal);
     }
-    
+
     // Logout confirmation popup
-    logoutBtn.addEventListener('click', function() {
+    logoutBtn.addEventListener('click', function () {
       showLogoutConfirmation();
     });
-    
+
     function showLogoutConfirmation() {
       // Create modal elements
       const logoutModal = document.createElement('div');
@@ -466,7 +469,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       logoutModal.style.display = 'flex';
       logoutModal.style.alignItems = 'center';
       logoutModal.style.justifyContent = 'center';
-      
+
       const modalContent = document.createElement('div');
       modalContent.style.backgroundColor = 'white';
       modalContent.style.color = '#333';
@@ -474,7 +477,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       modalContent.style.borderRadius = '8px';
       modalContent.style.width = '300px';
       modalContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-      
+
       const title = document.createElement('h3');
       title.textContent = 'Logout Account';
       title.style.marginTop = '0';
@@ -482,7 +485,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       title.style.fontSize = '18px';
       title.style.fontWeight = 'bold';
       title.style.textAlign = 'center';
-      
+
       const messageText = document.createElement('p');
       messageText.textContent = 'Are you sure you want to logout? Once you logout you need to login again. Are you OK?';
       messageText.style.marginBottom = '20px';
@@ -490,11 +493,11 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       messageText.style.fontSize = '14px';
       messageText.style.textAlign = 'center';
       messageText.style.lineHeight = '1.5';
-      
+
       const buttonContainer = document.createElement('div');
       buttonContainer.style.display = 'flex';
       buttonContainer.style.justifyContent = 'space-between';
-      
+
       const cancelButton = document.createElement('button');
       cancelButton.textContent = 'Cancel';
       cancelButton.style.flex = '1';
@@ -506,7 +509,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       cancelButton.style.marginRight = '5px';
       cancelButton.style.cursor = 'pointer';
       cancelButton.style.fontWeight = 'bold';
-      
+
       const confirmButton = document.createElement('button');
       confirmButton.textContent = 'Yes, Logout!';
       confirmButton.style.flex = '1';
@@ -518,24 +521,24 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       confirmButton.style.marginLeft = '5px';
       confirmButton.style.cursor = 'pointer';
       confirmButton.style.fontWeight = 'bold';
-      
-      cancelButton.onclick = function() {
+
+      cancelButton.onclick = function () {
         document.body.removeChild(logoutModal);
       };
-      
-      confirmButton.onclick = function() {
+
+      confirmButton.onclick = function () {
         // Submit the logout form
         logoutForm.submit();
       };
-      
+
       buttonContainer.appendChild(cancelButton);
       buttonContainer.appendChild(confirmButton);
-      
+
       modalContent.appendChild(title);
       modalContent.appendChild(messageText);
       modalContent.appendChild(buttonContainer);
       logoutModal.appendChild(modalContent);
-      
+
       document.body.appendChild(logoutModal);
     }
   </script>

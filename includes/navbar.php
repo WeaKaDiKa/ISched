@@ -51,6 +51,16 @@ include_once('includes/custom_modal.php');
         echo 'class="active"'; ?>>Reviews</a></li>
       <li><a href="contact.php" <?php if (basename($_SERVER['PHP_SELF']) == 'contact.php')
         echo 'class="active"'; ?>>Contact Us</a></li>
+
+      <?php if (isset($_SESSION['user_id'])): ?>
+        <li><a href="contact.php" <?php if (basename($_SERVER['PHP_SELF']) == 'myreviews.php')
+          echo 'class="active"'; ?>>My
+            Reviews</a></li>
+        <li><a href="contact.php" <?php if (basename($_SERVER['PHP_SELF']) == 'mybookings.php')
+          echo 'class="active"'; ?>>My
+            Booking</a></li>
+      <?php endif; ?>
+
     </ul>
 
     <div class="nav-right">

@@ -12,7 +12,7 @@
  */
 function get_profile_image_url($user_id = null, $size = 'small') {
     // Default image path
-    $default_image = '/M_A_Oida_Dental_Clinic/assets/photos/default_avatar.png';
+    $default_image = 'assets/images/profiles/default.png';
     
     // If no user ID or user is not logged in, return default
     if (empty($user_id)) {
@@ -20,7 +20,7 @@ function get_profile_image_url($user_id = null, $size = 'small') {
     }
     
     // Check if user has a custom profile image
-    $image_path = '/M_A_Oida_Dental_Clinic/assets/images/profiles/user_' . $user_id . '.jpg';
+    $image_path = 'assets/images/profiles/user_' . $user_id . '.jpg';
     $server_path = $_SERVER['DOCUMENT_ROOT'] . $image_path;
     
     // If the file exists, return the custom image path

@@ -299,7 +299,7 @@
         align-items: center;
     }
 
-    @media (max-width: 992px) {
+    @media (max-width: 1200px) {
         .nav-toggle-label {
             display: block;
         }

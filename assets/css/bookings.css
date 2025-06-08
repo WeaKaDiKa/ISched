@@ -1561,7 +1561,7 @@ h2 {
 }
 
 .service-card {
-  padding: 1.25rem;
+  padding: 0.5rem;
   border-radius: 12px;
   background-color: #fff;
   border: 2px solid #eaeaea;
@@ -1569,7 +1569,7 @@ h2 {
   transition: all 0.2s ease-in-out;
   cursor: pointer;
   position: relative;
-  min-height: 160px;
+  min-height: 100px;
   user-select: none;
   -webkit-tap-highlight-color: transparent; /* Remove default mobile tap highlight */
 }

@@ -340,7 +340,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                         type="button" title="Approve"
                                                         onclick="showConfirmModal('approve', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
                                                             class="fas fa-check"></i></button>
-                                                    
+
                                                     <button
                                                         class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
                                                         type="button" title="Details"
@@ -1024,7 +1024,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                     }
                 })
                 .catch(error => {
-                    alert('Request failed.');
+                    alert('Request failed. ' + error);
                 });
         }
         // Character counter for reason textarea

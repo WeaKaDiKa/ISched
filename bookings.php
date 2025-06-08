@@ -756,15 +756,19 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             <div class="service-card <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'selected' : ''; ?>" 
                  data-service-name="<?php echo htmlspecialchars($service['name']); ?>"
                  data-service-price="<?php echo $service['price']; ?>">
+<div class="d-flex align-items-center justify-content-between">
                 <input type="checkbox" id="service-<?php echo htmlspecialchars(preg_replace('/[^a-zA-Z0-9]/', '-', $service['name'])); ?>" 
                     name="services[]" 
                     value="<?php echo htmlspecialchars($service['name']); ?>" 
                     <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'checked' : ''; ?>
-                    class="service-checkbox">
+                    class="service-checkbox me-3">
+                                 <div class="service-name fw-bold text-end"><?php echo htmlspecialchars($service['name']); ?></div>
+
+</div><hr class="my-1">
                 <div class="service-content">
-                    <div class="service-name"><?php echo htmlspecialchars($service['name']); ?></div>
+       
                     <?php if (!empty($service['description'])): ?>
-                    <div class="service-description"><?php echo htmlspecialchars($service['description']); ?></div>
+                    <div class="service-description fs-6"><?php echo htmlspecialchars($service['description']); ?></div>
                     <?php endif; ?>
                 </div>
             </div>
