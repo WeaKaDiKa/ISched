@@ -21,16 +21,39 @@ function format_ampm($time)
 
 // Fetch all slots from the time_slots table (using 10:00 am format)
 $all_slots = [];
-$res = $conn->query("SELECT slot_time FROM time_slots ORDER BY id ASC");
-while ($row = $res->fetch_assoc()) {
-    $all_slots[format_ampm($row['slot_time'])] = format_ampm($row['slot_time']);
+$currentDate = date('Y-m-d');
+
+if ($date < $currentDate) {
+
+    $response['all_slots'] = [];
+} elseif ($date == $currentDate) {
+
+    $res = $conn->query("SELECT slot_time FROM time_slots ORDER BY id ASC");
+    while ($row = $res->fetch_assoc()) {
+        $formatted_time = format_ampm($row['slot_time']);
+        $all_slots[$formatted_time] = $formatted_time;
+    }
+    $response['all_slots'] = $all_slots;
+    $current_time = date('H:i:s');
+    foreach ($all_slots as $key => $value) {
+        if (strtotime($key) < strtotime($current_time)) {
+            unset($all_slots[$key]);
+        }
+    }
+} else {
+    $res = $conn->query("SELECT slot_time FROM time_slots ORDER BY id ASC");
+    while ($row = $res->fetch_assoc()) {
+        $formatted_time = format_ampm($row['slot_time']);
+        $all_slots[$formatted_time] = $formatted_time;
+    }
+    $response['all_slots'] = $all_slots;
 }
-$response['all_slots'] = $all_slots;
+
 
 if ($date && $branch) {
     $stmt = $conn->prepare(
         "SELECT appointment_time FROM appointments "
-        . " WHERE appointment_date = ? AND clinic_branch = ? AND status = 'booked'"
+        . " WHERE appointment_date = ? AND clinic_branch = ? AND (status = 'booked'||status = 'pending')"
     );
     $stmt->bind_param('ss', $date, $branch);
     $stmt->execute();

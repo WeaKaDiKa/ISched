@@ -21,7 +21,7 @@ function get_profile_image_url($user_id = null, $size = 'small') {
     
     // Check if user has a custom profile image
     $image_path = 'assets/images/profiles/user_' . $user_id . '.jpg';
-    $server_path = $_SERVER['DOCUMENT_ROOT'] . $image_path;
+    $server_path = $image_path;
     
     // If the file exists, return the custom image path
     if (file_exists($server_path)) {

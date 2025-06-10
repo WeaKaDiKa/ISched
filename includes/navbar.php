@@ -92,4 +92,3 @@ include_once('includes/custom_modal.php');
     });
   });
 </script>
-<?php include_once('includes/custom_modal.php'); ?>

@@ -44,9 +44,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>My Profile</title>
   <link rel="stylesheet" href="assets/css/profiles.css">
-  <link rel="stylesheet" href="assets/css/profile-icon.css">
-  <link rel="stylesheet" href="assets/css/notification.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <?php require_once 'includes/head.php' ?>
   <style>
     /* Password Change Modal Styles */
     .modal {
@@ -136,105 +134,103 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
 </head>
 
 <body>
-  <div class="profile-container">
-    <div class="header">
-      <a href="index.php" class="back-btn">Back</a>
-      <h1 class="profile-title">My Profile</h1>
+  <header>
+    <?php include_once('includes/navbar.php'); ?>
+  </header>
+  <div class="container my-4">
+    <div class="card">
+      <div class="card-body p-5">
+        <h1 class="profile-title mb-4">My Profile</h1>
 
-      <!-- Notification bell removed as requested -->
+        <div class="profile-content">
+     
+            <div class="profile-pic-section d-flex flex-column flex-md-row align-items-center mb-4">
+              <div class="profile-pic-container me-md-4 mb-3 mb-md-0">
+                <img src="<?= get_profile_image_url($user_id) ?>" alt="Profile Picture"
+                  class="profile-pic rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+              </div>
+              <div class="profile-name-header text-center text-md-start">
+                <h2 class="mb-2">
+                  <?= htmlspecialchars(trim("{$user['first_name']} {$user['middle_name']} {$user['last_name']}")) ?>
+                </h2>
+                <a href="edit_profile.php" class="edit-profile-btn btn btn-outline-primary">Edit Profile</a>
+              </div>
+            </div>
 
-      <!--      <div class="bookings-btn">
-         LINKED to mybookings.php now 
-      <a href="mybookings.php">
-          <button>MY BOOKINGS</button>
-        </a> 
-        <p class="booking-note">Check your bookings here!</p>
-      </div> -->
-    </div>
+            <div class="profile-info row">
+              <div class="info-column col-md-6">
+                <div class="form-group mb-3">
+                  <label class="form-label">First Name:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['first_name']) ?>" readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Middle Name:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['middle_name'] ?: 'N/A') ?>"
+                    readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Last Name:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['last_name']) ?>" readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Email Address:</label>
+                  <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Phone Number:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['phone_number']) ?>"
+                    readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Date of Birth:</label>
+                  <input type="text" class="form-control" value="<?= $formatted_dob ?>" readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Gender:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['gender']) ?>" readonly>
+                </div>
+              </div>
 
-    <div class="profile-content">
-      <div class="profile-pic-section">
-        <div class="profile-pic-container">
-          <img src="<?= get_profile_image_url($user_id) ?>" alt="Profile Picture" class="profile-pic">
+              <div class="info-column col-md-6">
+                <div class="form-group mb-3">
+                  <label class="form-label">Region:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['region_name'] ?? '') ?>"
+                    readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Province:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['province_name'] ?? '') ?>"
+                    readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">City/Municipality:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['city_name'] ?? '') ?>"
+                    readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Barangay:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['barangay_name'] ?? '') ?>"
+                    readonly>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Zip Code:</label>
+                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['zip_code']) ?>" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="action-buttons d-flex flex-wrap gap-2 mt-4">
+              <button class="edit-password-btn btn btn-warning" id="editPasswordBtn">Edit Password</button>
+              <button class="logout-btn btn btn-danger" id="logoutBtn">Logout</button>
+              <form action="logout.php" method="POST" id="logoutForm" class="d-none">
+                <!-- Hidden form that will be submitted when confirmed -->
+              </form>
+            </div>
+         
         </div>
-        <div class="profile-name-header">
-          <h2>
-            <?= htmlspecialchars(trim("{$user['first_name']} {$user['middle_name']} {$user['last_name']}")) ?>
-          </h2>
-          <a href="edit_profile.php" class="edit-profile-btn">Edit Profile</a>
-        </div>
-      </div>
-
-      <div class="profile-info">
-        <div class="info-column">
-          <div class="form-group">
-            <label>First Name:</label>
-            <input type="text" value="<?= htmlspecialchars($user['first_name']) ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Middle Name:</label>
-            <input type="text" value="<?= htmlspecialchars($user['middle_name'] ?: 'N/A') ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Last Name:</label>
-            <input type="text" value="<?= htmlspecialchars($user['last_name']) ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Email Address:</label>
-            <input type="email" value="<?= htmlspecialchars($user['email']) ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Phone Number:</label>
-            <input type="text" value="<?= htmlspecialchars($user['phone_number']) ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Date of Birth:</label>
-            <input type="text" value="<?= $formatted_dob ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Gender:</label>
-            <input type="text" value="<?= htmlspecialchars($user['gender']) ?>" readonly>
-          </div>
-        </div>
-
-        <div class="info-column">
-          <div class="form-group">
-            <label>Region:</label>
-            <input type="text" value="<?= htmlspecialchars($user['region_name'] ?? '') ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Province:</label>
-            <input type="text" value="<?= htmlspecialchars($user['province_name'] ?? '') ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>City/Municipality:</label>
-            <input type="text" value="<?= htmlspecialchars($user['city_name'] ?? '') ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Barangay:</label>
-            <input type="text" value="<?= htmlspecialchars($user['barangay_name'] ?? '') ?>" readonly>
-          </div>
-          <div class="form-group">
-            <label>Zip Code:</label>
-            <input type="text" value="<?= htmlspecialchars($user['zip_code']) ?>" readonly>
-          </div>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <!--     <a href="myreviews.php" class="notifications-btn" style="text-decoration: none;">
-          <button
-            style="background-color: #4a89dc; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
-            My Reviews
-          </button>
-        </a> -->
-        <button class="edit-password-btn" id="editPasswordBtn">Edit Password</button>
-        <button class="logout-btn" id="logoutBtn">Logout</button>
-        <form action="logout.php" method="POST" id="logoutForm" style="display: none;">
-          <!-- Hidden form that will be submitted when confirmed -->
-        </form>
       </div>
     </div>
+
   </div>
   <!-- Password Change Modal -->
   <div id="passwordModal" class="modal">

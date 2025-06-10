@@ -6,6 +6,16 @@ require_once('session.php');
 require_once('db.php');
 
 // Helper function to capitalize names
+
+function format_ampm($time)            //cpmvert tp 24hoursfopmat
+{
+    // Accepts '10:00:00' or '13:00:00', returns '01:00 pm'
+    $dt = DateTime::createFromFormat('h:i a', $time);
+    if ($dt)
+        return strtolower($dt->format('H:i:s'));
+    return $time;
+}
+
 function capitalizeNames($name)
 {
     $parts = explode(' ', trim($name));
@@ -32,7 +42,7 @@ try {
     $patientId = (int) $_SESSION['user_id'];
     $clinicBranch = $_POST['clinic_branch'] ?? '';
     $appointmentDate = $_POST['appointment_date'] ?? '';
-    $appointmentTime = $_POST['appointment_time'] ?? '';
+    $appointmentTime = format_ampm($_POST['appointment_time']) ?? '';
     // $doctorId = !empty($_POST['doctor_id']) ? $_POST['doctor_id'] : null;
 
     // Get services
@@ -86,7 +96,7 @@ try {
                 $checkBookingQuery->bind_param(
                     "sss",
                     $_POST['appointment_date'],
-                    $_POST['appointment_time'],
+                    $appointmentTime,
                     $_POST['clinic_branch']
                 );
 
@@ -124,15 +134,15 @@ try {
     }
 
     $stmt->bind_param(
-        "isssssis", 
-        $patientId,          
-        $clinicBranch,     
-        $appointmentDate,    
-        $appointmentTime,    
-        $services_list,     
-        $status,            
-        $consent,       
-        $blood_type         
+        "isssssis",
+        $patientId,
+        $clinicBranch,
+        $appointmentDate,
+        $appointmentTime,
+        $services_list,
+        $status,
+        $consent,
+        $blood_type
     );
 
 

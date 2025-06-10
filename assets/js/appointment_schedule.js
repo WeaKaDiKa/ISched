@@ -296,13 +296,13 @@ function initializeCalendar() {
                 <strong>Your Selected Appointment:</strong><br>
                 Date: ${formattedDate}<br>
                 Time: ${timeText}<br>
-                Branch: ${selectedBranch}
+         
 
             `;
 
             selectedDateDisplay.innerHTML=`${formattedDate}`;
              selectedTimeDisplay.innerHTML=`${timeText}`;
-              selectedBranchDisplay.innerHTML=`${selectedBranch}`;
+
 
             // Clear any validation errors
             const errorContainer = document.getElementById('appointment-error-container');
