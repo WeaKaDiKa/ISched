@@ -275,7 +275,7 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 <body>
     <div class="profile-container">
         <div class="header">
-            <a href="profile.php" class="back-btn">Back</a>
+            <a href="index.php" class="back-btn">Back</a>
             <h1 class="profile-title">My Reviews</h1>
         </div>
 

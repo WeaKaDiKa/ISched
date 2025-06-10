@@ -433,7 +433,7 @@ $userData = $userResult->fetch_assoc();
 
 <body>
     <header>
-        <a href="profile.php" class="back-btn">Back</a>
+        <a href="index.php" class="back-btn">Back</a>
         <h1>My Bookings</h1>
         <p>View and manage your dental appointments</p>
 

@@ -749,7 +749,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <?php endif; ?>
     <div class="error-message" id="services-error" style="display: none;"></div>
 
-    <div class="services-container d-block d-lg-flex">
+    <div class="services-container">
 
         <div class="services-grid mb-3">
             <?php foreach ($services as $service): ?>
@@ -774,7 +774,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             </div>
             <?php endforeach; ?>
         </div>
-
+<hr class="my-1">
         <div class="selected-services-panel">
             <div class="selected-services-header">
                 <h3>Selected Services</h3>
