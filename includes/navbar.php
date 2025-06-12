@@ -71,7 +71,10 @@ include_once('includes/custom_modal.php');
       <?php if (isset($user) && $user !== null): ?>
         <?php include('user_notification_bell.php'); ?>
       <?php endif; ?>
-      <a href="<?= isset($user) && $user !== null ? 'profile.php' : 'login.php'; ?>" <?= !isset($user) || $user === null ? "onclick=\"alert('Please login to view profile.');\"" : '' ?>>
+
+
+      <a href="<?= isset($user) && $user !== null ? 'profile.php' : '#' ?>" <?= !isset($user) || $user === null ? 'onclick="customModal.show(\'Login Required\', \'Please login to view your profile.\', { showCancel: true, okText: \'Go to Login\', redirectUrl: \'login.php\' })"' : '' ?>>
+
         <div class="user-icon">
           <?php if (isset($user) && $user !== null): ?>
             <img src="<?= get_profile_image_url($_SESSION['user_id'] ?? null) ?>?<?= time() ?>" alt="Profile Picture"

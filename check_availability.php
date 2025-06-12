@@ -6,7 +6,7 @@ require_once 'db.php';
 header('Content-Type: application/json');
 
 // Check if required parameters are provided
-if (!isset($_POST['date']) || !isset($_POST['branch'])) {
+if (!isset($_POST['date'])) {
     echo json_encode([
         'error' => 'Missing required parameters',
         'available_slots' => []
@@ -16,7 +16,6 @@ if (!isset($_POST['date']) || !isset($_POST['branch'])) {
 
 // Get and sanitize parameters
 $date = $conn->real_escape_string($_POST['date']);
-$branch = $conn->real_escape_string($_POST['branch']);
 
 // Define all possible time slots (10:00 AM to 7:00 PM, excluding 12:00 PM lunch)
 $all_time_slots = ["10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
@@ -25,7 +24,6 @@ try {
     // Query to get all appointments for this date and branch
     $query = "SELECT appointment_time FROM appointments 
               WHERE appointment_date = ? 
-              AND clinic_branch = ? 
               AND status != 'cancelled'";
 
     $stmt = $conn->prepare($query);
@@ -33,7 +31,7 @@ try {
         throw new Exception("Error preparing statement: " . $conn->error);
     }
 
-    $stmt->bind_param("ss", $date, $branch);
+    $stmt->bind_param("ss", $date);
 
     if (!$stmt->execute()) {
         throw new Exception("Error executing statement: " . $stmt->error);
@@ -58,7 +56,6 @@ try {
     echo json_encode([
         'success' => true,
         'date' => $date,
-        'branch' => $branch,
         'available_slots' => array_values($available_slots) // Reset array keys
     ]);
 

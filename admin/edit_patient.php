@@ -316,9 +316,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get patient's appointments (both pending and approved)
 $appointmentsQuery = "SELECT a.*, 
                      CONCAT('APP-', LPAD(a.id, 6, '0')) as reference_number,
-                     d.first_name as doctor_first_name, d.last_name as doctor_last_name
                      FROM appointments a 
-                     LEFT JOIN doctors d ON a.doctor_id = d.id
+                  
                      WHERE a.patient_id = ? 
                      ORDER BY a.appointment_date DESC, a.appointment_time DESC";
 $appointmentsStmt = $conn->prepare($appointmentsQuery);

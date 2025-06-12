@@ -12,7 +12,6 @@ $patient_id = $_POST['patient_id'] ?? null;
 $services = $_POST['services'] ?? '';
 $appointment_date = $_POST['appointment_date'] ?? '';
 $appointment_time = $_POST['appointment_time'] ?? '';
-$clinic_branch = $_POST['clinic_branch'] ?? 'Maligaya Park Branch';
 $status = $_POST['status'] ?? 'pending';
 
 // Validate required fields
@@ -31,18 +30,17 @@ try {
         services, 
         appointment_date, 
         appointment_time, 
-        clinic_branch, 
         status
-    ) VALUES (?, ?, ?, ?, ?, ?)";
+    ) VALUES (?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        'isssss',
+        'issss',
         $patient_id,
         $services,
         $appointment_date,
         $appointment_time,
-        $clinic_branch,
+
         $status
     );
 

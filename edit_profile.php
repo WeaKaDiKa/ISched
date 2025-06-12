@@ -16,10 +16,7 @@ function capitalizeNames($name)
 $user_id = $_SESSION['user_id'];
 
 // Fetch existing user data
-$sql = "
-
-
-      SELECT 
+$sql = "SELECT 
         p.first_name, p.middle_name, p.last_name, p.email,
         p.phone_number, p.date_of_birth, p.gender, 
         p.region as region_id, p.province as province_id, p.city as city_id, p.barangay as barangay_id, p.zip_code,
@@ -110,53 +107,126 @@ if ($selected_city_id) {
 $error = '';
 $profile_picture = $user['profile_picture'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {/* 
-    // Sanitize and capitalize names
-    $first_name = capitalizeNames(filter_var(trim($_POST["first_name"]), FILTER_SANITIZE_STRING));
-    $middle_name = !empty($_POST["middle_name"]) ? capitalizeNames(filter_var(trim($_POST["middle_name"]), FILTER_SANITIZE_STRING)) : '';
-    $last_name = capitalizeNames(filter_var(trim($_POST["last_name"]), FILTER_SANITIZE_STRING)); */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validate and sanitize inputs
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $phone_number = htmlspecialchars($_POST['phone_number'] ?? '');
+    $region = filter_input(INPUT_POST, 'region', FILTER_VALIDATE_INT);
+    $province = filter_input(INPUT_POST, 'province', FILTER_VALIDATE_INT);
+    $city = filter_input(INPUT_POST, 'city', FILTER_VALIDATE_INT);
+    $barangay = filter_input(INPUT_POST, 'barangay', FILTER_VALIDATE_INT);
+    $zip_code = htmlspecialchars($_POST['zip_code'] ?? '');
 
-    // Handle profile picture upload using our new function
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
-        $result = upload_profile_image($user_id, $_FILES['profile_picture']);
-        if (!$result['success']) {
-            $error = $result['message'];
+    $date_of_birth_input = htmlspecialchars($_POST['date_of_birth'] ?? '');
+    $date_of_birth = '';
+
+    if (!empty($date_of_birth_input)) {
+        $date_obj = DateTime::createFromFormat('d-m-Y', $date_of_birth_input);
+        if ($date_obj) {
+            $date_of_birth = $date_obj->format('Y-m-d');
+        } else {
+            $error = "Invalid date format. Please use DD-MM-YYYY format";
         }
     }
+    $gender = htmlspecialchars($_POST['gender'] ?? '');
 
-/*     // Date handling
-    try {
-        $date_of_birth = DateTime::createFromFormat('d-m-Y', $_POST['date_of_birth']);
-        $mysql_date = $date_of_birth->format('Y-m-d');
-    } catch (Exception $e) {
-        $error = "Invalid date format. Use DD-MM-YYYY";
+    // Basic validation
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Please enter a valid email address";
+    } elseif (empty($phone_number)) {
+        $error = "Phone number is required";
     }
- */
+    // Handle profile picture upload
+    $profile_picture = null;
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        $allowed_types = ['image/jpeg' => 'jpg', 'image/png' => 'png'];
+        $file_type = $_FILES['profile_picture']['type'];
+
+        if (array_key_exists($file_type, $allowed_types)) {
+            $upload_dir = 'assets/images/profiles/';
+
+            // Create directory if it doesn't exist
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+
+            // Get file extension from our allowed types mapping
+            $file_ext = $allowed_types[$file_type];
+            $filename = 'user_' . $user_id . '.' . $file_ext;
+            $destination = $upload_dir . $filename;
+
+            // Delete old profile picture if exists (both jpg and png versions)
+            $old_jpg = $upload_dir . 'user_' . $user_id . '.jpg';
+            $old_png = $upload_dir . 'user_' . $user_id . '.png';
+
+            if (file_exists($old_jpg))
+                unlink($old_jpg);
+            if (file_exists($old_png))
+                unlink($old_png);
+
+            // Move the uploaded file
+            if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $destination)) {
+                $profile_picture = $filename;
+            } else {
+                $error = "Failed to upload profile picture";
+            }
+        } else {
+            $error = "Only JPG and PNG images are allowed";
+        }
+    }
     if (!$error) {
         $update_sql = "UPDATE patients SET 
-          
-            email = ?, phone_number = ?, 
-            region = ?, province = ?, city = ?,
-            barangay = ?, zip_code = ?
-            WHERE id = ?";
+        email = ?, 
+        phone_number = ?, 
+        region = ?, 
+        province = ?, 
+        city = ?,
+        barangay = ?, 
+        zip_code = ?,
+        date_of_birth = ?,
+        gender = ?";
+
+        if ($profile_picture) {
+            $update_sql .= ", profile_picture = ?";
+        }
+
+        $update_sql .= " WHERE id = ?";
 
         $stmt = $conn->prepare($update_sql);
-        $stmt->bind_param(
-            "ssiiiisi",
 
-            $_POST['email'],
-            $_POST['phone_number'],
-
-
-            $_POST['region'], // Save region ID
-            $_POST['province'], // Save province ID
-            $_POST['city'], // Save city ID
-            $_POST['barangay'], // Save barangay ID
-            $_POST['zip_code'],
-            $user_id
-        );
+        if ($profile_picture) {
+            $stmt->bind_param(
+                "ssiiiissssi",
+                $email,
+                $phone_number,
+                $region,
+                $province,
+                $city,
+                $barangay,
+                $zip_code,
+                $date_of_birth,
+                $gender,
+                $profile_picture,
+                $user_id
+            );
+        } else {
+            $stmt->bind_param(
+                "ssiiiisssi",
+                $email,
+                $phone_number,
+                $region,
+                $province,
+                $city,
+                $barangay,
+                $zip_code,
+                $date_of_birth,
+                $gender,
+                $user_id
+            );
+        }
 
         if ($stmt->execute()) {
+            $_SESSION['success_message'] = "Profile updated successfully";
             header("Location: profile.php");
             exit();
         } else {
@@ -164,6 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {/*
         }
     }
 }
+
 
 $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
 ?>
@@ -175,142 +246,153 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <link rel="stylesheet" href="assets/css/profiles.css">
-    <link rel="stylesheet" href="assets/css/profile-icon.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <?php require_once 'includes/head.php' ?>
 </head>
 
 <body>
-    <div class="profile-container">
-        <form method="POST" enctype="multipart/form-data">
-            <div class="header">
-                <a href="profile.php" class="back-btn">Back</a>
-                <h1 class="profile-title">Edit Profile</h1>
-            </div>
+    <header>
+        <?php include_once('includes/navbar.php'); ?>
+    </header>
+    <div class="container my-4">
+        <div class="card">
+            <div class="card-body p-5">
+                <h1 class="profile-title mb-4">Edit Profile</h1>
 
-            <?php if ($error): ?>
-                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
-            <?php endif; ?>
+                <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger mb-4"><?php echo htmlspecialchars($error); ?></div>
+                    <?php endif; ?>
 
-            <div class="profile-content">
-                <div class="profile-pic-section">
-                    <div class="profile-pic-container">
-                        <img id="profilePreview" src="<?php echo get_profile_image_url($user_id); ?>"
-                            alt="Profile Picture" class="profile-pic">
-                    </div>
-                    <div class="form-group">
-                        <label>Update Profile Picture:</label>
-                        <input id="profileInput" type="file" name="profile_picture" accept="image/*">
-                    </div>
-                </div>
-
-                <div class="profile-info">
-                    <div class="info-column">
-                        <div class="form-group">
-                            <label for="firstName">First Name:</label>
-                            <input type="text" id="firstName" name="first_name" disabled
-                                value="<?php echo htmlspecialchars($user['first_name']); ?>">
-                        </div>
-                        <div class="form-group">
-                            <label for="middleName">Middle Name:</label>
-                            <input type="text" id="middleName" name="middle_name" disabled
-                                value="<?php echo htmlspecialchars($user['middle_name'] ?? ''); ?>">
-                        </div>
-                        <div class="form-group">
-                            <label for="lastName">Last Name:</label>
-                            <input type="text" id="lastName" name="last_name" disabled
-                                value="<?php echo htmlspecialchars($user['last_name']); ?>">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email Address:</label>
-                            <input type="email" id="email" name="email"
-                                value="<?php echo htmlspecialchars($user['email']); ?>">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone Number:</label>
-                            <input type="text" id="phone" name="phone_number"
-                                value="<?php echo htmlspecialchars($user['phone_number']); ?>">
-                        </div>
-                        <div class="form-group">
-                            <label for="dob">Date of Birth:</label>
-                            <div class="date-input-container">
-                                <input type="text" id="dob" name="date_of_birth" disabled
-                                    value="<?php echo htmlspecialchars($formatted_dob); ?>">
-                                <span class="date-icon">📅</span>
+                    <div class="profile-content">
+                        <div class="profile-pic-section d-flex flex-column flex-md-row align-items-center ms-0 mb-4">
+                            <div class="profile-pic-container me-md-4 mb-3 mb-md-0 ms-auto ms-md-0">
+                                <img id="profilePreview" src="<?php echo get_profile_image_url($user_id); ?>"
+                                    alt="Profile Picture" class="rounded-circle"
+                                    style="width: 150px; height: 150px; object-fit: cover;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Update Profile Picture:</label>
+                                <input id="profileInput" type="file" name="profile_picture" accept="image/*"
+                                    class="form-control">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="gender">Gender:</label>
-                            <select id="gender" name="gender" class="styled-select" disabled>
-                                <option value="Male" <?= $user['gender'] === 'Male' ? 'selected' : '' ?>>Male</option>
-                                <option value="Female" <?= $user['gender'] === 'Female' ? 'selected' : '' ?>>Female
-                                </option>
-                                <option value="Other" <?= $user['gender'] === 'Other' ? 'selected' : '' ?>>Other</option>
-                            </select>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="firstName" class="form-label">First Name:</label>
+                                    <input type="text" id="firstName" name="first_name" class="form-control" disabled
+                                        value="<?php echo htmlspecialchars($user['first_name']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="middleName" class="form-label">Middle Name:</label>
+                                    <input type="text" id="middleName" name="middle_name" class="form-control" disabled
+                                        value="<?php echo htmlspecialchars($user['middle_name'] ?? ''); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="lastName" class="form-label">Last Name:</label>
+                                    <input type="text" id="lastName" name="last_name" class="form-control" disabled
+                                        value="<?php echo htmlspecialchars($user['last_name']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address:</label>
+                                    <input type="email" id="email" name="email" class="form-control"
+                                        value="<?php echo htmlspecialchars($user['email']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number:</label>
+                                    <input type="text" id="phone" name="phone_number" class="form-control"
+                                        value="<?php echo htmlspecialchars($user['phone_number']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dob" class="form-label">Date of Birth:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="dob" name="date_of_birth" class="form-control"
+                                            value="<?php echo htmlspecialchars($formatted_dob); ?>">
+                                        <span class="input-group-text">📅</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Gender:</label>
+                                    <select id="gender" name="gender" class="form-select">
+                                        <option value="Male" <?= $user['gender'] === 'Male' ? 'selected' : '' ?>>Male
+                                        </option>
+                                        <option value="Female" <?= $user['gender'] === 'Female' ? 'selected' : '' ?>>Female
+                                        </option>
+                                        <option value="Other" <?= $user['gender'] === 'Other' ? 'selected' : '' ?>>Other
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="region" class="form-label">Region:</label>
+                                    <select id="region" name="region" class="form-select">
+                                        <?php foreach ($regions as $value => $label): ?>
+                                            <option value="<?= htmlspecialchars($value) ?>" <?= ($user['region_id'] ?? '') === $value ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($label) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="province" class="form-label">Province:</label>
+                                    <select id="province" name="province" class="form-select">
+                                        <?php foreach ($provinces as $province): ?>
+                                            <option value="<?= htmlspecialchars($province['province_id']) ?>"
+                                                <?= ($user['province_id'] ?? '') === $province['province_id'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($province['province_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="city" class="form-label">City/Municipality:</label>
+                                    <select id="city" name="city" class="form-select">
+
+                                        <?php foreach ($cities as $city): ?>
+                                            <option value="<?= htmlspecialchars($city['municipality_id']) ?>"
+                                                <?= ($user['city_id'] ?? '') === $city['municipality_id'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($city['municipality_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="barangay" class="form-label">Barangay:</label>
+                                    <select id="barangay" name="barangay" class="form-select">
+                                        <?php foreach ($barangays as $barangay): ?>
+                                            <option value="<?= htmlspecialchars($barangay['brgy_id']) ?>"
+                                                <?= ($user['barangay_id'] ?? '') === $barangay['brgy_id'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($barangay['barangay_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="zipCode" class="form-label">ZipCode:</label>
+                                    <input type="text" id="zipCode" name="zip_code" class="form-control"
+                                        value="<?php echo htmlspecialchars($user['zip_code'] ?? ''); ?>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-muted mb-4"><small>*Always double check your new information before
+                                saving*</small></p>
+
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="profile.php" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
                     </div>
+                </form>
 
-                    <div class="info-column">
-                        <div class="form-group">
-                            <label for="region">Region:</label>
-                            <select id="region" name="region" class="styled-select">
-                                <?php foreach ($regions as $value => $label): ?>
-                                    <option value="<?= htmlspecialchars($value) ?>" <?= ($user['region_id'] ?? '') === $value ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($label) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="province">Province:</label>
-                            <select id="province" name="province" class="styled-select">
-                                <?php foreach ($provinces as $province): ?>
-                                    <option value="<?= htmlspecialchars($province['province_id']) ?>"
-                                        <?= ($user['province_id'] ?? '') === $province['province_id'] ? '' : '' ?>>
-                                        <?= htmlspecialchars($province['province_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="city">City/Municipality:</label>
-                            <select id="city" name="city" class="styled-select">
-                                <?php foreach ($cities as $city): ?>
-                                    <option value="<?= htmlspecialchars($city['municipality_id']) ?>" <?= ($user['city_id'] ?? '') === $city['municipality_id'] ? '' : '' ?>>
-                                        <?= htmlspecialchars($city['municipality_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="barangay">Barangay:</label>
-                            <select id="barangay" name="barangay" class="styled-select">
-                                <?php foreach ($barangays as $barangay): ?>
-                                    <option value="<?= htmlspecialchars($barangay['brgy_id']) ?>" <?= ($user['barangay_id'] ?? '') === $barangay['brgy_id'] ? '' : '' ?>>
-                                        <?= htmlspecialchars($barangay['barangay_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <script>
-                            console.log('<?= $user['region_id'] ?><?= $user['province_id'] ?><?= $user['city_id'] ?><?= $user['barangay_id'] ?>');
-                        </script>
-                        <div class="form-group">
-                            <label for="zipCode">ZipCode:</label>
-                            <input type="text" id="zipCode" name="zip_code"
-                                value="<?php echo htmlspecialchars($user['zip_code'] ?? ''); ?>">
-                        </div>
-                    </div>
-                </div>
 
-                <p class="validation-note">*Always double check your new information before saving*</p>
-
-                <div class="action-buttons">
-                    <a href="profile.php" class="cancel-btn">Cancel</a>
-                    <button type="submit" class="save-btn">Save Changes</button>
-                </div>
             </div>
-        </form>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -335,8 +417,13 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (!selectedRegion) return; // Don't fetch if no region is selected
 
             fetch('fetch_provinces.php?region_id=' + selectedRegion)
-                .then(response => response.json())
+                .then(response => response.text()) // Change temporarily to .text()
+                .then(text => {
+                    console.log('Raw prov:', text); // Check what's coming back
+                    return JSON.parse(text); // Then try to parse it manually
+                })
                 .then(data => {
+                    console.log(data)
                     data.forEach(province => {
                         const option = document.createElement('option');
                         option.value = province.province_id;
@@ -366,7 +453,11 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (!selectedProvince) return; // Don't fetch if no province is selected
 
             fetch('fetch_cities.php?province_id=' + selectedProvince)
-                .then(response => response.json())
+                .then(response => response.text()) // Change temporarily to .text()
+                .then(text => {
+                    console.log('Raw city:', text); // Check what's coming back
+                    return JSON.parse(text); // Then try to parse it manually
+                })
                 .then(data => {
                     data.forEach(city => {
                         const option = document.createElement('option');
@@ -394,7 +485,11 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (!selectedCity) return; // Don't fetch if no city is selected
 
             fetch('fetch_barangays.php?city_id=' + selectedCity)
-                .then(response => response.json())
+                .then(response => response.text()) // Change temporarily to .text()
+                .then(text => {
+                    console.log('Raw brgy:', text); // Check what's coming back
+                    return JSON.parse(text); // Then try to parse it manually
+                })
                 .then(data => {
                     data.forEach(barangay => {
                         const option = document.createElement('option');
@@ -405,41 +500,6 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
                 })
                 .catch(error => console.error('Error fetching barangays:', error));
         });
-
-        /*   // Trigger the region change event on page load to populate provinces, cities, and barangays
-          document.addEventListener('DOMContentLoaded', function () {
-              const regionSelect = document.getElementById('region');
-              // Only trigger if a region is already selected (i.e., user has saved location data)
-              if (regionSelect.value) {
-                  // Store the current values before triggering change events
-                  const currentProvince = '< ?= $user['province_id'] ?? '' ?>';
-          const currentCity = '< ?= $user['city_id'] ?? '' ?>';
-          const currentBarangay = '< ?= $user['barangay_id'] ?? '' ?>';
-  
-          regionSelect.dispatchEvent(new Event('change'));
-  
-          // After provinces load, select the user's province and trigger city load
-          document.getElementById('province').addEventListener('change', function () {
-              // Select the user's saved city after cities load
-              document.getElementById('city').addEventListener('change', function () {
-                  if (currentBarangay) {
-                      document.getElementById('barangay').value = currentBarangay;
-                  }
-              }, { once: true }); // Run only once
-  
-              if (currentCity) {
-                  document.getElementById('city').value = currentCity;
-                  document.getElementById('city').dispatchEvent(new Event('change'));
-              }
-          }, { once: true }); // Run only once
-  
-          if (currentProvince) {
-              document.getElementById('province').value = currentProvince;
-              document.getElementById('province').dispatchEvent(new Event('change'));
-          }
-  
-              }
-          }); */
 
         document.addEventListener('DOMContentLoaded', function () {
             const regionSelect = document.getElementById('region');
@@ -454,6 +514,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (regionSelect.value) {
                 fetch('fetch_provinces.php?region_id=' + regionSelect.value)
                     .then(response => response.json())
+
                     .then(provinces => {
                         provinceSelect.innerHTML = '';
                         provinces.forEach(province => {
@@ -518,7 +579,21 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
         }
 
         // Add the onchange event to the file input
-        document.getElementById('profileInput').addEventListener('change', previewImage);
+        document.getElementById('profileInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('profilePreview').src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove the console.log for production
+        console.log('<?= $user['region_id'] ?><?= $user['province_id'] ?><?= $user['city_id'] ?><?= $user['barangay_id'] ?>');
+
+
     </script>
 </body>
 

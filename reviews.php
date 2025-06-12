@@ -114,9 +114,10 @@ $servicesList = [
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Reviews - ISched of M&A Oida Dental Clinic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/reviews.css">
   <?php require_once 'includes/head.php' ?>
-  <script src="https://cdn.tailwindcss.com"></script>
+
 
   <script>
     tailwind.config = {
@@ -183,6 +184,10 @@ $servicesList = [
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    h5{
+      font-weight: 500!important;
+      font-size: 1.25rem!important;
     }
   </style>
 

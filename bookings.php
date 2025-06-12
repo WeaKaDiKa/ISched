@@ -23,242 +23,6 @@ if (isset($_SESSION['user_id'])) {
     $user = $stmt->get_result()->fetch_assoc() ?: null;
 }
 
-// Check if it's an AJAX request for form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-    // Buffer output to prevent any PHP warnings or notices from breaking JSON
-    ob_start();
-
-    // Make sure no output has been sent before setting headers
-    if (!headers_sent()) {
-        header('Content-Type: application/json');
-    }
-
-    // Process the form submission 
-    $response = array();
-    $errors = array();
-
-    // Combine all section data
-    $formData = $_SESSION['form_data'] ?? [];
-    $allData = [];
-    foreach ($formData as $sectionData) {
-        if (is_array($sectionData)) {
-            $allData = array_merge($allData, $sectionData);
-        }
-    }
-
-    // Add the current POST data
-    $allData = array_merge($allData, $_POST);
-
-    // Ensure we have a user ID
-    if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-        $errors['user_id'] = "User must be logged in to book an appointment";
-        $response['success'] = false;
-        $response['errors'] = $errors;
-        echo json_encode($response);
-        exit;
-    }
-
-    // Debug: Log received data
-    error_log("POST data: " . print_r($_POST, true));
-    error_log("Combined data: " . print_r($allData, true));
-
-    // Validate required fields
-    $requiredFields = ['clinic_branch', 'appointment_date', 'appointment_time'];
-    foreach ($requiredFields as $field) {
-        if (empty($allData[$field])) {
-            $errors[$field] = "Field {$field} is required";
-        }
-    }
-
-    try {
-        if (empty($errors)) {
-            // Calculate total
-            $servicePrices = [];
-            $servicesQuery = "SELECT id, name, price FROM services WHERE is_active = 1";
-            $servicesResult = $conn->query($servicesQuery);
-
-            if ($servicesResult && $servicesResult->num_rows > 0) {
-                while ($row = $servicesResult->fetch_assoc()) {
-                    $servicePrices[$row['name']] = $row['price'];
-                }
-            }
-
-            $total = 0;
-            if (!empty($allData['services']) && is_array($allData['services'])) {
-                // Check if more than 3 services are selected
-                if (count($allData['services']) > 3) {
-                    $errors['services'] = 'You can only select up to 3 services';
-                    $response['success'] = false;
-                    $response['errors'] = $errors;
-                    echo json_encode($response);
-                    exit;
-                }
-                foreach ($allData['services'] as $service) {
-                    $total += $servicePrices[$service] ?? 0;
-                }
-            }
-
-            // Ensure we have all required fields before proceeding
-            foreach (['clinic_branch', 'appointment_date', 'appointment_time'] as $requiredField) {
-                if (empty($allData[$requiredField])) {
-                    throw new Exception("Required field missing: " . $requiredField);
-                }
-            }
-
-            // Prevent double booking for same doctor, branch, date, time (robust, label-insensitive)
-            // Modified to exclude cancelled appointments so users can rebook after cancellation
-            $checkStmt = $conn->prepare(
-                "SELECT COUNT(*) as cnt FROM appointments a " .
-                "JOIN timeslots t1 ON a.appointment_time = t1.slot_label " .
-                "JOIN timeslots t2 ON t2.slot_label = ? " .
-                "WHERE a.appointment_date = ? AND a.clinic_branch = ? AND a.doctor_id = ? AND t1.slot_time = t2.slot_time " .
-                "AND (a.status = 'booked' OR a.status = 'pending') " .
-                "AND a.status != 'cancelled'"
-            );
-            $checkStmt->bind_param('ssss', $allData['appointment_time'], $allData['appointment_date'], $allData['clinic_branch'], $allData['doctor_id']);
-            $checkStmt->execute();
-            $checkResult = $checkStmt->get_result();
-            $row = $checkResult->fetch_assoc();
-            if ($row && $row['cnt'] > 0) {
-                $errors['appointment_time'] = 'This time slot is already booked for the selected doctor and branch.';
-                $response['success'] = false;
-                $response['errors'] = $errors;
-                echo json_encode($response);
-                exit;
-            }
-            $checkStmt->close();
-
-            $medical_history = isset($allData['diseases']) && is_array($allData['diseases']) ? implode(', ', $allData['diseases']) : '';
-            $allergies = isset($allData['allergies']) && is_array($allData['allergies']) ? implode(', ', $allData['allergies']) : '';
-
-            $doctorId = !empty($allData['doctor_id']) ? $allData['doctor_id'] : null;
-            $status = 'pending';
-            error_log("Setting appointment status to: $status");
-
-            $services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
-            $consent = isset($allData['consent']) ? 1 : 0;
-            $health = !empty($allData['health']) ? $allData['health'] : 'yes';
-            $blood_type = !empty($allData['blood_type']) ? $allData['blood_type'] : '';
-            $blood_pressure = !empty($allData['blood_pressure']) ? $allData['blood_pressure'] : '';
-
-            $patientId = (int) $_SESSION['user_id'];
-
-            error_log("Inserting appointment with data: " . print_r($allData, true));
-
-            $sql = "INSERT INTO appointments (
-    patient_id, doctor_id, clinic_branch, appointment_date, appointment_time,
-    services, status, consent, blood_type, medical_history, allergies
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            $stmt = $conn->prepare($sql);
-
-            if (!$stmt) {
-                throw new Exception("Prepare failed: " . $conn->error);
-            }
-
-            $stmt->bind_param(
-                "iisssssisss",
-                $patientId,
-                $doctorId,
-                $allData['clinic_branch'],
-                $allData['appointment_date'],
-                $allData['appointment_time'],
-                $services_list,
-                $status,
-                $consent,
-                $blood_type,
-                $medical_history,
-                $allergies
-            );
-
-            error_log("About to execute SQL: " . $sql);
-            error_log("With params - Patient: $patientId, Branch: {$allData['clinic_branch']}, Date: {$allData['appointment_date']}, Time: {$allData['appointment_time']}");
-
-            if ($stmt->execute()) {
-                // Get the appointment ID for reference number
-                $appointmentId = $conn->insert_id;
-                $referenceNumber = 'OIDA-' . str_pad($appointmentId, 8, '0', STR_PAD_LEFT);
-
-                // Create admin notification about the new appointment
-                try {
-                    // First, ensure the admin_notifications table exists
-                    $createTableSql = "CREATE TABLE IF NOT EXISTS admin_notifications (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        message VARCHAR(255) NOT NULL,
-                        type VARCHAR(50) NOT NULL,
-                        reference_id INT,
-                        is_read TINYINT(1) DEFAULT 0,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )";
-                    $conn->query($createTableSql);
-
-                    // Get patient name for the notification message
-                    $patientQuery = "SELECT first_name, last_name FROM patients WHERE id = ?";
-                    $patientStmt = $conn->prepare($patientQuery);
-                    $patientStmt->bind_param("i", $patientId);
-                    $patientStmt->execute();
-                    $patientResult = $patientStmt->get_result();
-                    $patientData = $patientResult->fetch_assoc();
-
-                    if ($patientData) {
-                        $patientName = $patientData['first_name'] . ' ' . $patientData['last_name'];
-
-                        // Create notification message
-                        $notificationMessage = "New appointment booked by {$patientName} for {$allData['appointment_date']} at {$allData['appointment_time']}.";
-
-                        // Insert admin notification
-                        $notifStmt = $conn->prepare("INSERT INTO admin_notifications (message, type, reference_id) VALUES (?, 'new_appointment', ?)");
-                        $notifStmt->bind_param("si", $notificationMessage, $appointmentId);
-                        $notifResult = $notifStmt->execute();
-
-                        if (!$notifResult) {
-                            error_log("Failed to insert admin notification: " . $conn->error);
-                        } else {
-                            error_log("Successfully created admin notification for appointment ID: {$appointmentId}");
-                        }
-                    } else {
-                        error_log("Could not find patient data for ID: {$patientId}");
-                    }
-                } catch (Exception $e) {
-                    // Log detailed error but don't stop the process
-                    error_log("Error creating admin notification: " . $e->getMessage());
-                    error_log("Error trace: " . $e->getTraceAsString());
-                }
-
-                // Clear form data
-                unset($_SESSION['form_data']);
-                unset($_SESSION['current_section']);
-
-                // Return success response with reference ID
-                $response['success'] = true;
-                $response['reference_id'] = $referenceNumber;
-                error_log("Appointment created successfully with ID: $appointmentId");
-            } else {
-                $response['success'] = false;
-                $response['error'] = "Database error: " . $stmt->error;
-                error_log("Database error: " . $stmt->error);
-            }
-        } else {
-            $response['success'] = false;
-            $response['errors'] = $errors;
-        }
-    } catch (Exception $e) {
-        $response['success'] = false;
-        $response['error'] = "Exception: " . $e->getMessage();
-        error_log("Exception in appointment submission: " . $e->getMessage());
-    }
-
-    // Output JSON response and exit
-    echo json_encode($response);
-
-    // Clean the output buffer and end the script
-    $debug_output = ob_get_clean();
-    if (!empty($debug_output)) {
-        error_log("Debug output captured: " . $debug_output);
-    }
-    exit;
-}
-
 // Initialize key variables
 $userData = [];
 $errors = [];
@@ -273,8 +37,7 @@ if (empty($postData) && isset($_SESSION['form_data'])) {
 
 // Fetch user data if logged in
 if (isset($_SESSION['user_id'])) {
-    $stmt = $conn->prepare("
-SELECT 
+    $stmt = $conn->prepare("SELECT 
     p.first_name, 
     p.middle_name, 
     p.last_name, 
@@ -320,52 +83,7 @@ if ($servicesResult && $servicesResult->num_rows > 0) {
         $services[] = $row;
         $servicePrices[$row['name']] = $row['price'];
     }
-} else {
-    // Fallback to hardcoded services if database fetch fails
-    $servicePrices = [
-        'Dental Check-ups & Consultation' => 500,
-        'Dental Crown' => 8000,
-        'Intraoral X-ray' => 300,
-        'Teeth Cleaning (Oral Prophylaxis)' => 1500,
-        'Dental Bridges' => 12000,
-        'Panoramic X-ray/Full Mouth X-Ray' => 1500,
-        'Tooth Extraction' => 2000,
-        'Dentures (Partial & Full)' => 15000,
-        'TMJ Treatment' => 5000,
-        'Dental Fillings (Composite)' => 1500,
-        'Root Canal Treatment' => 8000,
-        'Teeth Whitening' => 6000,
-        'Orthodontic Braces' => 40000,
-        'Dental Implant' => 50000,
-        'Gum Surgery' => 10000,
-        'Wisdom Tooth Extraction' => 5000,
-        'Pediatric Dental Care' => 1000,
-        'Dental Veneers' => 10000,
-        'Night Guard' => 4500,
-        'Dental Sealants' => 800,
-        'Full Mouth Rehabilitation' => 250000,
-        'Sleep Apnea Treatment' => 20000,
-        'Dental Emergency Care' => 1000
-    ];
 }
-
-// Fetch doctors from database
-/* $doctors = [];
-$doctorsQuery = "SELECT id, first_name, last_name, specialization, clinic_branch FROM doctors WHERE is_active = 1 ORDER BY clinic_branch, last_name";
-$doctorsResult = $conn->query($doctorsQuery);
-
-if ($doctorsResult && $doctorsResult->num_rows > 0) {
-    while ($row = $doctorsResult->fetch_assoc()) {
-        $branch = $row['clinic_branch'];
-        if (!isset($doctors[$branch])) {
-            $doctors[$branch] = [];
-        }
-        $doctors[$branch][] = $row;
-    }
-}
- */
-// Convert doctors to JSON for JavaScript
-// $doctorsJson = json_encode($doctors);
 
 // Calculate total price for selected services
 function calculateTotal($services, $prices)
@@ -378,201 +96,6 @@ function calculateTotal($services, $prices)
     }
     return $total;
 }
-
-// Form processing logic
-/* if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $section = $_POST['current_section'] ?? 'services';
-    $errors = [];
-    
-    // Validate based on current section
-    switch ($section) {
-        case 'services':
-            // At least one service must be selected
-            if (empty($_POST['services']) || !is_array($_POST['services'])) {
-                $errors['services'] = 'Please select at least one service';
-            }
-            break;
-            
-        case 'appointment':
-            // Clinic branch validation
-            if (empty($_POST['clinic_branch'])) {
-                $errors['clinic_branch'] = 'Please select a clinic branch';
-            }
-            
-            // Appointment date validation
-            if (empty($_POST['appointment_date'])) {
-                $errors['appointment_date'] = 'Please select an appointment date';
-            } elseif (strtotime($_POST['appointment_date']) < strtotime(date('Y-m-d'))) {
-                $errors['appointment_date'] = 'Appointment date cannot be in the past';
-            }
-            
-            // Appointment time validation
-            if (empty($_POST['appointment_time'])) {
-                $errors['appointment_time'] = 'Please select an appointment time';
-            } else {
-                // Check if the time slot is already booked
-                $checkBookingQuery = $conn->prepare("
-                    SELECT id FROM appointments 
-                    WHERE appointment_date = ? 
-                    AND appointment_time = ? 
-                    AND clinic_branch = ? 
-                    AND status = 'booked' OR status = 'pending')
-                ");
-                
-                $checkBookingQuery->bind_param("sss", 
-                    $_POST['appointment_date'], 
-                    $_POST['appointment_time'], 
-                    $_POST['clinic_branch']
-                );
-                
-                $checkBookingQuery->execute();
-                $bookingResult = $checkBookingQuery->get_result();
-                
-                if ($bookingResult->num_rows > 0) {
-                    $errors['appointment_time'] = 'This time slot is already booked. Please select another time.';
-                }
-            }
-            break;
-            
-        case 'payment':
-            // Payment section is informational only
-            break;
-            
-        case 'summary':
-            // Final validation before submission
-            break;
-    }
-    
-    // Handle errors or advance to next section
-    if (!empty($errors)) {
-        $_SESSION['validation_errors'] = $errors;
-        $_SESSION['form_data'] = $_POST;
-    } else {
-        // Store form data for this section
-        $_SESSION['form_data'][$section] = $_POST;
-        
-        // Clear validation errors
-        unset($_SESSION['validation_errors']);
-        
-        // Determine next section
-        $nextSection = '';
-        switch ($section) {
-            case 'services': $nextSection = 'appointment'; break;
-            case 'appointment': $nextSection = 'payment'; break;
-            case 'payment': $nextSection = 'summary'; break;
-        }
-        
-        // Update current section if advancing
-        if ($nextSection) {
-            $_SESSION['current_section'] = $nextSection;
-            $current_section = $nextSection;
-        }
-        
-        // If submitting from summary section, process the appointment booking
-        if ($section === 'summary' && isset($_POST['submit'])) {
-            // Combine all section data
-            $formData = $_SESSION['form_data'] ?? [];
-            $allData = [];
-            foreach ($formData as $sectionData) {
-                $allData = array_merge($allData, $sectionData);
-            }
-            
-            // Calculate total
-            $total = calculateTotal($allData['services'] ?? [], $servicePrices);
-            
-            // Process diseases and allergies arrays
-            $medical_history = isset($allData['diseases']) ? implode(', ', $allData['diseases']) : '';
-            $allergies = isset($allData['allergies']) ? implode(', ', $allData['allergies']) : '';
-            
-
-$stmt = $conn->prepare("
-    INSERT INTO appointments (
-        patient_id, clinic_branch, appointment_date, appointment_time, 
-        services, status, health, pregnant, nursing, birth_control, 
-        blood_pressure, blood_type, medical_history, allergies, consent, 
-        religion, nationality, occupation, dental_insurance
-    ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-    )
-");
-
-$status = 'pending';
-$services_list = !empty($allData['services']) && is_array($allData['services']) ? implode(', ', $allData['services']) : '';
-$consent = isset($allData['consent']) ? 1 : 0;
-
-$patient_id = $_SESSION['user_id'];
-$clinic_branch = $allData['clinic_branch'];
-$appointment_date = $allData['appointment_date'];
-$appointment_time = $allData['appointment_time'];
-$health = $allData['health'];
-$pregnant = isset($allData['pregnant']) ? $allData['pregnant'] : null;
-$nursing = isset($allData['nursing']) ? $allData['nursing'] : null;
-$birth_control = isset($allData['birth_control']) ? $allData['birth_control'] : null;
-$blood_pressure = $allData['blood_pressure'];
-$blood_type = $allData['blood_type'];
-$religion = $allData['religion'];
-$nationality = $allData['nationality'];
-$occupation = isset($allData['occupation']) ? $allData['occupation'] : null;
-$dental_insurance = isset($allData['dental_insurance']) ? $allData['dental_insurance'] : null;
-
-$typeString = 'issssssssssssiisss';
-
-$stmt->bind_param(
-    $typeString,
-    $patient_id,
-    $clinic_branch,
-    $appointment_date,
-    $appointment_time,
-    $services_list,
-    $status,
-    $health,
-    $pregnant,
-    $nursing,
-    $birth_control,
-    $blood_pressure,
-    $blood_type,
-    $medical_history,
-    $allergies,
-    $consent,
-    $religion,
-    $nationality,
-    $occupation,
-    $dental_insurance
-);
-
-        if ($stmt->execute()) {
-                // Get the appointment ID for reference number
-                $appointmentId = $conn->insert_id;
-                $referenceNumber = 'OIDA-' . str_pad($appointmentId, 8, '0', STR_PAD_LEFT);
-                
-                // Store appointment data in session for success page
-                $_SESSION['appointment_data'] = [
-                    'reference' => $referenceNumber,
-                    'services' => $allData['services'] ?? [],
-                    'total' => $total,
-                    'date' => $allData['appointment_date'],
-                    'time' => $allData['appointment_time'],
-                    'branch' => $allData['clinic_branch']
-                ];
-                
-                // Clear form data
-                unset($_SESSION['form_data']);
-                unset($_SESSION['current_section']);
-                
-                // Redirect to success page
-                // Commented out to favor the AJAX modal display
-                // header('Location: appointment_success.php');
-                // exit;
-                
-                // Set success message in session instead
-                $_SESSION['appointment_success'] = true;
-                $_SESSION['reference_number'] = $referenceNumber;
-        } else {
-                $errors['database'] = "Database error: " . $conn->error;
-            }
-        }
-    }
-} */
 
 // Get any stored errors
 $errors = $_SESSION['validation_errors'] ?? $errors;
@@ -597,18 +120,6 @@ foreach ($formData as $key => $value) {
 // Calculate total for selected services
 $total = calculateTotal($postData['services'] ?? [], $servicePrices);
 
-// Address for clinic branches
-$branchAddresses = [
-    'Commonwealth Branch' => '123 Commonwealth Ave, Quezon City',
-    'North Fairview Branch' => '456 North Fairview, Quezon City',
-    'Maligaya Park Branch' => '789 Maligaya Park, Quezon City',
-    'San Isidro Branch' => '101 San Isidro St, Manila',
-    'Quiapo Branch' => '202 Quiapo, Manila',
-    'Kiko Branch' => '303 Kiko Ave, Quezon City',
-    'Bagong Silang Branch' => '404 Bagong Silang, Caloocan City'
-];
-
-$branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address not available';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -617,10 +128,10 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Booking - M&A Oida Dental Clinic</title>
-    <link rel="stylesheet" href="assets/css/bookings.css?v=1.4">
+    <link rel="stylesheet" href="assets/css/bookings.css">
     <?php require_once 'includes/head.php' ?>
     <link rel="stylesheet" href="assets/css/selected-services.css">
-    <link rel="stylesheet" href="assets/css/calendar.css?v=1.0">
+    <link rel="stylesheet" href="assets/css/calendar.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         /* Success Modal Styles */
@@ -698,10 +209,9 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     <!-- Pass PHP data to JavaScript -->
     <script>
         window.servicePrices = <?php echo json_encode($servicePrices); ?>;
-        // window.doctorsJson = <?php //echo $doctorsJson; ?>;
     </script>
-    <script src="assets/js/bookings.js?v=1.1" defer></script>
-    <script src="assets/js/appointment_schedule.js?v=1.1" defer></script>
+    <script src="assets/js/bookings.js" defer></script>
+    <script src="assets/js/appointment_schedule.js" defer></script>
 
 </head>
 
@@ -766,10 +276,12 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                                 <div class="d-flex align-items-center justify-content-between">
                                     <input type="checkbox"
                                         id="service-<?php echo htmlspecialchars(preg_replace('/[^a-zA-Z0-9]/', '-', $service['name'])); ?>"
-                                        name="services[]
-                    value=" <?php echo htmlspecialchars($service['name']); ?>" <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'checked' : ''; ?> class="service-checkbox me-3">
+                                        name="services[]" value="<?php echo htmlspecialchars(string: $service['name']); ?>"
+                                        <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'checked' : ''; ?>
+                                        class="service-checkbox me-3">
                                     <div class="service-name fw-bold text-end" style="height:3em;">
-                                        <?php echo htmlspecialchars($service['name']); ?></div>
+                                        <?php echo htmlspecialchars($service['name']); ?>
+                                    </div>
 
                                 </div>
                                 <hr class="my-1">
@@ -777,7 +289,8 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
 
                                     <?php if (!empty($service['description'])): ?>
                                         <div class="service-description fs-6">
-                                            <?php echo htmlspecialchars($service['description']); ?></div>
+                                            <?php echo htmlspecialchars($service['description']); ?>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -805,18 +318,6 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
             <!-- Section 2: Appointment Scheduling -->
             <div id="section2" class="form-section <?php echo $current_section === 'appointment' ? 'active' : ''; ?>">
                 <h2>Part 2: Schedule Your Appointment</h2>
-
-                <div class="form-group">
-                    <label class="required">Clinic Branch:</label>
-                    <select id="clinic" name="clinic_branch" required>
-                        <option value="North Fairview Branch" selected>North Fairview Branch</option>
-                    </select>
-                    <?php if (isset($errors['clinic_branch'])): ?>
-                        <div class="error"><?php echo $errors['clinic_branch']; ?></div>
-                    <?php endif; ?>
-                    <div class="error-message" id="clinic-error" style="display: none;"></div>
-                </div>
-
 
                 <!-- Calendar and Time Selection -->
                 <div class="schedule-container">
@@ -857,7 +358,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                             <strong>Your Selected Appointment:</strong><br>
                             Date: Not selected<br>
                             Time: Not selected<br>
-                     
+
 
                         </div>
                     </div>
@@ -872,7 +373,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
 
                 <div class="info-text">
                     <div class="info-icon">i</div>
-                    <div>Select your preferred branch, date, and time for your appointment. Time slots shown are
+                    <div>Select your preferred date, and time for your appointment. Time slots shown are
                         available for booking.</div>
                 </div>
 
@@ -1094,27 +595,14 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
 
                     <div class="summary-title">Appointment Schedule:</div>
                     <p>
-                        <?php
-                        /*               $appointmentDate = $postData['appointment_date'] ?? '';
-                                      if ($appointmentDate) {
-                                          $formattedDate = date('F j, Y', strtotime($appointmentDate));
-                                          echo htmlspecialchars($formattedDate);
-                                      } else {
-                                          echo 'Date not selected';
-                                      } */
-                        ?>
+
                         <span id="selected-date-sched"></span>
                         at
                         <span id="selected-time-sched"></span>
-                        <!-- <?php //echo htmlspecialchars($postData['appointment_time'] ?? 'Time not selected'); ?> -->
-                    </p>
-                    <p>
-                        <span id="selected-branch"></span>
-                        <?php //echo htmlspecialchars($postData['clinic_branch'] ?? 'Branch not selected'); ?>
-                        <?php //echo htmlspecialchars($branchAddress); ?><span id="selected-address"></span>
+
                     </p>
 
-                
+
                     <div class="summary-row">
                         <div class="summary-field">
                             <label class="summary-label">Additional Notes:</label>
@@ -1309,7 +797,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
     </script>
 
     <!-- Medical History Yes/No Toggle Script -->
-    <script>
+  <!--   <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Map of radio button names to their detail row selectors
             const medicalDetailsMapping = {
@@ -1360,7 +848,7 @@ $branchAddress = $branchAddresses[$postData['clinic_branch'] ?? ''] ?? 'Address 
                 }
             });
         });
-    </script>
+    </script> -->
 
     <!-- Form Submission and Success Modal Handler -->
     <script>

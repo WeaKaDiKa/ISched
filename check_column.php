@@ -1,5 +1,5 @@
 <?php
-require_once('db.php');
+//require_once('db.php');
 
 // Check if doctor_id column exists in appointments table
 $query = "SELECT COLUMN_NAME 

@@ -8,9 +8,7 @@ function initializeCalendar() {
     const calendarContainer = document.getElementById('calendar');
     const dateInput = document.getElementById('appointment-date');
     const appointmentDatetimeInput = document.getElementById('appointment-datetime');
-    const clinicSelect = document.getElementById('clinic');
     const monthYearElement = document.querySelector('.month-year');
-/*     const doctorSelect = document.getElementById('doctor'); */
 
     if (!calendarContainer) {
         console.log('Calendar container not found. The element might not be loaded yet.');
@@ -76,7 +74,7 @@ function initializeCalendar() {
 
         // Check if date is in the past or is a weekend (Saturday = 6, Sunday = 0)
         const dayOfWeek = dateObj.getDay();
-        const isWeekend = (dayOfWeek === 0 );
+        const isWeekend = (dayOfWeek === 0);
 
         if (dateObj < today || isWeekend) {
             dayElement.classList.add('disabled');
@@ -106,21 +104,9 @@ function initializeCalendar() {
         if (document.getElementById('appointment-date-error')) {
             document.getElementById('appointment-date-error').style.display = 'none';
         }
-
+        updateTimeSlots(selectedDate);
         generateTimeSlots();
-      /*   const doctorElem = document.getElementById('doctor'); */
-        /*         const doctorIdVal = doctorElem ? doctorElem.value : ''; */
-        if (clinicSelect && clinicSelect.value) {
-            updateTimeSlots(selectedDate, clinicSelect.value);
-        } else {
-            // Disable all slots until a doctor is selected
-            document.querySelectorAll('.time-slot').forEach(slot => {
-                slot.disabled = true;
-                slot.classList.add('disabled');
-                slot.classList.remove('selected');
-                slot.title = 'Select clinic first';
-            });
-        }
+
     }
 
     // Time slot management
@@ -143,7 +129,7 @@ function initializeCalendar() {
     }
 
     // --- ENFORCE NON-CLICKABLE BOOKED SLOTS (FINALIZED) ---
-    function updateTimeSlots(selectedDate, clinicBranch) {
+    function updateTimeSlots(selectedDate) {
         document.querySelectorAll('.time-slot').forEach(slot => {
             slot.disabled = true;
             slot.classList.add('disabled');
@@ -152,7 +138,7 @@ function initializeCalendar() {
         fetch('fetch_booked_slots.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `date=${selectedDate}&branch=${encodeURIComponent(clinicBranch)}`
+            body: `date=${selectedDate}`
         })
             .then(response => response.json())
             .then(data => {
@@ -282,29 +268,21 @@ function initializeCalendar() {
 
         // Update the selected schedule display
         const selectedScheduleDisplay = document.getElementById("selected-schedule");
-          const selectedDateDisplay = document.getElementById("selected-date-sched");
-            const selectedTimeDisplay = document.getElementById("selected-time-sched");
-              const selectedBranchDisplay = document.getElementById("selected-branch");
+        const selectedDateDisplay = document.getElementById("selected-date-sched");
+        const selectedTimeDisplay = document.getElementById("selected-time-sched");
         if (selectedScheduleDisplay) {
-            const selectedBranch = clinicSelect ? clinicSelect.value || 'No branch selected' : 'No branch selected';
+
             const formattedDate = formatDate(dateInput.value);
 
-            // Get doctor information if available
-            /* const doctorText = doctorSelect ? doctorSelect.options[doctorSelect.selectedIndex].text : 'No doctor selected';
-             */
             selectedScheduleDisplay.innerHTML = `
                 <strong>Your Selected Appointment:</strong><br>
                 Date: ${formattedDate}<br>
                 Time: ${timeText}<br>
-         
-
             `;
 
-            selectedDateDisplay.innerHTML=`${formattedDate}`;
-             selectedTimeDisplay.innerHTML=`${timeText}`;
+            selectedDateDisplay.innerHTML = `${formattedDate}`;
+            selectedTimeDisplay.innerHTML = `${timeText}`;
 
-
-            // Clear any validation errors
             const errorContainer = document.getElementById('appointment-error-container');
             if (errorContainer) {
                 errorContainer.textContent = '';
@@ -371,7 +349,7 @@ function initializeCalendar() {
 
     // Navigation function to use with the validation system
     window.validateAppointment = function () {
-        const clinicBranch = clinicSelect ? clinicSelect.value : null;
+
         const isValid = validateAppointmentSelection();
         if (!isValid) return false;
 
@@ -383,49 +361,6 @@ function initializeCalendar() {
 
         return true;
     };
-
-    // Clinic selection change handler
-    if (clinicSelect) {
-        clinicSelect.addEventListener('change', function () {
-            const selectedDate = dateInput.value;
-            const branch = this.value;
-            /*             const doctorId = doctorSelect ? doctorSelect.value : ''; */
-            // Refresh slots UI
-            generateTimeSlots();
-            if (selectedDate && branch) {
-                updateTimeSlots(selectedDate, branch);
-            } else {
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.disabled = true;
-                    slot.classList.add('disabled');
-                    slot.classList.remove('selected');
-                    slot.title = 'Select date ';
-                });
-            }
-        });
-    }
-    /* 
-        // Doctor selection change handler
-        if (doctorSelect) {
-            doctorSelect.addEventListener('change', function() {
-                const selectedDate = dateInput.value;
-                const branch = clinicSelect.value;
-                const doctorId = this.value;
-                // Refresh slots UI
-                generateTimeSlots();
-                if (selectedDate && branch && doctorId) {
-                    updateTimeSlots(selectedDate, branch, doctorId);
-                } else {
-                    document.querySelectorAll('.time-slot').forEach(slot => {
-                        slot.disabled = true;
-                        slot.classList.add('disabled');
-                        slot.classList.remove('selected');
-                        slot.title = 'Select date and branch';
-                    });
-                }
-            });
-        } */
-
     // Event Listeners
     document.querySelector('.calendar-nav').addEventListener('click', (e) => {
         if (e.target.classList.contains('prev-month')) {

@@ -14,17 +14,11 @@ try {
     }
 
     // Get essential form data
-    $patientId = (int)$_SESSION['user_id'];
-    $clinicBranch = $_POST['clinic_branch'] ?? '';
+    $patientId = (int) $_SESSION['user_id'];
     $appointmentDate = $_POST['appointment_date'] ?? '';
     $appointmentTime = $_POST['appointment_time'] ?? '';
-    $doctorId = !empty($_POST['doctor_id']) ? $_POST['doctor_id'] : null;
     $services = $_POST['services'] ?? [];
-    
-    // Validate required fields
-    if (empty($clinicBranch)) {
-        $errors['clinic_branch'] = 'Clinic branch is required';
-    }
+
     if (empty($appointmentDate)) {
         $errors['appointment_date'] = 'Appointment date is required';
     }
@@ -44,9 +38,9 @@ try {
 
     // Insert appointment
     $sql = "INSERT INTO appointments (
-        patient_id, doctor_id, clinic_branch, appointment_date, appointment_time,
+        patient_id, appointment_date, appointment_time,
         services, status
-    ) VALUES (?, ?, ?, ?, ?, ?, 'pending')";
+    ) VALUES (?, ?, ?, ?, 'pending')";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -54,10 +48,8 @@ try {
     }
 
     $stmt->bind_param(
-        "iissss",
+        "isss",
         $patientId,
-        $doctorId,
-        $clinicBranch,
         $appointmentDate,
         $appointmentTime,
         $services_list

@@ -3,8 +3,6 @@ require_once('db.php');
 header('Content-Type: application/json');
 
 $date = isset($_POST['date']) ? $_POST['date'] : null;
-$branch = isset($_POST['branch']) ? $_POST['branch'] : null;
-/* $doctor_id = isset($_POST['doctor_id']) ? $_POST['doctor_id'] : null; */
 
 $response = ["available_slots" => [], "all_slots" => [], "booked_slots" => []];
 
@@ -50,12 +48,11 @@ if ($date < $currentDate) {
 }
 
 
-if ($date && $branch) {
+if ($date) {
     $stmt = $conn->prepare(
-        "SELECT appointment_time FROM appointments "
-        . " WHERE appointment_date = ? AND clinic_branch = ? AND (status = 'booked'||status = 'pending')"
+        "SELECT appointment_time FROM appointments WHERE appointment_date = ? AND (status = 'booked'||status = 'pending')"
     );
-    $stmt->bind_param('ss', $date, $branch);
+    $stmt->bind_param('s', $date);
     $stmt->execute();
     $result = $stmt->get_result();
     $booked = [];
@@ -70,7 +67,7 @@ if ($date && $branch) {
 }
 
 // If not enough info, return all slots as unavailable
-if (!$date || !$branch) {
+if (!$date) {
     $response['available_slots'] = [];
 }
 

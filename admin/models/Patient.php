@@ -44,10 +44,10 @@ class Patient {
 
     public function getPatientAppointments($patientId) {
         try {
-            $query = "SELECT a.*, s.service_name, d.name as doctor_name
+            $query = "SELECT a.*, s.service_name, 
                      FROM appointments a 
                      LEFT JOIN services s ON a.service_id = s.id
-                     LEFT JOIN doctors d ON a.doctor_id = d.id
+                   
                      WHERE a.patient_id = :patient_id 
                      ORDER BY a.appointment_date DESC, a.time_slot DESC";
             
@@ -65,7 +65,7 @@ class Patient {
             $query = "SELECT t.*, s.service_name, d.name as doctor_name
                      FROM treatments t
                      LEFT JOIN services s ON t.service_id = s.id
-                     LEFT JOIN doctors d ON t.doctor_id = d.id
+
                      WHERE t.patient_id = :patient_id 
                      ORDER BY t.treatment_date DESC, t.treatment_time DESC";
             

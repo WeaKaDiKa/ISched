@@ -344,7 +344,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                     <button
                                                         class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
                                                         type="button" title="Details"
-                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch'] ?? 'Maligaya Park Branch') ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
+                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
                                                         Details
                                                     </button>
                                                 </td>
@@ -528,7 +528,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                     <button
                                                         class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
                                                         type="button" title="Details"
-                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch']) ?>','<?= htmlspecialchars($row['status']) ?>')">
+                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['status']) ?>')">
                                                         Details
                                                     </button>
                                                 </td>

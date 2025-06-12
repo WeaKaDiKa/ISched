@@ -40,10 +40,8 @@ try {
 
     // Get form data
     $patientId = (int) $_SESSION['user_id'];
-    $clinicBranch = $_POST['clinic_branch'] ?? '';
     $appointmentDate = $_POST['appointment_date'] ?? '';
     $appointmentTime = format_ampm($_POST['appointment_time']) ?? '';
-    // $doctorId = !empty($_POST['doctor_id']) ? $_POST['doctor_id'] : null;
 
     // Get services
     $services = $_POST['services'] ?? [];
@@ -68,11 +66,6 @@ try {
             break;
 
         case 'appointment':
-            // Clinic branch validation
-            if (empty($_POST['clinic_branch'])) {
-                $errors['clinic_branch'] = 'Please select a clinic branch';
-            }
-
             // Appointment date validation
             if (empty($_POST['appointment_date'])) {
                 $errors['appointment_date'] = 'Please select an appointment date';
@@ -89,7 +82,6 @@ try {
                     SELECT id FROM appointments 
                     WHERE appointment_date = ? 
                     AND appointment_time = ? 
-                    AND clinic_branch = ? 
                     AND (status = 'booked' OR status = 'pending')
                 ");
 
@@ -97,7 +89,6 @@ try {
                     "sss",
                     $_POST['appointment_date'],
                     $appointmentTime,
-                    $_POST['clinic_branch']
                 );
 
                 $checkBookingQuery->execute();
@@ -124,9 +115,9 @@ try {
     }
     // Insert appointment into database
     $sql = "INSERT INTO appointments (
-    patient_id, clinic_branch, appointment_date, appointment_time,
-    services, status, consent, blood_type
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    patient_id, appointment_date, appointment_time,
+    services, status, consent
+) VALUES (?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -134,15 +125,13 @@ try {
     }
 
     $stmt->bind_param(
-        "isssssis",
+        "issssi",
         $patientId,
-        $clinicBranch,
         $appointmentDate,
         $appointmentTime,
         $services_list,
         $status,
-        $consent,
-        $blood_type
+        $consent
     );
 
 

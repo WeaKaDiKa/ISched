@@ -222,142 +222,147 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sign Up - ISched of M&A Oida Dental Clinic</title>
     <?php require_once 'includes/head.php' ?>
     <script src="assets/js/signup.js"></script>
-    <link rel="stylesheet" href="assets/css/signup.css?v=2.1">
+    <link rel="stylesheet" href="assets/css/signup.css">
 
 </head>
 
 <body>
 
-    <div class="container">
-        <div class="signup-box">
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="signup-container">
             <!-- HEADER: logo + title -->
             <div class="signup-header">
                 <img src="assets/photos/logo-2.png" alt="Clinic Logo" class="signup-logo">
-                <h2>Sign Up</h2>
+                <h2 class="signup-title">Sign Up</h2>
             </div>
 
             <form id="signupForm" action="signup.php" method="POST">
-                <div class="input-group">
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>First Name:</label>
-                        <input type="text" name="first_name" placeholder="ex. Juan" required>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label required-field">First Name</label>
+                        <input type="text" class="form-control form-input" name="first_name" placeholder="ex. Juan"
+                            required>
                     </div>
-                    <div class="input-box">
-                        <label>Middle Name:</label>
-                        <input type="text" name="middle_name" placeholder="ex. Medrano">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Last Name:</label>
-                        <input type="text" name="last_name" placeholder="ex. Dela Cruz" required>
-                    </div>
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Email:</label>
-                        <input type="email" name="email" placeholder="ex. Juandelacruz@gmail.com" required>
+                    <div class="col-md-6">
+                        <label class="form-label">Middle Name</label>
+                        <input type="text" class="form-control form-input" name="middle_name" placeholder="ex. Medrano">
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Phone Number:</label>
-                        <input type="text" name="phone_number" placeholder="ex. 09123456789" required>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Last Name</label>
+                        <input type="text" class="form-control form-input" name="last_name" placeholder="ex. Dela Cruz"
+                            required>
                     </div>
-                    <div class="input-box">
-                        <label for="region"><strong style="color: red;">*</strong>Region:</label>
-                        <select id="region" name="region">
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Email</label>
+                        <input type="email" class="form-control form-input" name="email"
+                            placeholder="ex. Juandelacruz@gmail.com" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Phone Number</label>
+                        <input type="text" class="form-control form-input" name="phone_number"
+                            placeholder="ex. 09123456789" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="region" class="form-label required-field">Region</label>
+                        <select id="region" class="form-select form-input" name="region" required>
                             <option value="">Select a Region</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <div class="input-box">
-                        <label for="province"><strong style="color: red;">*</strong>Province:</label>
-                        <select id="province" name="province">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="province" class="form-label required-field">Province</label>
+                        <select id="province" class="form-select form-input" name="province" required>
                             <option value="">Select a Province</option>
                         </select>
                     </div>
-                    <div class="input-box">
-                        <label for="city"><strong style="color: red;">*</strong>City/Municipality:</label>
-                        <select id="city" name="city">
+                    <div class="col-md-6">
+                        <label for="city" class="form-label required-field">City/Municipality</label>
+                        <select id="city" class="form-select form-input" name="city" required>
                             <option value="">Select a City/Municipality</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <div class="input-box">
-                        <label for="barangay"><strong style="color: red;">*</strong>Barangay:</label>
-                        <select id="barangay" name="barangay">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="barangay" class="form-label required-field">Barangay</label>
+                        <select id="barangay" class="form-select form-input" name="barangay" required>
                             <option value="">Select a Barangay</option>
                         </select>
                     </div>
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Zip Code:</label>
-                        <input type="text" name="zip_code" placeholder="Enter a Zip Code" required>
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Zip Code</label>
+                        <input type="text" class="form-control form-input" name="zip_code"
+                            placeholder="Enter a Zip Code" required>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Date of Birth:</label>
-                        <input type="date" name="date_of_birth" required>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Date of Birth</label>
+                        <input type="date" class="form-control form-input" name="date_of_birth" required>
                     </div>
-
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Gender:</label>
-                        <select name="gender" required>
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Gender</label>
+                        <select class="form-select form-input" name="gender" required>
                             <option value="">Select a Gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                             <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                     </div>
+                </div>
 
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Password:</label>
-                        <div class="password-container">
-                            <input type="password" id="signup-password" name="password"
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label required-field">Password</label>
+                        <div class="position-relative">
+                            <input type="password" id="signup-password" class="form-control form-input" name="password"
                                 placeholder="Enter your Password" required>
-                            <span class="toggle-password" onclick="togglePassword('signup-password')">
+                            <button type="button" class="password-toggle" onclick="togglePassword('signup-password')">
                                 <i class="fas fa-eye" id="signup-password-eye"></i>
-                            </span>
+                            </button>
                         </div>
                     </div>
-                </div>
+                    <div class="col-md-6 ">
+                        <label class="form-label required-field">Confirm Password</label>
+                        <div class="position-relative">
 
-                <div class="input-group">
-                    <div class="input-box">
-                        <label><strong style="color: red;">*</strong>Confirm Password:</label>
-                        <div class="password-container">
-                            <input type="password" id="confirm-password" name="confirm_password"
-                                placeholder="Re-type your Password" required>
-                            <span class="toggle-password" onclick="togglePassword('confirm-password')">
+                            <input type="password" id="confirm-password" class="form-control form-input"
+                                name="confirm_password" placeholder="Re-type your Password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('confirm-password')">
                                 <i class="fas fa-eye" id="confirm-password-eye"></i>
-                            </span>
+
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="terms">
-                    <input type="checkbox" required>
-                    <label>
-                        I agree to the
-                        <a href="#" onclick="openTermsModal(); return false;">Terms &amp; Conditions</a>
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                    <label class="form-check-label" for="termsCheck">
+                        I agree to the <a href="#" onclick="openTermsModal(); return false;">Terms & Conditions</a>
                     </label>
                 </div>
 
-                <button type="submit">Sign Up</button>
-                <p class="login-link">Already have an account? <a href="login.php">Log In</a></p>
+                <button type="submit" class="btn btn-signup mb-3">Sign Up</button>
+                <p class="text-center">Already have an account? <a href="login.php">Log In</a></p>
             </form>
         </div>
     </div>
+
 
     <!-- Terms Modal -->
     <div id="termsModal" class="modal">
@@ -669,18 +674,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // Function to toggle password visibility
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(inputId + '-eye');
-            if (input.type === 'password') {
-                input.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
+        // Function to toggle password visibility 
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById(`${fieldId}-eye`);
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
-                input.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
+                field.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
     </script>

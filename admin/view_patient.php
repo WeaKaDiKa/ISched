@@ -55,9 +55,8 @@ $patient = $patientResult->fetch_assoc();
 // Get patient's appointments (both pending and approved)
 $appointmentsQuery = "SELECT a.*, 
                      CONCAT('APP-', LPAD(a.id, 6, '0')) as reference_number,
-                     d.first_name as doctor_first_name, d.last_name as doctor_last_name
                      FROM appointments a 
-                     LEFT JOIN doctors d ON a.doctor_id = d.id
+  
                      WHERE a.patient_id = ? 
                      ORDER BY a.appointment_date DESC, a.appointment_time DESC";
 $appointmentsStmt = $conn->prepare($appointmentsQuery);
@@ -302,9 +301,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                 <th scope="col"
                                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Services</th>
-                                                <th scope="col"
-                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Doctor</th>
+                                             
                                                 <th scope="col"
                                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Status</th>
@@ -330,15 +327,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                         }
                                                         ?>
                                                     </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        <?php
-                                                        if (!empty($appointment['doctor_first_name']) && !empty($appointment['doctor_last_name'])) {
-                                                            echo 'Dr. ' . htmlspecialchars($appointment['doctor_first_name'] . ' ' . $appointment['doctor_last_name']);
-                                                        } else {
-                                                            echo 'Not assigned';
-                                                        }
-                                                        ?>
-                                                    </td>
+                                                  
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <?php
                                                         $statusClass = '';

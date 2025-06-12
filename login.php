@@ -1,8 +1,4 @@
 <?php
-// Clean output buffer before starting
-while (ob_get_level() > 0)
-    ob_end_clean();
-
 
 require 'db.php';
 
@@ -63,10 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if (!password_verify($password, $user['password_hash'])) {
                     $attempt--;
 
-           
+
                     $attempt = max($attempt, 0);
 
-        
+
                     $updateStmt = $conn->prepare("UPDATE patients SET attemptleft = ? WHERE email = ?");
                     $updateStmt->bind_param("is", $attempt, $login_id);
                     $updateStmt->execute();
@@ -80,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         throw new Exception("Invalid password. You have $attempt attempts left");
                     }
                 } else {
-       
+
                     $updateStmt = $conn->prepare("UPDATE patients SET attemptleft = 3 WHERE email = ?");
                     $updateStmt->bind_param("s", $login_id);
                     $updateStmt->execute();
@@ -116,10 +112,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (!password_verify($password, $user['password'])) {
                 $attempt--;
 
-       
+
                 $attempt = max($attempt, 0);
 
-    
+
                 $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = ? WHERE admin_id = ?");
                 $updateStmt->bind_param("is", $attempt, $login_id);
                 $updateStmt->execute();
@@ -212,52 +208,83 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - ISched of M&A Oida Dental Clinic</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=2.1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
     <script src="assets/js/script.js"></script>
 </head>
 
 <body>
-    <div class="login-container">
-        <!-- Back Arrow -->
-        <a href="index.php" class="back-arrow">
-            <i class="fas fa-arrow-left"></i>
-        </a>
+    <!-- Back Arrow -->
+    <a href="index.php" class="back-arrow">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="container">
+        <div class="login-wrapper">
+            <div class="login-card">
+                <div class="text-center mb-4">
+                    <img src="assets/photos/logo-2.png" alt="Clinic Logo" class="login-logo mb-3">
+                    <h2 class="login-title">Login</h2>
+                </div>
 
-        <div class="login-box">
-            <!-- HEADER: logo + title -->
-            <div class="login-header">
-                <img src="assets/photos/logo-2.png" alt="Clinic Logo" class="login-logo">
-                <h2>Login</h2>
+                <form id="login-form" action="login.php" method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">Email:</label>
+                        <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-semibold">Password:</label>
+                        <div class="position-relative">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="password-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
+
+                    <div class="mb-3 text-end">
+                        <a href="forgotpassword.php" class="forgot-password">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-login w-100 mb-3">Login</button>
+
+                    <p class="text-center">Don't have an account? <a href="signup.php" class="fw-semibold">Sign Up</a>
+                    </p>
+                </form>
             </div>
-
-            <form id="login-form" action="login.php" method="POST">
-                <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" required>
-
-                <label for="password">Password:</label>
-                <div class="password-container">
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    <span class="toggle-password" onclick="togglePassword('password')">
-                        <i class="fas fa-eye" id="password-eye"></i>
-                    </span>
-                </div>
-
-                <!-- REMEMBER ME -->
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Remember me</label>
-                </div>
-
-                <a href="forgotpassword.php" class="forgot-password">Forgot Password?</a>
-
-                <button type="submit" class="login-btn">Login</button>
-
-                <p>Don't have an account? <a href="signup.php">Sign Up</a></p>
-            </form>
         </div>
     </div>
-</body>
 
-</html>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById(`${fieldId}-eye`);
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                field.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
+</body>

@@ -122,18 +122,6 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 gap: 8px;
             }
 
-            /* Improve modal layout */
-            .modal-content {
-                width: 95% !important;
-                margin: 10px auto;
-                border-radius: 8px;
-            }
-
-            .modal-body {
-                padding: 15px;
-                max-height: 70vh;
-                overflow-y: auto;
-            }
 
 
             /* Improve calendar view */
@@ -344,7 +332,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                     <button
                                                         class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
                                                         type="button" title="Details"
-                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['clinic_branch'] ?? 'Maligaya Park Branch') ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
+                                                        onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
                                                         Details
                                                     </button>
                                                 </td>
@@ -397,7 +385,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                     $sql = "SELECT a.*, p.first_name, p.middle_name, p.last_name 
         FROM appointments a 
         LEFT JOIN patients p ON a.patient_id = p.id 
-        WHERE a.status IN ('upcoming', 'booked') 
+        WHERE a.status IN ('booked') 
         ORDER BY a.appointment_date ASC, a.appointment_time ASC";
                                     $result = $conn->query($sql);
 
@@ -429,8 +417,8 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                     <button
                                                         class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded px-2 py-1"
                                                         type="button" title="Mark as Done"
-                                                        onclick="updateAppointmentStatus('completed', '', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>')"><i
-                                                            class="fas fa-check"></i> Done
+                                                        onclick="showConfirmModal('completed', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')">
+                                                        <i class="fas fa-check"></i> Done
                                                     </button>
                                                     <button
                                                         class="bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold rounded px-2 py-1 ml-1"
@@ -791,7 +779,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
     </div>
 
     <!-- Success Modal -->
-    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+    <div id="successModalA" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
             <div class="text-center">
                 <div class="mb-4">
@@ -849,7 +837,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
         // Default: show pending
         showSection('pending');
 
-        function showDetailsModal(bookingId, patientName, service, date, time, branch, status) {
+        function showDetailsModal(bookingId, patientName, service, date, time, status) {
             document.getElementById('detailsContent').innerHTML = `
             <h2 class="text-lg font-bold mb-2">Appointment Details</h2>
             <div><b>Booking ID:</b> ${bookingId}</div>
@@ -857,7 +845,6 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             <div><b>Service:</b> ${service}</div>
             <div><b>Date:</b> ${date}</div>
             <div><b>Time:</b> ${time}</div>
-            <div><b>Clinic Branch:</b> ${branch}</div>
             <div><b>Status:</b> ${status}</div>
         `;
             document.getElementById('detailsModal').classList.remove('hidden');
@@ -866,7 +853,6 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             document.getElementById('detailsModal').classList.add('hidden');
         }
 
-        // Modal logic and appointment actions (from dashboard.js, adapted for appointments.php)
         let currentAction = '';
         let currentPatient = '';
         let currentDate = '';
@@ -894,6 +880,11 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             if (action === 'approve') {
                 modalTitle.textContent = 'Confirm Approval of Appointment';
                 actionText.textContent = 'approve';
+                actionText.className = 'font-semibold text-green-600';
+                submitButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors';
+            } else if (action === 'completed') {
+                modalTitle.textContent = 'Confirm Completion of Appointment';
+                actionText.textContent = 'complete';
                 actionText.className = 'font-semibold text-green-600';
                 submitButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors';
             } else {
@@ -933,7 +924,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 setTimeout(() => { showReasonModal(); }, 300);
             } else {
                 // Approve: send AJAX to backend
-                updateAppointmentStatus('approve');
+                updateAppointmentStatus(currentAction);
             }
         }
         function handleReasonSubmit() {
@@ -948,7 +939,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             updateAppointmentStatus('decline', currentReason, currentBookingRef, currentPatient, currentDate, currentTime);
         }
         function showSuccessModal() {
-            const modal = document.getElementById('successModal');
+            const modal = document.getElementById('successModalA');
             const successIcon = document.getElementById('successIcon');
             const successTitle = document.getElementById('successTitle');
             const successAction = document.getElementById('successAction');
@@ -959,6 +950,11 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             if (currentAction === 'approve') {
                 successIcon.className = 'fas fa-check-circle text-5xl text-green-500';
                 successTitle.textContent = 'Approval Successful!';
+                successAction.textContent = 'approved';
+                successButton.className = 'px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors';
+            } else if (currentAction === 'completed') {
+                successIcon.className = 'fas fa-check-circle text-5xl text-green-500';
+                successTitle.textContent = 'Appointment Completed!';
                 successAction.textContent = 'approved';
                 successButton.className = 'px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors';
             } else {
@@ -973,10 +969,10 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             // Force reload after short delay
-            setTimeout(() => { location.reload(); }, 1200);
+            //setTimeout(() => { location.reload(); }, 1200);
         }
         function hideSuccessModal() {
-            const modal = document.getElementById('successModal');
+            const modal = document.getElementById('successModalA');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             // Optionally reload the page to update the table
@@ -1016,7 +1012,9 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 body: formData
             })
                 .then(response => response.json())
+
                 .then(data => {
+                    console.log(data)
                     if (data.success) {
                         showSuccessModal();
                     } else {

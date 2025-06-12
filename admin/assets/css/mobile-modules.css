@@ -93,31 +93,12 @@
         flex: none;
     }
 
-    /* Modals */
-    .modal-content {
-        margin: 10px;
-        width: calc(100% - 20px) !important;
-    }
-
-    .modal-header {
-        padding: 15px !important;
-    }
 
     .modal-body {
-        padding: 15px !important;
         max-height: 70vh;
         overflow-y: auto;
     }
 
-    .modal-footer {
-        padding: 15px !important;
-        flex-direction: column;
-    }
-
-    .modal-footer .btn {
-        width: 100%;
-        margin: 5px 0;
-    }
 }
 
 /* Module-specific mobile styles */

@@ -589,39 +589,6 @@ function validateAppointment() {
   console.log('Validating Appointment Section');
   let isValid = true;
   
-  // Validate clinic branch selection
-  const clinicBranch = document.querySelector('select[name="clinic_branch"]');
-  const clinicError = document.getElementById('clinic-error');
-  
-  if (!clinicBranch || !clinicBranch.value) {
-    isValid = false;
-    if (clinicError) {
-      clinicError.textContent = 'Please select a clinic branch';
-      clinicError.style.display = 'block';
-    } else {
-      showError(clinicBranch, 'Please select a clinic branch');
-    }
-  } else if (clinicError) {
-    clinicError.style.display = 'none';
-  }
-  
-  // Validate doctor selection - ALWAYS required
-  /* 
-  const doctorSelect = document.getElementById('doctor');
-  const doctorError = document.getElementById('doctor-error');
-  
-  if (!doctorSelect || !doctorSelect.value) {
-      isValid = false;
-      if (doctorError) {
-        doctorError.textContent = 'Please select a doctor';
-        doctorError.style.display = 'block';
-      } else {
-        showError(doctorSelect, 'Please select a doctor');
-      }
-    } else if (doctorError) {
-      doctorError.style.display = 'none';
-  } */
-  
   // Validate appointment date and time
   const appointmentDate = document.getElementById('appointment-date');
   const timeSlot = document.querySelector('.time-slot.selected');
@@ -974,43 +941,9 @@ function initAppointmentSelections() {
     });
   }
   
-  // Initialize doctor container visibility
- /*  const doctorContainer = document.getElementById('doctor-container');
-  if (doctorContainer) {
-    doctorContainer.style.display = 'none';
-  } */
+
 }
 
-/* function updateDoctorOptions(branch) {
-  const doctorContainer = document.getElementById('doctor-container');
-  const doctorSelect = document.getElementById('doctor');
-  
-  if (!doctorContainer || !doctorSelect || !window.doctorsJson) return;
-  
-  // Clear current options
-  doctorSelect.innerHTML = '<option value="">Select a Doctor</option>';
-  
-  // If no branch selected, hide doctor selection
-  if (!branch) {
-    doctorContainer.style.display = 'none';
-    return;
-  }
-  
-  // Get doctors for this branch
-  const doctors = window.doctorsJson[branch] || [];
-  
-  // Add doctor options
-  doctors.forEach(doctor => {
-    const option = document.createElement('option');
-    option.value = doctor.id;
-    option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} (${doctor.specialization})`;
-    doctorSelect.appendChild(option);
-  });
-  
-  // Always show doctor selection
-  doctorContainer.style.display = 'block';
-}
- */
 function calculateTotal() {
   const selectedServices = document.querySelectorAll('.service-checkbox:checked');
   let total = 0;
@@ -1100,21 +1033,11 @@ function updatePaymentSummary() {
 
 function updateAppointmentHiddenFields() {
   // Get selected values
-  const branch = document.getElementById('clinic')?.value || '';
   const date = document.getElementById('appointment-date')?.value || '';
   const timeSlot = document.querySelector('.time-slot.selected');
   const time = timeSlot ? timeSlot.textContent.trim() : '';
-/*   const doctorId = document.getElementById('doctor')?.value || ''; */
-  
-  // Get doctor name for display purposes
-/*   const doctorSelect = document.getElementById('doctor');
-  const doctorName = doctorSelect && doctorSelect.selectedIndex > 0 ? 
-                     doctorSelect.options[doctorSelect.selectedIndex].text : 
-                     'No doctor selected'; */
-  
   // Update hidden fields
   const hiddenFields = {
-    'clinic_branch': branch,
     'appointment_date': date,
     'appointment_time': time
   };
@@ -1150,7 +1073,6 @@ function updateAppointmentHiddenFields() {
       <strong>Your Selected Appointment:</strong><br>
       Date: ${formattedDate}<br>
       Time: ${time}<br>
-      Branch: ${branch}<br>
     `;
   }
 }
@@ -1444,22 +1366,12 @@ function prepareSummaryView() {
   console.log('Updating appointment details...');
   
   // Get appointment values
-  const clinicBranch = document.querySelector('select[name="clinic_branch"]')?.value || '';
   const appointmentDate = document.getElementById('appointment-date')?.value || '';
   const appointmentTime = document.querySelector('.time-slot.selected')?.textContent?.trim() || 
                          document.querySelector('input[name="appointment_time"]')?.value || '';
   
-  console.log('Appointment values:', { clinicBranch, appointmentDate, appointmentTime });
+  console.log('Appointment values:', {appointmentDate, appointmentTime });
   
-  // Get doctor information
-/*   const doctorSelect = document.getElementById('doctor');
-  let doctorName = 'No doctor selected';
-  
-  if (doctorSelect && doctorSelect.selectedIndex > 0) {
-    doctorName = doctorSelect.options[doctorSelect.selectedIndex].text;
-    console.log('Selected doctor:', doctorName);
-  }
-   */
   // Format the date
   let formattedDate = 'Date not selected';
   if (appointmentDate) {
@@ -1484,8 +1396,6 @@ function prepareSummaryView() {
     
     // Find or create elements
     let dateElement = appointmentSection.querySelector('p:nth-of-type(1)');
-    let branchElement = appointmentSection.querySelector('p:nth-of-type(2)');
-/*     let doctorElement = appointmentSection.querySelector('p:nth-of-type(3)'); */
     
     // Update or create date element
     if (dateElement) {
@@ -1504,7 +1414,7 @@ function prepareSummaryView() {
       }
     }
     
-    // Update or create branch element
+/*     // Update or create branch element
     if (branchElement) {
       branchElement.textContent = clinicBranch || 'Branch not selected';
     } else {
@@ -1520,7 +1430,7 @@ function prepareSummaryView() {
         }
       }
     }
-    
+     */
     // Update or create doctor element
  /*    if (doctorElement) {
       doctorElement.textContent = doctorName;

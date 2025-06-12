@@ -1,302 +1,110 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #8fbaf3;
+            min-height: 100vh;
+        }
 
-body {
-    font-family: "Poppins", sans-serif;
-    background-color: #8fbaf3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-.login-container {
-    display: flex;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    gap: 120px;
-}
+        .login-card {
+            width: 100%;
+            max-width: 600px;
+            border: 4px solid #6b42a5;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 30px;
+        }
 
-.login-box {
-    padding: 30px;
-    border: 4px solid #6b42a5;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
-    text-align: center;
-    width: 500px;
-    border-radius: 14px;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-}
+        .login-logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 3px solid #6b42a5;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
 
-#login-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+        .login-title {
+            font-weight: 700;
+            color: #000;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
 
-#login-form>* {
-    width: 100%;
-    box-sizing: border-box;
-}
+        .login-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background-color: #854ba2;
+            margin: 6px auto 0;
+        }
 
-.login-box label {
-    display: block;
-    font-weight: 600;
-    color: black;
-    margin-bottom: 4px;
-    text-align: left;
-}
+        .form-control {
+            background-color: #f7faff;
+            border: 1.5px solid #b3ccfc;
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
 
-.login-box input {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-    border: 1.5px solid #b3ccfc;
-    border-radius: 8px;
-    font-size: 1rem;
-    background: #f7faff;
-    transition: border 0.2s;
-    box-sizing: border-box;
-}
+        .form-control:focus {
+            border-color: #6b42a5;
+            background-color: #f7faff;
+            box-shadow: none;
+        }
 
-.login-box input {
-    border: 1.5px solid #6b42a5;
-    outline: none;
-}
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6b42a5;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
 
-.password-container {
-    position: relative;
-    width: 100%;
-}
+        .btn-login {
+            background-color: #6b42a5;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s;
+        }
 
-.password-container input {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-    border: 1.5px solid #b3ccfc;
-    border-radius: 8px;
-    font-size: 1rem;
-    background: #f7faff;
-    transition: border 0.2s;
-    box-sizing: border-box;
-}
+        .btn-login:hover {
+            background-color: #57378c;
+            color: white;
+        }
 
-.password-container input:focus {
-    border: 1.5px solid #6b42a5;
-    outline: none;
-}
+        .forgot-password {
+            color: #6b42a5;
+            text-decoration: none;
+        }
 
-.toggle-password {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #6b42a5;
-    margin-top: -5px;
-    font-size: 1rem;
-    background: transparent;
-    border: none;
-    padding: 0;
-}
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
 
-.toggle-password:hover {
-    color: #8055aa;
-}
+        .back-arrow {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            z-index: 1000;
+        }
 
-.remember-me {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 12px;
-    font-size: 0.95rem;
-    color: black;
-}
-
-.remember-me input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-}
-
-.remember-me label {
-    margin: 0;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.login-btn {
-    width: 100%;
-    padding: 12px;
-    background: #6b42a5;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    font-family: "Poppins", sans-serif;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    transition: background 0.2s;
-}
-
-.login-btn:hover {
-    background: #57378c;
-}
-
-.forgot-password {
-    display: block;
-    text-align: right;
-    margin-bottom: 10px;
-    color: #6b42a5;
-    text-decoration: none;
-    font-size: 0.98rem;
-}
-
-.forgot-password:hover {
-    text-decoration: underline;
-}
-
-.login-box p {
-    margin-top: 10px;
-    font-size: 1rem;
-}
-
-.login-box a {
-    color: blue;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-/* New header styles for login box */
-.login-header {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
-    justify-content: center;
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-.login-logo {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-    border-radius: 50%;
-    border: 3px solid #6b42a5;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
-}
-
-.login-header h2 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 700;
-    color: black;
-    position: relative;
-}
-
-.login-header h2::after {
-    content: '';
-    display: block;
-    width: 80px;
-    height: 2px;
-    background-color: #854ba2;
-    margin-top: 6px;
-    margin-left: 5px;
-}
-
-.back-arrow {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 24px;
-    color: #2c3e50;
-    text-decoration: none;
-    transition: color 0.3s ease;
-    z-index: 2;
-}
-
-.back-arrow:hover {
-    color: #3498db;
-}
-
-.fa-arrow-left {
-    font-size: 1.5em;
-    vertical-align: middle;
-}
-
-/*==============================LOGIN RESPONSIVENESS=====================================*/
-
-/* Responsive tweaks */
-@media (max-width: 768px) {
-
-    /* Container fills almost the whole screen */
-    .login-container {
-        flex-direction: column;
-        align-items: center;
-        margin: 0;
-        /* remove that hard-coded left margin */
-        width: 100vw;
-        /* full viewport width */
-        max-width: 100%;
-        padding: 0 16px;
-        /* small side padding so it’s not flush edge-to-edge */
-        box-sizing: border-box;
-        gap: 20px;
-    }
-
-    /* Login box fills its container */
-    .login-box {
-        width: 100%;
-        max-width: 400px;
-        /* cap so it never gets too wide */
-        padding: 20px;
-        border-width: 2px;
-    }
-}
-
-@media (max-width: 480px) {
-
-    /* Further tighten up for small phones */
-    .login-box {
-        padding: 16px;
-    }
-
-    .login-header h2 {
-        font-size: 1.4rem;
-    }
-
-    .login-logo {
-        width: 50px;
-        height: 50px;
-    }
-
-    #login-form {
-        gap: 8px;
-    }
-
-    .login-btn {
-        padding: 10px;
-        font-size: 1rem;
-    }
-
-    /* Ensure back-arrow is always on top-left and visible */
-    .back-arrow {
-        position: fixed;
-        top: 12px;
-        left: 12px;
-        font-size: 1.2rem;
-        z-index: 999;
-    }
-}
-
-/*==============================LOGIN RESPONSIVENESS=====================================*/
+        .back-arrow:hover {
+            color: #3498db;
+        }

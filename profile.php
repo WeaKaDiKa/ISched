@@ -47,7 +47,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
   <?php require_once 'includes/head.php' ?>
   <style>
     /* Password Change Modal Styles */
-    .modal {
+/*     .modal {
       display: none;
       position: fixed;
       z-index: 1000;
@@ -78,7 +78,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       font-size: 20px;
       margin: 0;
     }
-
+ */
     .error-message {
       color: #d9534f;
       font-size: 14px;

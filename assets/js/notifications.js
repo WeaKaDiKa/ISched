@@ -80,14 +80,14 @@ document.addEventListener('DOMContentLoaded', function () {
         header.className = 'notification-header';
         header.innerHTML = `
             <div class="notification-title">Notifications</div>
-            ${unreadCount > 0 ? '<div class="mark-all-read">Mark all as read</div>' : ''}
+            ${unreadCount > 0 ? '<div class="mark-all-read ms-5">Mark all as read</div>' : ''}
         `;
         notificationDropdown.appendChild(header);
 
         // Add notifications or empty message
         if (notifications.length === 0) {
             const emptyMessage = document.createElement('div');
-            emptyMessage.className = 'empty-message';
+            emptyMessage.className = 'empty-message m-5 text-center';
             emptyMessage.textContent = 'No notifications yet';
             notificationDropdown.appendChild(emptyMessage);
         } else {
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Add view all link
             const viewAll = document.createElement('div');
             viewAll.className = 'view-all';
-            viewAll.innerHTML = '<a href="notifications.php">View all notifications</a>';
+            viewAll.innerHTML = '<a href="notifications.php" class="text-center">View all notifications</a>';
             notificationDropdown.appendChild(viewAll);
         }
 

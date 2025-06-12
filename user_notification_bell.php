@@ -56,7 +56,7 @@ if (isset($_SESSION['user_id'])) {
     </button>
 
     <!-- Notification Dropdown -->
-    <div class="notification-dropdown" id="notificationDropdown">
+    <div class="notification-dropdown overflow-y-scroll" id="notificationDropdown">
         <div class="notification-header">
             <span>Notifications</span>
         </div>
@@ -78,10 +78,10 @@ if (isset($_SESSION['user_id'])) {
                     $timeAgo = $daysAgo > 0 ? $daysAgo . ' day' . ($daysAgo > 1 ? 's' : '') . ' ago' : 'Today';
                     ?>
 
-                    <div class="notification-item" data-id="<?php echo $notification['id']; ?>">
-                        <div class="notification-content">
+                    <div class="notification-item <?php echo $notification['is_read'] ? '' : 'unread'; ?>" data-id="<?php echo $notification['id']; ?>">
+                        <div class="notification-content d-flex justify-content-between">
                             <?php echo htmlspecialchars($notification['message']); ?>
-                            <div class="notification-time"><?php echo $timeAgo; ?></div>
+                            <div class="notification-time ms-5"><?php echo $timeAgo; ?></div>
                         </div>
                     </div>
                 <?php endforeach; ?>

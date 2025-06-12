@@ -16,13 +16,13 @@ class Appointment {
                             p.name as patient_name, 
                             p.profile_photo,
                             s.service_name,
-                            d.name as doctor_name,
+                       
                             ts.start_time,
                             ts.end_time
                      FROM " . $this->table . " a
                      LEFT JOIN patients p ON a.patient_id = p.id
                      LEFT JOIN services s ON a.service_id = s.id
-                     LEFT JOIN doctors d ON a.doctor_id = d.id
+            
                      LEFT JOIN time_slots ts ON a.time_slot = ts.id
                      WHERE a.status = 'approved'
                      ORDER BY a.appointment_date ASC, ts.start_time ASC";
@@ -42,13 +42,13 @@ class Appointment {
                             p.name as patient_name, 
                             p.profile_photo,
                             s.service_name,
-                            d.name as doctor_name,
+          
                             ts.start_time,
                             ts.end_time
                      FROM " . $this->table . " a
                      LEFT JOIN patients p ON a.patient_id = p.id
                      LEFT JOIN services s ON a.service_id = s.id
-                     LEFT JOIN doctors d ON a.doctor_id = d.id
+      
                      LEFT JOIN time_slots ts ON a.time_slot = ts.id
                      WHERE a.status = 'approved' 
                      AND a.appointment_date >= :today
@@ -67,14 +67,14 @@ class Appointment {
         try {
             $query = "SELECT a.*, 
                             s.service_name,
-                            d.name as doctor_name,
+     
                             ts.start_time,
                             ts.end_time,
                             a.appointment_date,
                             a.status
                      FROM " . $this->table . " a
                      LEFT JOIN services s ON a.service_id = s.id
-                     LEFT JOIN doctors d ON a.doctor_id = d.id
+                 
                      LEFT JOIN time_slots ts ON a.time_slot = ts.id
                      WHERE a.patient_id = :patient_id
                      AND a.status = 'approved'

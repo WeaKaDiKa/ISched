@@ -20,10 +20,8 @@ $appointmentId = intval($appointmentId);
 
 // Fetch appointment details from database
 $stmt = $conn->prepare("SELECT a.*, p.first_name, p.last_name, p.email, p.phone_number, 
-                         d.first_name as doctor_first_name, d.last_name as doctor_last_name 
                          FROM appointments a 
                          LEFT JOIN patients p ON a.patient_id = p.id 
-                         LEFT JOIN doctors d ON a.doctor_id = d.id 
                          WHERE a.id = ?");
 
 $stmt->bind_param("i", $appointmentId);
@@ -42,11 +40,6 @@ $formattedReferenceNumber = 'OIDA-' . str_pad($appointmentId, 8, '0', STR_PAD_LE
 // Format date
 $appointmentDate = date('F j, Y', strtotime($appointment['appointment_date']));
 
-// Doctor name
-$doctorName = 'Not assigned';
-if (!empty($appointment['doctor_first_name']) && !empty($appointment['doctor_last_name'])) {
-    $doctorName = 'Dr. ' . $appointment['doctor_first_name'] . ' ' . $appointment['doctor_last_name'];
-}
 
 // Format services
 $services = explode(', ', $appointment['services']);
@@ -171,12 +164,9 @@ echo '<!DOCTYPE html>
         </div>
         <div class="info-row">
             <span class="info-label">Clinic Branch:</span>
-            <span>' . htmlspecialchars($appointment['clinic_branch']) . '</span>
+            <span>North Fairview Branch</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Doctor:</span>
-            <span>' . htmlspecialchars($doctorName) . '</span>
-        </div>
+
         <div class="info-row">
             <span class="info-label">Status:</span>
             <span>' . htmlspecialchars($appointment['status']) . '</span>

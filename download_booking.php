@@ -23,10 +23,8 @@ $appointmentId = str_replace('OIDA-', '', $referenceId);
 $appointmentId = intval($appointmentId);
 
 $stmt = $conn->prepare("SELECT a.*, p.first_name, p.last_name, p.email, p.phone_number, 
-                         d.first_name as doctor_first_name, d.last_name as doctor_last_name 
                          FROM appointments a 
-                         LEFT JOIN patients p ON a.patient_id = p.id 
-                         LEFT JOIN doctors d ON a.doctor_id = d.id 
+                         LEFT JOIN patients p ON a.patient_id = p.id
                          WHERE a.id = ?");
 
 $stmt->bind_param("i", $appointmentId);
@@ -45,11 +43,6 @@ $formattedReferenceNumber = 'OIDA-' . str_pad($appointmentId, 8, '0', STR_PAD_LE
 // Format date
 $appointmentDate = date('F j, Y', strtotime($appointment['appointment_date']));
 
-// Doctor name
-$doctorName = 'Not assigned';
-if (!empty($appointment['doctor_first_name']) && !empty($appointment['doctor_last_name'])) {
-    $doctorName = 'Dr. ' . $appointment['doctor_first_name'] . ' ' . $appointment['doctor_last_name'];
-}
 
 // Format services
 $services = explode(', ', $appointment['services']);
@@ -216,14 +209,7 @@ header('Content-Type: text/html; charset=utf-8');
                 <div class="info-label">Time:</div>
                 <div class="info-value"><?php echo htmlspecialchars($appointment['appointment_time']); ?></div>
             </div>
-            <div class="info-row">
-                <div class="info-label">Clinic Branch:</div>
-                <div class="info-value"><?php echo htmlspecialchars($appointment['clinic_branch']); ?></div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Doctor:</div>
-                <div class="info-value"><?php echo htmlspecialchars($doctorName); ?></div>
-            </div>
+
             <div class="info-row">
                 <div class="info-label">Status:</div>
                 <div class="info-value"><?php echo htmlspecialchars($appointment['status']); ?></div>

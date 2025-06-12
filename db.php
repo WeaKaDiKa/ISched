@@ -22,3 +22,4 @@ if ($hour >= 5 && $hour < 12) {
 } else {
     $greeting = 'Good Evening,';
 }
+$conn->set_charset('utf8mb4');

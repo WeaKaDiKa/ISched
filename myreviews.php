@@ -11,128 +11,84 @@ if (!$user_id) {
     exit;
 }
 
-// Get user profile information
-$profile_sql = "SELECT id, first_name, last_name, profile_picture FROM patients WHERE id = ?";
-$profile_stmt = $conn->prepare($profile_sql);
-$profile_stmt->bind_param("i", $user_id);
-$profile_stmt->execute();
-$user = $profile_stmt->get_result()->fetch_assoc();
-
-// Handle profile picture path
-function check_file_exists($path)
-{
-    return file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($path, '/'));
-}
-
-if (empty($user['profile_picture'])) {
-    $user['profile_picture'] = 'assets/photos/default_avatar.png';
-} else {
-    // Original path from database
-    $original_path = $user['profile_picture'];
-
-    // Check if it's already a full path that exists
-    if (strpos($original_path, '/') === 0 || strpos($original_path, 'assets/') === 0 || strpos($original_path, 'uploads/') === 0) {
-        if (check_file_exists($original_path)) {
-            // Path is valid, keep as is
-            $user['profile_picture'] = $original_path;
-        } else {
-            // Path format is valid but file doesn't exist, use default
-            $user['profile_picture'] = 'assets/photos/default_avatar.png';
-        }
-    } else {
-        // Try different possible locations
-        $possible_paths = [
-            'assets/images/profiles/' . $original_path,
-            'assets/photos/' . $original_path,
-            'uploads/profiles/' . $original_path,
-            'assets/photos/default_avatar.png' // Default fallback
-        ];
-
-        // Use the first path that exists
-        foreach ($possible_paths as $path) {
-            if (check_file_exists($path)) {
-                $user['profile_picture'] = $path;
-                break;
-            }
-        }
-    }
-}
-
 // Process review edit if submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle AJAX request
-    $is_ajax = isset($_POST['ajax']) && $_POST['ajax'] === 'true';
+
+    $is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
     if (isset($_POST['edit_review']) || (isset($_POST['action']) && $_POST['action'] === 'update_review')) {
-        $review_id = $_POST['review_id'] ?? 0;
-        $rating = $_POST['rating'] ?? 5;
-        $review_text = $_POST['review_text'] ?? '';
-        // Keep the existing services from the database
-        $get_services_sql = "SELECT services FROM reviews WHERE id = ? AND patient_id = ?";
-        $get_services_stmt = $conn->prepare($get_services_sql);
-        $get_services_stmt->bind_param("ii", $review_id, $user_id);
-        $get_services_stmt->execute();
-        $services_result = $get_services_stmt->get_result()->fetch_assoc();
-        $services = $services_result ? $services_result['services'] : '[]';
+        $review_id = (int) ($_POST['review_id'] ?? 0);
+        $rating = min(max((int) ($_POST['rating'] ?? 5), 1), 5); // Ensure rating is between 1-5
+        $review_text = trim($_POST['review_text'] ?? '');
 
-        // Validate the data
-        if (!empty($review_id) && !empty($review_text)) {
-            // Update the review
-            $update_sql = "UPDATE reviews SET rating = ?, text = ?, services = ? WHERE id = ? AND patient_id = ?";
-            $update_stmt = $conn->prepare($update_sql);
+        // Validate input
+        if ($review_id < 1) {
+            sendResponse($is_ajax, false, "Invalid review ID");
+        }
+
+        if (empty($review_text)) {
+            sendResponse($is_ajax, false, "Review text cannot be empty");
+        }
+
+        try {
+            // Get existing services (using transaction for safety)
+            $conn->begin_transaction();
+
+            $services = '[]';
+            $get_services_stmt = $conn->prepare("SELECT services FROM reviews WHERE id = ? AND patient_id = ?");
+            $get_services_stmt->bind_param("ii", $review_id, $user_id);
+            $get_services_stmt->execute();
+            $services_result = $get_services_stmt->get_result()->fetch_assoc();
+            $services = $services_result ? $services_result['services'] : '[]';
+
+            // Update review
+            $update_stmt = $conn->prepare("UPDATE reviews SET rating = ?, text = ?, services = ? WHERE id = ? AND patient_id = ?");
             $update_stmt->bind_param("issii", $rating, $review_text, $services, $review_id, $user_id);
 
-            if ($update_stmt->execute()) {
-                // Get the updated review data for AJAX response
-                $get_updated_review = "SELECT r.*, DATE_FORMAT(r.date, '%M %d, %Y') as formatted_date FROM reviews r WHERE r.id = ? AND r.patient_id = ?";
-                $get_review_stmt = $conn->prepare($get_updated_review);
-                $get_review_stmt->bind_param("ii", $review_id, $user_id);
-                $get_review_stmt->execute();
-                $updated_review = $get_review_stmt->get_result()->fetch_assoc();
+            if (!$update_stmt->execute()) {
+                throw new Exception("Database update failed");
+            }
 
-                if ($is_ajax) {
-                    // Return JSON response for AJAX
-                    header('Content-Type: application/json');
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Your review has been updated successfully!',
-                        'review' => $updated_review
-                    ]);
-                    exit;
-                } else {
-                    // Success message for regular form submission
-                    $success_message = "Your review has been updated successfully!";
-                }
-            } else {
-                if ($is_ajax) {
-                    // Return JSON error response
-                    header('Content-Type: application/json');
-                    echo json_encode([
-                        'success' => false,
-                        'message' => "Failed to update your review. Please try again."
-                    ]);
-                    exit;
-                } else {
-                    // Error message for regular form submission
-                    $error_message = "Failed to update your review. Please try again.";
-                }
-            }
-        } else {
-            if ($is_ajax) {
-                // Return JSON error response
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => false,
-                    'message' => "Review text cannot be empty."
-                ]);
-                exit;
-            } else {
-                $error_message = "Review text cannot be empty.";
-            }
+            // Get updated review
+            $updated_review = null;
+            $get_review_stmt = $conn->prepare("SELECT r.*, DATE_FORMAT(r.date, '%M %d, %Y') as formatted_date FROM reviews r WHERE r.id = ? AND r.patient_id = ?");
+            $get_review_stmt->bind_param("ii", $review_id, $user_id);
+            $get_review_stmt->execute();
+            $updated_review = $get_review_stmt->get_result()->fetch_assoc();
+
+            $conn->commit();
+
+            sendResponse($is_ajax, true, "Review updated successfully", $updated_review);
+
+        } catch (Exception $e) {
+            $conn->rollback();
+            sendResponse($is_ajax, false, "Error updating review: " . $e->getMessage());
         }
     }
 }
 
+// Helper function for consistent responses
+function sendResponse($is_ajax, $success, $message, $data = null)
+{
+    if ($is_ajax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => $success,
+            'message' => $message,
+            'review' => $data
+        ]);
+        exit;
+    } else {
+        if ($success) {
+            $_SESSION['success_message'] = $message;
+        } else {
+            $_SESSION['error_message'] = $message;
+        }
+        header("Location: myreviews.php");
+        exit;
+    }
+}
 // Fetch available services for dropdown
 $services_sql = "SELECT id, name FROM services ORDER BY name";
 $services_result = $conn->query($services_sql);
@@ -144,8 +100,7 @@ if ($services_result && $services_result->num_rows > 0) {
 }
 
 // Fetch reviews for the logged-in user
-$sql = "
-    SELECT r.*, p.first_name, p.last_name, p.profile_picture
+$sql = "SELECT r.*, p.first_name, p.last_name, p.profile_picture
       FROM reviews r
  LEFT JOIN patients p ON p.id = r.patient_id
     WHERE r.patient_id = ?
@@ -168,61 +123,6 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <link rel="stylesheet" href="assets/css/myreviews.css">
     <?php require_once 'includes/head.php' ?>
     <style>
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #333;
-        }
-
-        .edit-form {
-            margin-top: 20px;
-        }
-
-        .edit-form label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .edit-form textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            min-height: 100px;
-        }
-
         .star-rating {
             margin-bottom: 15px;
         }
@@ -242,12 +142,7 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
         .submit-btn {
             background-color: #6c5ce7;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+
         }
 
         .submit-btn:hover {
@@ -304,14 +199,17 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <div class="list-group-item review-item" data-id="<?= $review['id'] ?>"
                             data-rating="<?= $review['rating'] ?>" data-text="<?= htmlspecialchars($review['text']) ?>">
                             <div class="d-flex align-items-center">
-                                <img src="<?= htmlspecialchars($user['profile_picture']) ?>" alt="Profile Picture"
-                                    class="rounded-circle me-3" width="50" height="50"
+                                <img src="assets/images/profiles/<?= htmlspecialchars($review['profile_picture']) ?>"
+                                    alt="Profile Picture" class="rounded-circle me-3" width="50" height="50"
                                     onerror="this.src='assets/photos/default_avatar.png';">
                                 <div>
-                                    <div class="fw-bold"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
+                                    <div class="fw-bold">
+                                        <?= htmlspecialchars($review['first_name'] . ' ' . $review['last_name']) ?>
                                     </div>
                                     <small class="text-muted"><?= date('M d, Y', strtotime($review['date'])) ?></small>
                                 </div>
+
+
                             </div>
                             <div class="mt-2">
                                 <div class="d-flex align-items-center">
@@ -335,56 +233,81 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             <?php endif; ?>
         </div>
     </main>
+    <!-- Bootstrap 5 Modal -->
+    <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReviewModalLabel">Edit Your Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="edit-form" method="post" action="">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit_review_id" name="review_id" value="">
+                        <input type="hidden" name="edit_review" value="1">
 
-    <!-- Edit Review Modal -->
-    <div id="editReviewModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Edit Your Review</h2>
-            <form class="edit-form" method="post" action="">
-                <input type="hidden" id="edit_review_id" name="review_id" value="">
-                <input type="hidden" name="edit_review" value="1">
+                        <div class="mb-3 star-rating">
+                            <label class="form-label">Your Rating:</label>
+                            <div class="d-flex gap-1">
+                                <i class="far fa-star fs-3" data-rating="1" style="cursor: pointer;"></i>
+                                <i class="far fa-star fs-3" data-rating="2" style="cursor: pointer;"></i>
+                                <i class="far fa-star fs-3" data-rating="3" style="cursor: pointer;"></i>
+                                <i class="far fa-star fs-3" data-rating="4" style="cursor: pointer;"></i>
+                                <i class="far fa-star fs-3" data-rating="5" style="cursor: pointer;"></i>
+                                <input type="hidden" name="rating" id="rating_input" value="5">
+                            </div>
+                        </div>
 
-                <div class="star-rating">
-                    <label>Your Rating:</label>
-                    <div>
-                        <i class="far fa-star" data-rating="1"></i>
-                        <i class="far fa-star" data-rating="2"></i>
-                        <i class="far fa-star" data-rating="3"></i>
-                        <i class="far fa-star" data-rating="4"></i>
-                        <i class="far fa-star" data-rating="5"></i>
-                        <input type="hidden" name="rating" id="rating_input" value="5">
+                        <div class="mb-3">
+                            <label for="review_text" class="form-label">Your Review:</label>
+                            <textarea class="form-control" id="review_text" name="review_text" rows="4"
+                                placeholder="Share details of your own experience at this place"></textarea>
+                        </div>
                     </div>
-                </div>
-
-                <div>
-                    <label for="review_text">Your Review:</label>
-                    <textarea id="review_text" name="review_text"
-                        placeholder="Share details of your own experience at this place"></textarea>
-                </div>
-
-                <!-- Services selection removed -->
-
-                <!-- Image upload container removed -->
-
-                <button type="button" id="updateReviewBtn" class="submit-btn">Update Review</button>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" id="updateReviewBtn" class="btn btn-primary">Update Review</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Search functionality removed
+            // Initialize Bootstrap modal
+            const editReviewModal = new bootstrap.Modal(document.getElementById('editReviewModal'));
 
             // Edit review functionality
-            const modal = document.getElementById('editReviewModal');
-            const closeBtn = document.querySelector('.close');
             const editButtons = document.querySelectorAll('.edit-button');
             const starRating = document.querySelectorAll('.star-rating i');
             const ratingInput = document.getElementById('rating_input');
             const reviewTextArea = document.getElementById('review_text');
             const reviewIdInput = document.getElementById('edit_review_id');
-            // Service checkboxes removed
+
+            // Star rating functionality
+            function setRating(rating) {
+                starRating.forEach(star => {
+                    if (star.getAttribute('data-rating') <= rating) {
+                        star.classList.add('fas', 'text-warning');
+                        star.classList.remove('far');
+                    } else {
+                        star.classList.add('far');
+                        star.classList.remove('fas', 'text-warning');
+                    }
+                });
+                ratingInput.value = rating;
+            }
+
+            starRating.forEach(star => {
+                star.addEventListener('click', function () {
+                    const rating = this.getAttribute('data-rating');
+                    setRating(rating);
+                });
+            });
 
             // Open modal when edit button is clicked
             editButtons.forEach(button => {
@@ -393,150 +316,130 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     const reviewItem = this.closest('.review-item');
                     const reviewText = reviewItem.getAttribute('data-text');
                     const reviewRating = reviewItem.getAttribute('data-rating');
-                    const reviewServices = reviewItem.querySelector('.review-service').textContent.replace('Service:', '').trim().split(', ');
 
                     // Set values in the form
                     reviewIdInput.value = reviewId;
                     reviewTextArea.value = reviewText;
                     setRating(reviewRating);
 
-                    // Service checkboxes handling removed
-
                     // Show the modal
-                    modal.style.display = 'block';
+                    editReviewModal.show();
                 });
             });
 
-            // Close modal when X is clicked
-            closeBtn.addEventListener('click', function () {
-                modal.style.display = 'none';
-            });
-
-            // Close modal when clicking outside
-            window.addEventListener('click', function (event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
+            // Update review button functionality
+            document.getElementById('updateReviewBtn').addEventListener('click', function () {
+                document.querySelector('.edit-form').submit();
             });
 
             // Star rating functionality
             function setRating(rating) {
                 ratingInput.value = rating;
                 starRating.forEach(star => {
-                    const starRating = parseInt(star.getAttribute('data-rating'));
-                    if (starRating <= parseInt(rating)) {
-                        star.className = 'fas fa-star active';
-                    } else {
-                        star.className = 'far fa-star';
-                    }
+                    star.classList.toggle('fas', star.dataset.rating <= rating);
+                    star.classList.toggle('far', star.dataset.rating > rating);
+                    star.classList.toggle('text-warning', star.dataset.rating <= rating);
                 });
             }
 
-            starRating.forEach(star => {
-                star.addEventListener('click', function () {
-                    const rating = this.getAttribute('data-rating');
-                    setRating(rating);
-                });
-
-                star.addEventListener('mouseover', function () {
-                    const rating = this.getAttribute('data-rating');
-                    starRating.forEach(s => {
-                        const r = parseInt(s.getAttribute('data-rating'));
-                        if (r <= parseInt(rating)) {
-                            s.className = 'fas fa-star active';
-                        } else {
-                            s.className = 'far fa-star';
-                        }
-                    });
-                });
-
-                star.addEventListener('mouseout', function () {
-                    const currentRating = ratingInput.value;
-                    setRating(currentRating);
-                });
+            // Event delegation for star ratings
+            document.querySelector('.star-rating').addEventListener('click', e => {
+                if (e.target.matches('[data-rating]')) {
+                    setRating(parseInt(e.target.dataset.rating));
+                }
             });
 
-            // Image upload functionality removed
+            document.querySelector('.star-rating').addEventListener('mouseover', e => {
+                if (e.target.matches('[data-rating]')) {
+                    const hoverRating = parseInt(e.target.dataset.rating);
+                    starRating.forEach(star => {
+                        star.classList.toggle('fas', star.dataset.rating <= hoverRating);
+                        star.classList.toggle('far', star.dataset.rating > hoverRating);
+                    });
+                }
+            });
 
-            // AJAX form submission for real-time updates
-            const updateReviewBtn = document.getElementById('updateReviewBtn');
-            const editForm = document.getElementById('editReviewForm');
+            document.querySelector('.star-rating').addEventListener('mouseout', () => {
+                setRating(ratingInput.value);
+            });
 
-            updateReviewBtn.addEventListener('click', function () {
-                // Get form data
-                const reviewId = reviewIdInput.value;
-                const rating = ratingInput.value;
-                const reviewText = reviewTextArea.value;
+            // AJAX form submission
+            document.getElementById('updateReviewBtn').addEventListener('click', async function () {
+                const reviewText = reviewTextArea.value.trim();
 
-                // Validate form
-                if (reviewText.trim() === '') {
+                if (!reviewText) {
                     alert('Review text cannot be empty.');
                     return;
                 }
 
-                // Create form data object
-                const formData = new FormData();
-                formData.append('action', 'update_review');
-                formData.append('review_id', reviewId);
-                formData.append('rating', rating);
-                formData.append('review_text', reviewText);
-                formData.append('ajax', 'true');
-
-                // Send AJAX request
-                fetch('myreviews.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update the review in the DOM
-                            updateReviewInDOM(reviewId, rating, reviewText, data.review.services);
-
-                            // Show success message
-                            const successMsg = document.createElement('div');
-                            successMsg.className = 'success-message';
-                            successMsg.textContent = data.message;
-                            document.querySelector('.profile-content').insertBefore(successMsg, document.querySelector('#userReviewsContainer'));
-
-                            // Remove success message after 3 seconds
-                            setTimeout(() => {
-                                successMsg.remove();
-                            }, 3000);
-
-                            // Close the modal
-                            modal.style.display = 'none';
-                        } else {
-                            // Show error message
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while updating the review. Please try again.');
+                try {
+                    const response = await fetch('myreviews.php', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            action: 'update_review',
+                            review_id: reviewIdInput.value,
+                            rating: ratingInput.value,
+                            review_text: reviewText,
+                            csrf_token: document.querySelector('[name="csrf_token"]').value
+                        })
                     });
-            });
 
-            // Function to update the review in the DOM
-            function updateReviewInDOM(reviewId, rating, reviewText, services) {
-                const reviewItem = document.querySelector(`.review-item[data-id="${reviewId}"]`);
-                if (reviewItem) {
-                    // Update data attributes
-                    reviewItem.setAttribute('data-rating', rating);
-                    reviewItem.setAttribute('data-text', reviewText);
+                    const data = await response.json();
 
-                    // Update star rating display
-                    const starsContainer = reviewItem.querySelector('.review-rating');
-                    starsContainer.innerHTML = '';
-                    for (let i = 1; i <= 5; i++) {
-                        const star = document.createElement('i');
-                        star.className = i <= rating ? 'fas fa-star' : 'far fa-star';
-                        starsContainer.appendChild(star);
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Server error');
                     }
 
-                    // Update review text
-                    reviewItem.querySelector('.review-text').textContent = reviewText;
+                    if (data.success) {
+                        updateReviewInDOM(data.review);
+                        showToast(data.message, 'success');
+                        editReviewModal.hide();
+                    } else {
+                        showToast(data.message, 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast(error.message, 'danger');
                 }
+            });
+
+            // DOM update function
+            function updateReviewInDOM(review) {
+                const reviewItem = document.querySelector(`.review-item[data-id="${review.id}"]`);
+                if (!reviewItem) return;
+
+                // Update data attributes
+                reviewItem.dataset.rating = review.rating;
+                reviewItem.dataset.text = review.text;
+
+                // Update stars
+                const starsContainer = reviewItem.querySelector('.review-rating');
+                starsContainer.innerHTML = Array.from({ length: 5 }, (_, i) =>
+                    `<i class="${i < review.rating ? 'fas text-warning' : 'far'} fa-star"></i>`
+                ).join('');
+
+                // Update text and date
+                reviewItem.querySelector('.review-text').textContent = review.text;
+                if (review.formatted_date) {
+                    reviewItem.querySelector('.review-date').textContent = review.formatted_date;
+                }
+            }
+
+            // Toast notification
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `position-fixed top-0 end-0 p-3 text-bg-${type} rounded`;
+                toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
             }
         });
     </script>

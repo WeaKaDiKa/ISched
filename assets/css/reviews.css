@@ -254,31 +254,6 @@
   background-color: #0b5ed7;
 }
 
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 100;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  overflow: auto;
-  /* kahit mag-scroll */
-}
-
-.modal-content {
-  background: white;
-  width: 600px;
-  /* o max-width: 90% para responsive */
-  max-width: 50%;
-  margin: 100px auto;
-  /* 100px from top, centered horizontally */
-  padding: 20px 30px;
-  border-radius: 10px;
-  position: relative;
-}
-
 
 .close {
   position: absolute;
@@ -287,17 +262,6 @@
   font-size: 20px;
   cursor: pointer;
 }
-
-
-
-@media (max-width: 768px) {
-  .modal-content {
-    width: 90%;
-    margin: 30px auto;
-    max-height: 90vh;
-  }
-}
-
 
 .close {
   position: absolute;
@@ -582,11 +546,6 @@
   text-align: left;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
 
 .modal-avatar {
   width: 40px;

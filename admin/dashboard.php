@@ -100,23 +100,24 @@ if ($resultMonth && $rowMonth = $resultMonth->fetch_assoc()) {
     $appointmentThisMonth = $rowMonth['month_total'];
 }
 
-// Get monthly data for Appointments and Patients
+$monthAbbr = [1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 $monthlyAppointments = [];
 $monthlyPatients = [];
 
 for ($i = 1; $i <= 12; $i++) {
-    // Get appointment count for each month
+    $monthName = $monthAbbr[$i];
+
     $sql = "SELECT COUNT(*) as count FROM appointments WHERE MONTH(appointment_date) = $i AND YEAR(appointment_date) = $currentYear";
     $result = $conn->query($sql);
-    $monthlyAppointments[$i] = ($result && $row = $result->fetch_assoc()) ? $row['count'] : 0;
+    $monthlyAppointments[$monthName] = ($result && $row = $result->fetch_assoc()) ? (int) $row['count'] : 0;
 
-    // Get patient count for each month
     $sql = "SELECT COUNT(*) as count FROM patients WHERE MONTH(created_at) = $i AND YEAR(created_at) = $currentYear";
     $result = $conn->query($sql);
-    $monthlyPatients[$i] = ($result && $row = $result->fetch_assoc()) ? $row['count'] : 0;
+    $monthlyPatients[$monthName] = ($result && $row = $result->fetch_assoc()) ? (int) $row['count'] : 0;
 }
 
-// Fetch latest admin name for sidebar/topbar
+
 $admin_id = $_SESSION['admin_id'] ?? '';
 $admin_name = 'Dr. Ardeen Dofiles Oida';
 if ($admin_id) {
@@ -276,6 +277,8 @@ if ($admin_id) {
         const appointmentsData = <?php echo json_encode($monthlyAppointments); ?>;
         const patientsData = <?php echo json_encode($monthlyPatients); ?>;
 
+
+        console.log(appointmentsData);
         const ctx = document.getElementById('revenueChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',

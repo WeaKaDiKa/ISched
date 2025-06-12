@@ -37,12 +37,6 @@ function validateAppointment() {
         isValid = false;
     }
 
-    // Clinic branch validation
-    const clinicSelect = document.getElementById('clinic');
-    if (!clinicSelect || !clinicSelect.value) {
-        showError(clinicSelect, 'Please select a clinic branch');
-        isValid = false;
-    }
 
     // Services validation
     const selectedServices = document.querySelectorAll('input[name="services[]"]:checked');

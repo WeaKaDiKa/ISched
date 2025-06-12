@@ -10,25 +10,26 @@
  * @param string $size Size of the image (small, medium, large)
  * @return string URL to the profile image
  */
-function get_profile_image_url($user_id = null, $size = 'small') {
-    // Default image path
+function get_profile_image_url($user_id = null, $size = 'small')
+{
     $default_image = 'assets/images/profiles/default.png';
-    
-    // If no user ID or user is not logged in, return default
+
     if (empty($user_id)) {
         return $default_image;
     }
-    
-    // Check if user has a custom profile image
-    $image_path = 'assets/images/profiles/user_' . $user_id . '.jpg';
-    $server_path = $image_path;
-    
-    // If the file exists, return the custom image path
-    if (file_exists($server_path)) {
-        return $image_path;
+
+    // Check for both JPG and PNG versions
+    $jpg_path = 'assets/images/profiles/user_' . $user_id . '.jpg';
+    $png_path = 'assets/images/profiles/user_' . $user_id . '.png';
+
+    if (file_exists($jpg_path)) {
+        return $jpg_path;
     }
-    
-    // Otherwise return default
+
+    if (file_exists($png_path)) {
+        return $png_path;
+    }
+
     return $default_image;
 }
 
@@ -40,19 +41,20 @@ function get_profile_image_url($user_id = null, $size = 'small') {
  * @param bool $with_dropdown Whether to include a dropdown menu
  * @return void Outputs the HTML directly
  */
-function display_profile_icon($user_id = null, $size = 'small', $with_dropdown = false) {
+function display_profile_icon($user_id = null, $size = 'small', $with_dropdown = false)
+{
     $image_url = get_profile_image_url($user_id, $size);
     $size_class = '';
-    
+
     if ($size == 'medium') {
         $size_class = 'medium';
     } elseif ($size == 'large') {
         $size_class = 'large';
     }
-    
+
     echo '<div class="profile-icon-container">';
     echo '<img src="' . $image_url . '" alt="Profile" class="profile-icon ' . $size_class . '" id="profileIcon">';
-    
+
     if ($with_dropdown && isset($_SESSION['user_id'])) {
         echo '<div class="profile-dropdown" id="profileDropdown">
             <a href="profile.php" class="profile-dropdown-item"><i class="fas fa-user"></i> My Profile</a>
@@ -61,9 +63,9 @@ function display_profile_icon($user_id = null, $size = 'small', $with_dropdown =
             <a href="#" class="profile-dropdown-item" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>';
     }
-    
+
     echo '</div>';
-    
+
     if ($with_dropdown) {
         echo '<script>
             document.getElementById("profileIcon").addEventListener("click", function() {
@@ -195,47 +197,48 @@ function display_profile_icon($user_id = null, $size = 'small', $with_dropdown =
  * @param array $file The $_FILES array element for the uploaded file
  * @return array Status and message
  */
-function upload_profile_image($user_id, $file) {
+function upload_profile_image($user_id, $file)
+{
     $result = [
         'success' => false,
         'message' => ''
     ];
-    
+
     // Check if user ID is provided
     if (empty($user_id)) {
         $result['message'] = 'User ID is required';
         return $result;
     }
-    
+
     // Check if file was uploaded
     if (!isset($file) || $file['error'] != UPLOAD_ERR_OK) {
         $result['message'] = 'Error uploading file';
         return $result;
     }
-    
+
     // Check file type
     $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!in_array($file['type'], $allowed_types)) {
         $result['message'] = 'Only JPG, JPEG, and PNG files are allowed';
         return $result;
     }
-    
+
     // Check file size (max 2MB)
     if ($file['size'] > 2 * 1024 * 1024) {
         $result['message'] = 'File size must be less than 2MB';
         return $result;
     }
-    
+
     // Create directory if it doesn't exist
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/M_A_Oida_Dental_Clinic/assets/images/profiles/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
-    
+
     // Generate filename
     $filename = 'user_' . $user_id . '.jpg';
     $target_file = $upload_dir . $filename;
-    
+
     // Simple file move without image processing
     if (move_uploaded_file($file['tmp_name'], $target_file)) {
         // Update the database to use the new profile picture
@@ -246,13 +249,13 @@ function upload_profile_image($user_id, $file) {
             $stmt->bind_param("si", $profile_path, $user_id);
             $stmt->execute();
         }
-        
+
         $result['success'] = true;
         $result['message'] = 'Profile image uploaded successfully';
     } else {
         $result['message'] = 'Error saving image';
     }
-    
+
     return $result;
 }
 ?>

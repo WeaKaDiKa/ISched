@@ -146,24 +146,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                 border: 1px solid #e5e7eb;
             }
 
-            /* Modal improvements */
-            .modal-content {
-                width: 95% !important;
-                margin: 10px auto;
-                border-radius: 8px;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
 
-            .modal-body {
-                padding: 15px;
-            }
-
-            .modal-footer {
-                padding: 15px;
-                flex-direction: column;
-                gap: 10px;
-            }
 
             /* Empty state */
             .empty-state {
