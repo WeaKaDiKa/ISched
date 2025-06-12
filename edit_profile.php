@@ -417,13 +417,10 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (!selectedRegion) return; // Don't fetch if no region is selected
 
             fetch('fetch_provinces.php?region_id=' + selectedRegion)
-                .then(response => response.text()) // Change temporarily to .text()
-                .then(text => {
-                    console.log('Raw prov:', text); // Check what's coming back
-                    return JSON.parse(text); // Then try to parse it manually
-                })
+                .then(response => response.json())
+
                 .then(data => {
-                    console.log(data)
+                  
                     data.forEach(province => {
                         const option = document.createElement('option');
                         option.value = province.province_id;
@@ -453,11 +450,8 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (!selectedProvince) return; // Don't fetch if no province is selected
 
             fetch('fetch_cities.php?province_id=' + selectedProvince)
-                .then(response => response.text()) // Change temporarily to .text()
-                .then(text => {
-                    console.log('Raw city:', text); // Check what's coming back
-                    return JSON.parse(text); // Then try to parse it manually
-                })
+                .then(response => response.json())
+
                 .then(data => {
                     data.forEach(city => {
                         const option = document.createElement('option');
@@ -485,11 +479,8 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
             if (!selectedCity) return; // Don't fetch if no city is selected
 
             fetch('fetch_barangays.php?city_id=' + selectedCity)
-                .then(response => response.text()) // Change temporarily to .text()
-                .then(text => {
-                    console.log('Raw brgy:', text); // Check what's coming back
-                    return JSON.parse(text); // Then try to parse it manually
-                })
+                .then(response => response.json())
+
                 .then(data => {
                     data.forEach(barangay => {
                         const option = document.createElement('option');

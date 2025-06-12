@@ -25,7 +25,6 @@ header('Content-Type: application/json; charset=utf-8');
 
 $json = json_encode($cities, JSON_UNESCAPED_UNICODE);
 
-// ✅ Check if encoding was successful
 if ($json === false) {
     http_response_code(500);
     echo json_encode([
