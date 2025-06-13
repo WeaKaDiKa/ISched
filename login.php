@@ -92,71 +92,71 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
         } else {
-
+            throw new Exception("Invalid email format");
             // Admin login
-            $stmt = $conn->prepare("SELECT id, admin_id, type, password, name, attemptleft FROM admin_logins WHERE admin_id = ?");
-            $stmt->bind_param("s", $login_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $stmt->close();
+            // $stmt = $conn->prepare("SELECT id, admin_id, type, password, name, attemptleft FROM admin_logins WHERE admin_id = ?");
+            // $stmt->bind_param("s", $login_id);
+            // $stmt->execute();
+            // $result = $stmt->get_result();
+            // $stmt->close();
 
-            if ($result->num_rows !== 1) {
-                throw new Exception("Invalid email");
-            }
+            // if ($result->num_rows !== 1) {
+            //     throw new Exception("Invalid email");
+            // }
 
-            $user = $result->fetch_assoc();
-            $attempt = $user['attemptleft'];
-            if ($attempt <= 0) {
-                throw new Exception("You have 0 attempts left. Recover your account using forget password");
-            }
-            if (!password_verify($password, $user['password'])) {
-                $attempt--;
-
-
-                $attempt = max($attempt, 0);
+            // $user = $result->fetch_assoc();
+            // $attempt = $user['attemptleft'];
+            // if ($attempt <= 0) {
+            //     throw new Exception("You have 0 attempts left. Recover your account using forget password");
+            // }
+            // if (!password_verify($password, $user['password'])) {
+            //     $attempt--;
 
 
-                $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = ? WHERE admin_id = ?");
-                $updateStmt->bind_param("is", $attempt, $login_id);
-                $updateStmt->execute();
-                $updateStmt->close();
-
-                if ($attempt === 0) {
-                    throw new Exception("Invalid password. You have 0 attempts left. Recover your account using forget password");
-                } elseif ($attempt === 1) {
-                    throw new Exception("Invalid password. You have 1 attempt left");
-                } else {
-                    throw new Exception("Invalid password. You have $attempt attempts left");
-                }
-            } else {
-                $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = 3 WHERE admin_id = ?");
-                $updateStmt->bind_param("s", $login_id);
-                $updateStmt->execute();
-                $updateStmt->close();
-            }
+            //     $attempt = max($attempt, 0);
 
 
-            $_SESSION['admin_id'] = $user['admin_id'];
-            $_SESSION['admin_type'] = $user['type'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['type'];
+            //     $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = ? WHERE admin_id = ?");
+            //     $updateStmt->bind_param("is", $attempt, $login_id);
+            //     $updateStmt->execute();
+            //     $updateStmt->close();
 
-            switch ($_SESSION['admin_type']) {
-                case 'admin':
-                    $redirect = 'admin/dashboard.php';
-                    break;
-                case 'dentist':
-                    $redirect = 'admin/appointments.php';
-                    break;
-                case 'dental_helper':
-                case 'helper':
-                    $redirect = 'admin/patient_record.php';
-                    break;
-                default:
-                    $redirect = 'admin/dashboard.php';
-                    break;
-            }
+            //     if ($attempt === 0) {
+            //         throw new Exception("Invalid password. You have 0 attempts left. Recover your account using forget password");
+            //     } elseif ($attempt === 1) {
+            //         throw new Exception("Invalid password. You have 1 attempt left");
+            //     } else {
+            //         throw new Exception("Invalid password. You have $attempt attempts left");
+            //     }
+            // } else {
+            //     $updateStmt = $conn->prepare("UPDATE admin_logins SET attemptleft = 3 WHERE admin_id = ?");
+            //     $updateStmt->bind_param("s", $login_id);
+            //     $updateStmt->execute();
+            //     $updateStmt->close();
+            // }
+
+
+            // $_SESSION['admin_id'] = $user['admin_id'];
+            // $_SESSION['admin_type'] = $user['type'];
+            // $_SESSION['user_name'] = $user['name'];
+            // $_SESSION['user_id'] = $user['id'];
+            // $_SESSION['user_role'] = $user['type'];
+
+            // switch ($_SESSION['admin_type']) {
+            //     case 'admin':
+            //         $redirect = 'admin/dashboard.php';
+            //         break;
+            //     case 'dentist':
+            //         $redirect = 'admin/appointments.php';
+            //         break;
+            //     case 'dental_helper':
+            //     case 'helper':
+            //         $redirect = 'admin/patient_record.php';
+            //         break;
+            //     default:
+            //         $redirect = 'admin/dashboard.php';
+            //         break;
+            // }
 
 
         }
