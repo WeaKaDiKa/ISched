@@ -13,7 +13,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     exit;
 }
 
-$patientId = intval($_GET['id']);
+$patientIds = intval($_GET['id']);
 
 // Get patient information
 $patientQuery = "SELECT p.*, pp.*,
@@ -29,14 +29,14 @@ $patientQuery = "SELECT p.*, pp.*,
                LEFT JOIN refbrgy brgy ON p.barangay = brgy.brgy_id
                WHERE p.id = ?";
 $patientStmt = $conn->prepare($patientQuery);
-$patientStmt->bind_param("i", $patientId);
+$patientStmt->bind_param("i", $patientIds);
 $patientStmt->execute();
 $patientResult = $patientStmt->get_result();
 $dentalhistoryQuery = "SELECT *
                FROM dentalhistory 
                WHERE patientid = ?";
 $dentalStmt = $conn->prepare($dentalhistoryQuery);
-$dentalStmt->bind_param("i", $patientId);
+$dentalStmt->bind_param("i", $patientIds);
 $dentalStmt->execute();
 $dentalResult = $dentalStmt->get_result();
 
@@ -59,7 +59,7 @@ $appointmentsQuery = "SELECT a.*,
                      WHERE a.patient_id = ? 
                      ORDER BY a.appointment_date DESC, a.appointment_time DESC";
 $appointmentsStmt = $conn->prepare($appointmentsQuery);
-$appointmentsStmt->bind_param("i", $patientId);
+$appointmentsStmt->bind_param("i", $patientIds);
 $appointmentsStmt->execute();
 $appointmentsResult = $appointmentsStmt->get_result();
 
@@ -262,10 +262,14 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                     <p class="font-medium">
                                         <?php
                                         $addressParts = [];
-                                        if (!empty($patient['barangay_name'])) $addressParts[] = $patient['barangay_name'];
-                                        if (!empty($patient['city_name'])) $addressParts[] = $patient['city_name'];
-                                        if (!empty($patient['province_name'])) $addressParts[] = $patient['province_name'];
-                                        if (!empty($patient['region_name'])) $addressParts[] = $patient['region_name'];
+                                        if (!empty($patient['barangay_name']))
+                                            $addressParts[] = $patient['barangay_name'];
+                                        if (!empty($patient['city_name']))
+                                            $addressParts[] = $patient['city_name'];
+                                        if (!empty($patient['province_name']))
+                                            $addressParts[] = $patient['province_name'];
+                                        if (!empty($patient['region_name']))
+                                            $addressParts[] = $patient['region_name'];
                                         $addressStr = implode(', ', $addressParts);
                                         echo $addressStr ? htmlspecialchars($addressStr) : 'Not provided';
                                         ?>
@@ -300,7 +304,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                 <th scope="col"
                                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Services</th>
-                                             
+
                                                 <th scope="col"
                                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Status</th>
@@ -326,7 +330,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                                         }
                                                         ?>
                                                     </td>
-                                                  
+
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <?php
                                                         $statusClass = '';
@@ -364,7 +368,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                         <div class="bg-white rounded-lg shadow-md p-6">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-xl font-semibold">Dental and Medical Records</h2>
-                                <a href="edit_patient.php?id=<?php echo $patientId; ?>"
+                                <a href="edit_patient.php?id=<?php echo $patientIds; ?>"
                                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     <i class="fas fa-edit mr-2"></i> Edit Records
                                 </a>
@@ -373,48 +377,624 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                             <?php
                             $dentalhistoryQuery = "SELECT * FROM dentalhistory WHERE patientid = ?";
                             $dentalStmt = $conn->prepare($dentalhistoryQuery);
-                            $dentalStmt->bind_param("i", $patientId);
+                            $dentalStmt->bind_param("i", $patientIds);
                             $dentalStmt->execute();
                             $dentalResult = $dentalStmt->get_result();
                             if ($dentalResult && $dentalResult->num_rows > 0):
                                 $dental = $dentalResult->fetch_assoc();
-                            ?>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <h5 class="font-medium text-gray-900 mb-3">Dental History (Detailed)</h5>
-                                    <ul class="list-disc pl-6">
-                                        <li><strong>Notes:</strong> <?php echo htmlspecialchars($dental['notes'] ?? ''); ?></li>
-                                        <li><strong>Periodontal Screening:</strong> <?php echo htmlspecialchars($dental['periodontal_screening'] ?? ''); ?></li>
-                                        <li><strong>Occlusion:</strong> <?php echo htmlspecialchars($dental['occlusion'] ?? ''); ?></li>
-                                        <li><strong>Appliance:</strong> <?php echo htmlspecialchars($dental['appliance'] ?? ''); ?></li>
-                                        <li><strong>TMD:</strong> <?php echo htmlspecialchars($dental['tmd'] ?? ''); ?></li>
-                                        <li><strong>Previous Dentist:</strong> <?php echo htmlspecialchars($dental['previous_dentist'] ?? ''); ?></li>
-                                        <li><strong>Last Dental Visit:</strong> <?php echo htmlspecialchars($dental['last_dental_visit'] ?? ''); ?></li>
-                                        <li><strong>Reason for Consultation:</strong> <?php echo htmlspecialchars($dental['reason_for_consultation'] ?? ''); ?></li>
-                                        <li><strong>Referral:</strong> <?php echo htmlspecialchars($dental['referral'] ?? ''); ?></li>
-                                        <li><strong>Date/Time Added:</strong> <?php echo htmlspecialchars($dental['datetimeadd'] ?? ''); ?></li>
-                                        <li><strong>Teeth Chart:</strong>
-                                            <div style="max-height:200px;overflow:auto;background:#f9f9f9;padding:8px;border-radius:6px;">
-                                                <?php
-                                                $teethData = isset($dental['teeth']) ? json_decode($dental['teeth'], true) : [];
-                                                if ($teethData && is_array($teethData)) {
-                                                    echo '<table style="font-size:12px;width:100%"><tr><th>Tooth</th><th>Status</th></tr>';
-                                                    foreach ($teethData as $tooth => $status) {
-                                                        echo '<tr><td>' . htmlspecialchars($tooth) . '</td><td>' . htmlspecialchars($status) . '</td></tr>';
-                                                    }
-                                                    echo '</table>';
-                                                } else {
-                                                    echo '<em>No teeth chart data.</em>';
-                                                }
-                                                ?>
+                                ?>
+                           <div class="bg-gray-50 p-4 rounded-lg">
+                               <h5 class="font-medium text-gray-900 mb-3">Dental Information</h5>
+                                    <div class="space-y-4" id="dentalInfo">
+                                        <!-- Dental History Fields -->
+                                        <div class="space-y-8 bg-white p-6 rounded-lg shadow">
+                                            <div>
+                                                <h2 class="text-lg font-semibold mb-4">Dental History</h2>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label for="previous_dentist"
+                                                            class="block text-sm font-medium text-gray-700">Previous
+                                                            Dentist</label>
+                                                        <input type="text" name="previous_dentist" id="previous_dentist"
+                                                            value="<?php echo htmlspecialchars($dental['previous_dentist'] ?? ''); ?>"
+                                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                    </div>
+                                                    <div>
+                                                        <label for="last_dental_visit"
+                                                            class="block text-sm font-medium text-gray-700">Last Dental
+                                                            Visit</label>
+                                                        <input type="date" name="last_dental_visit"
+                                                            id="last_dental_visit"
+                                                            value="<?php echo htmlspecialchars($dental['last_dental_visit'] ?? ''); ?>"
+                                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                    </div>
+                                                    <div>
+                                                        <label for="reason_for_consultation"
+                                                            class="block text-sm font-medium text-gray-700">Reason for
+                                                            Dental Consultation</label>
+                                                        <input type="text" name="reason_for_consultation"
+                                                            id="reason_for_consultation"
+                                                            value="<?php echo htmlspecialchars($dental['reason_for_consultation'] ?? ''); ?>"
+                                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                    </div>
+                                                    <div>
+                                                        <label for="referral"
+                                                            class="block text-sm font-medium text-gray-700">Whom may we
+                                                            thank for referring you?</label>
+                                                        <input type="text" name="referral" id="referral"
+                                                            value="<?php echo htmlspecialchars($dental['referral'] ?? ''); ?>"
+                                                            class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </li>
-                                    </ul>
-                                </div>
+                                        </div>
+
+                                        <h3>LAST INTRAORAL EXAMINATION</h3>
+
+                                        <div class="space-y-8 bg-white p-6 rounded-lg shadow">
+                                            <div>
+                                                <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Upper)</h2>
+                                                <div class="grid grid-cols-10 gap-2">
+
+                                                    <?php
+                                                    $toothOptions = [
+                                                        'D' => 'Decayed',
+                                                        'M' => 'Missing due to Caries',
+                                                        'F' => 'Filled',
+                                                        'I' => 'Caries for Extraction',
+                                                        'RF' => 'Root Fragment',
+                                                        'MO' => 'Missing Other Causes',
+                                                        'Im' => 'Impacted Tooth',
+                                                        'J' => 'Jacket Crown',
+                                                        'A' => 'Amalgam Filling',
+                                                        'A-B' => 'Abutment',
+                                                        'P' => 'Pontic',
+                                                        'In' => 'Inlay',
+                                                        'XO' => 'Extraction due to other causes',
+                                                        'X' => 'Extraction due to Caries',
+                                                        'Cn' => 'Congenitally Missing',
+                                                        'Sp' => 'Supernumerary',
+                                                        'FX' => 'Fixed Cure Composite',
+                                                        'Rm' => 'Removable Denture',
+                                                        '✓' => 'Present Teeth'
+                                                    ];
+
+                                                    $toothIds = ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'];
+
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // Default to Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal == $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+
+
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Upper)</h2>
+                                                <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
+                                                    <?php $toothIds = [
+                                                        '18',
+                                                        '17',
+                                                        '16',
+                                                        '15',
+                                                        '14',
+                                                        '13',
+                                                        '12',
+                                                        '11',
+                                                        '21',
+                                                        '22',
+                                                        '23',
+                                                        '24',
+                                                        '25',
+                                                        '26',
+                                                        '27',
+                                                        '28'
+                                                    ];
+
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // Default ✓ Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal === $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Lower)</h2>
+                                                <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
+                                                    <?php
+
+                                                    $toothIds = [
+                                                        '48',
+                                                        '47',
+                                                        '46',
+                                                        '45',
+                                                        '44',
+                                                        '43',
+                                                        '42',
+                                                        '41',
+                                                        '31',
+                                                        '32',
+                                                        '33',
+                                                        '34',
+                                                        '35',
+                                                        '36',
+                                                        '37',
+                                                        '38'
+                                                    ];
+
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // default to ✓ Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal === $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Lower)</h2>
+                                                <div class="grid grid-cols-10 gap-2">
+                                                    <?php
+
+                                                    $toothIds = ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75'];
+
+                                                    foreach ($toothIds as $toothId):
+                                                        $selectedVal = $teethData[$toothId] ?? '✓'; // default to ✓ Present Teeth
+                                                        ?>
+                                                        <div class="flex flex-col items-center m-1">
+                                                            <select name="tooth[<?= $toothId ?>]"
+                                                                class="text-center border rounded p-1 w-24">
+                                                                <?php foreach ($toothOptions as $code => $label): ?>
+                                                                    <option value="<?= $code ?>" <?= $selectedVal === $code ? 'selected' : '' ?>>
+                                                                        <?= $code ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <div class="text-center text-sm mt-1 font-medium">
+                                                                <?= $toothId ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h2 class="text-lg font-semibold mb-2">Other Notes</h2>
+                                                <textarea name="notes" rows="4"
+                                                    class="w-full border rounded p-2"><?php echo htmlspecialchars($dental['notes'] ?? ''); ?></textarea>
+                                            </div>
+
+                                            <div class="section-title">Legend</div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                <div class="space-y-1">
+                                                    <p><strong>D</strong> - Decayed</p>
+                                                    <p><strong>M</strong> - Missing due to Caries</p>
+                                                    <p><strong>F</strong> - Filled</p>
+                                                    <p><strong>I</strong> - Caries for Extraction</p>
+                                                    <p><strong>RF</strong> - Root Fragment</p>
+                                                    <p><strong>MO</strong> - Missing Other Causes</p>
+                                                    <p><strong>Im</strong> - Impacted Tooth</p>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <p><strong>J</strong> - Jacket Crown</p>
+                                                    <p><strong>A</strong> - Amalgam Filling</p>
+                                                    <p><strong>A-B</strong> - Abutment</p>
+                                                    <p><strong>P</strong> - Pontic</p>
+                                                    <p><strong>In</strong> - Inlay</p>
+                                                    <p><strong>FX</strong> - Fixed Cure Composite</p>
+                                                    <p><strong>Rm</strong> - Removable Denture</p>
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <p><strong>X</strong> - Extraction due to Caries</p>
+                                                    <p><strong>XO</strong> - Extraction due to other causes</p>
+                                                    <p><strong>✓</strong> - Present Teeth</p>
+                                                    <p><strong>Cn</strong> - Congenitally Missing</p>
+                                                    <p><strong>Sp</strong> - Supernumerary</p>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="section-title">Additional Notes</div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                <!-- Periodontal Screening -->
+                                                <div>
+                                                    <strong class="block mb-2">Periodontal Screening:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Gingivitis" <?php echo (isset($dental['periodontal_screening']) && in_array('Gingivitis', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Gingivitis
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Early Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Early Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Early Periodontics
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Moderate Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Moderate Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Moderate Periodontics
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="periodontal_screening[]"
+                                                                    value="Advanced Periodontics" <?php echo (isset($dental['periodontal_screening']) && in_array('Advanced Periodontics', explode(',', $dental['periodontal_screening']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Advanced Periodontics
+                                                            </label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                <!-- Occlusion -->
+                                                <div>
+                                                    <strong class="block mb-2">Occlusion:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Class (Molar)" <?php echo (isset($dental['occlusion']) && in_array('Class (Molar)', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Class (Molar)
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Overjet" <?php echo (isset($dental['occlusion']) && in_array('Overjet', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Overjet
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Overbite" <?php echo (isset($dental['occlusion']) && in_array('Overbite', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Overbite
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Midline Deviation" <?php echo (isset($dental['occlusion']) && in_array('Midline Deviation', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Midline Deviation
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="occlusion[]"
+                                                                    value="Crossbite" <?php echo (isset($dental['occlusion']) && in_array('Crossbite', explode(',', $dental['occlusion']))) ? 'checked' : ''; ?>
+                                                                    class="mr-2">
+                                                                Crossbite
+                                                            </label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                <!-- Appliances -->
+                                                <div>
+                                                    <strong class="block mb-2">Appliances:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="appliance[]"
+                                                                    value="Orthodontic" <?php echo (isset($dental['appliance']) && in_array('Orthodontic', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>
+                                                                    class="mr-2">
+                                                                Orthodontic
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="appliance[]"
+                                                                    value="Stayplate" <?php echo (isset($dental['appliance']) && in_array('Stayplate', explode(',', $dental['appliance']))) ? 'checked' : ''; ?>
+                                                                    class="mr-2">
+                                                                Stayplate
+                                                            </label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                <!-- TMD -->
+                                                <div>
+                                                    <strong class="block mb-2">TMD:</strong>
+                                                    <ul class="space-y-1">
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Clenching"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Clenching', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Clenching
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Clicking"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Clicking', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Clicking
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Trismus"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Trismus', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Trismus
+                                                            </label>
+                                                        </li>
+                                                        <li>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="checkbox" name="tmd[]" value="Muscle Spasm"
+                                                                    <?php echo (isset($dental['tmd']) && in_array('Muscle Spasm', explode(',', $dental['tmd']))) ? 'checked' : ''; ?> class="mr-2">
+                                                                Muscle Spasm
+                                                            </label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+    <h5 class="font-medium text-gray-900 mb-3">Dental History (Detailed)</h5>
+    <div class="space-y-8 bg-white p-6 rounded-lg shadow">
+
+        <!-- Temporary Teeth (Upper) -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Upper)</h2>
+            <div class="grid grid-cols-10 gap-2">
+                <?php
+                $toothIds = ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'];
+                foreach ($toothIds as $toothId):
+                    $selectedVal = $teethData[$toothId] ?? '✓';
+                    $selectedLabel = $toothOptions[$selectedVal] ?? $selectedVal;
+                ?>
+                    <div class="flex flex-col items-center m-1">
+                        <input type="text" value="<?= htmlspecialchars($selectedLabel) ?>" disabled
+                            class="text-center border rounded p-1 w-24 bg-gray-100 cursor-not-allowed">
+                        <div class="text-center text-sm mt-1 font-medium">
+                            <?= $toothId ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Permanent Teeth (Upper) -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Upper)</h2>
+            <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
+                <?php
+                $toothIds = ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28'];
+                foreach ($toothIds as $toothId):
+                    $selectedVal = $teethData[$toothId] ?? '✓';
+                    $selectedLabel = $toothOptions[$selectedVal] ?? $selectedVal;
+                ?>
+                    <div class="flex flex-col items-center m-1">
+                        <input type="text" value="<?= htmlspecialchars($selectedLabel) ?>" disabled
+                            class="text-center border rounded p-1 w-24 bg-gray-100 cursor-not-allowed">
+                        <div class="text-center text-sm mt-1 font-medium">
+                            <?= $toothId ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Permanent Teeth (Lower) -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">Permanent Teeth (Lower)</h2>
+            <div class="grid grid-cols-8 md:grid-cols-16 gap-2">
+                <?php
+                $toothIds = ['48', '47', '46', '45', '44', '43', '42', '41', '31', '32', '33', '34', '35', '36', '37', '38'];
+                foreach ($toothIds as $toothId):
+                    $selectedVal = $teethData[$toothId] ?? '✓';
+                    $selectedLabel = $toothOptions[$selectedVal] ?? $selectedVal;
+                ?>
+                    <div class="flex flex-col items-center m-1">
+                        <input type="text" value="<?= htmlspecialchars($selectedLabel) ?>" disabled
+                            class="text-center border rounded p-1 w-24 bg-gray-100 cursor-not-allowed">
+                        <div class="text-center text-sm mt-1 font-medium">
+                            <?= $toothId ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Temporary Teeth (Lower) -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">Temporary Teeth (Lower)</h2>
+            <div class="grid grid-cols-10 gap-2">
+                <?php
+                $toothIds = ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75'];
+                foreach ($toothIds as $toothId):
+                    $selectedVal = $teethData[$toothId] ?? '✓';
+                    $selectedLabel = $toothOptions[$selectedVal] ?? $selectedVal;
+                ?>
+                    <div class="flex flex-col items-center m-1">
+                        <input type="text" value="<?= htmlspecialchars($selectedLabel) ?>" disabled
+                            class="text-center border rounded p-1 w-24 bg-gray-100 cursor-not-allowed">
+                        <div class="text-center text-sm mt-1 font-medium">
+                            <?= $toothId ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Other Notes -->
+        <div>
+            <h2 class="text-lg font-semibold mb-2">Other Notes</h2>
+            <textarea name="notes" rows="4" disabled
+                class="w-full border rounded p-2 bg-gray-100 cursor-not-allowed"><?php echo htmlspecialchars($dental['notes'] ?? ''); ?></textarea>
+        </div>
+
+        <!-- Legend -->
+        <div class="section-title">Legend</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="space-y-1">
+                <p><strong>D</strong> - Decayed</p>
+                <p><strong>M</strong> - Missing due to Caries</p>
+                <p><strong>F</strong> - Filled</p>
+                <p><strong>I</strong> - Caries for Extraction</p>
+                <p><strong>RF</strong> - Root Fragment</p>
+                <p><strong>MO</strong> - Missing Other Causes</p>
+                <p><strong>Im</strong> - Impacted Tooth</p>
+            </div>
+            <div class="space-y-1">
+                <p><strong>J</strong> - Jacket Crown</p>
+                <p><strong>A</strong> - Amalgam Filling</p>
+                <p><strong>A-B</strong> - Abutment</p>
+                <p><strong>P</strong> - Pontic</p>
+                <p><strong>In</strong> - Inlay</p>
+                <p><strong>FX</strong> - Fixed Cure Composite</p>
+                <p><strong>Rm</strong> - Removable Denture</p>
+            </div>
+            <div class="space-y-1">
+                <p><strong>X</strong> - Extraction due to Caries</p>
+                <p><strong>XO</strong> - Extraction due to other causes</p>
+                <p><strong>✓</strong> - Present Teeth</p>
+                <p><strong>Cn</strong> - Congenitally Missing</p>
+                <p><strong>Sp</strong> - Supernumerary</p>
+            </div>
+        </div>
+
+        <!-- Additional Notes -->
+        <div class="section-title">Additional Notes</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Periodontal Screening -->
+            <div>
+                <strong class="block mb-2">Periodontal Screening:</strong>
+                <ul class="space-y-1">
+                    <?php
+                    $periodontalValues = isset($dental['periodontal_screening']) ? explode(',', $dental['periodontal_screening']) : [];
+                    $options = ['Gingivitis', 'Early Periodontics', 'Moderate Periodontics', 'Advanced Periodontics'];
+                    foreach ($options as $option):
+                    ?>
+                        <li>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" disabled 
+                                    <?= in_array($option, $periodontalValues) ? 'checked' : '' ?>
+                                    class="mr-2">
+                                <?= $option ?>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
+            <!-- Occlusion -->
+            <div>
+                <strong class="block mb-2">Occlusion:</strong>
+                <ul class="space-y-1">
+                    <?php
+                    $occlusionValues = isset($dental['occlusion']) ? explode(',', $dental['occlusion']) : [];
+                    $options = ['Class (Molar)', 'Overjet', 'Overbite', 'Midline Deviation', 'Crossbite'];
+                    foreach ($options as $option):
+                    ?>
+                        <li>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" disabled 
+                                    <?= in_array($option, $occlusionValues) ? 'checked' : '' ?>
+                                    class="mr-2">
+                                <?= $option ?>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
+            <!-- Appliances -->
+            <div>
+                <strong class="block mb-2">Appliances:</strong>
+                <ul class="space-y-1">
+                    <?php
+                    $applianceValues = isset($dental['appliance']) ? explode(',', $dental['appliance']) : [];
+                    $options = ['Orthodontic', 'Stayplate'];
+                    foreach ($options as $option):
+                    ?>
+                        <li>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" disabled 
+                                    <?= in_array($option, $applianceValues) ? 'checked' : '' ?>
+                                    class="mr-2">
+                                <?= $option ?>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
+            <!-- TMD -->
+            <div>
+                <strong class="block mb-2">TMD:</strong>
+                <ul class="space-y-1">
+                    <?php
+                    $tmdValues = isset($dental['tmd']) ? explode(',', $dental['tmd']) : [];
+                    $options = ['Clenching', 'Clicking', 'Trismus', 'Muscle Spasm'];
+                    foreach ($options as $option):
+                    ?>
+                        <li>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" disabled 
+                                    <?= in_array($option, $tmdValues) ? 'checked' : '' ?>
+                                    class="mr-2">
+                                <?= $option ?>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
                             <?php else: ?>
                                 <div class="text-center py-8">
                                     <i class="fas fa-file-medical text-gray-300 text-5xl mb-4"></i>
                                     <p class="text-gray-500">No dental or medical records found for this patient.</p>
-                                    <a href="edit_patient.php?id=<?php echo $patientId; ?>" class="btn btn-primary mt-2">Edit Patient</a>
+                                    <a href="edit_patient.php?id=<?php echo $patientIds; ?>"
+                                        class="btn btn-primary mt-2">Edit Patient</a>
                                 </div>
                             <?php endif; ?>
                         </div>

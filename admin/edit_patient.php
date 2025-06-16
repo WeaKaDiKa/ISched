@@ -14,13 +14,13 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 }
 
 
-$patientId = intval($_GET['id']);
+$patientIds = intval($_GET['id']);
 
 $dentalhistoryQuery = "SELECT *
                FROM dentalhistory 
                WHERE patientid = ?";
 $dentalStmt = $conn->prepare($dentalhistoryQuery);
-$dentalStmt->bind_param("i", $patientId);
+$dentalStmt->bind_param("i", $patientIds);
 $dentalStmt->execute();
 $dentalResult = $dentalStmt->get_result();
 
@@ -37,7 +37,7 @@ $patientQuery = "SELECT p.*, pp.*
                LEFT JOIN patient_profiles pp ON p.id = pp.patient_id
                WHERE p.id = ?";
 $patientStmt = $conn->prepare($patientQuery);
-$patientStmt->bind_param("i", $patientId);
+$patientStmt->bind_param("i", $patientIds);
 $patientStmt->execute();
 $patientResult = $patientStmt->get_result();
 
@@ -72,13 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     WHERE id = ?";
 
     $updateStmt = $conn->prepare($updateQuery);
-    $updateStmt->bind_param("ssssssi", $firstName, $lastName, $email, $phoneNumber, $gender, $birthdate, $patientId);
+    $updateStmt->bind_param("ssssssi", $firstName, $lastName, $email, $phoneNumber, $gender, $birthdate, $patientIds);
 
     if ($updateStmt->execute()) {
         // Check if patient profile exists
         $checkProfileQuery = "SELECT * FROM patient_profiles WHERE patient_id = ?";
         $checkProfileStmt = $conn->prepare($checkProfileQuery);
-        $checkProfileStmt->bind_param("i", $patientId);
+        $checkProfileStmt->bind_param("i", $patientIds);
         $checkProfileStmt->execute();
         $profileResult = $checkProfileStmt->get_result();
 
@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $allergyPenicillin,
                 $allergySulfaDrugs,
                 $allergyAspirin,
-                $patientId
+                $patientIds
             );
             $updateProfileStmt->execute();
 
@@ -182,8 +182,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $createProfileStmt = $conn->prepare($createProfileQuery);
             $createProfileStmt->bind_param(
-                "issssiiiiiiissiiiiiii",
-                $patientId,
+                "issssiiiiiiissiiiiiiii",
+                $patientIds,
                 $physicianName,
                 $physicianSpecialty,
                 $physicianOfficeAddress,
@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $teethJson = json_encode($teethData);
     $check = $conn->prepare("SELECT 1 FROM dentalhistory WHERE patientid = ?");
-    $check->bind_param("i", $patientId);
+    $check->bind_param("i", $patientIds);
     $check->execute();
     $check->store_result();
 
@@ -284,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $lastDentalVisit,
             $reasonForConsultation,
             $referral,
-            $patientId
+            $patientIds
         );
     } else {
         $stmt = $conn->prepare("INSERT INTO dentalhistory 
@@ -293,7 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt->bind_param(
             "issssssssss",
-            $patientId,
+            $patientIds,
             $teethJson,
             $periodontalScreening,
             $occlusion,
@@ -308,7 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $stmt->execute();
-    header('location: view_patient.php?id=' . $patientId);
+    header('location: view_patient.php?id=' . $patientIds);
     exit();
 
 
@@ -320,7 +320,7 @@ $appointmentsQuery = "SELECT a.*,
                      WHERE a.patient_id = ? 
                      ORDER BY a.appointment_date DESC, a.appointment_time DESC";
 $appointmentsStmt = $conn->prepare($appointmentsQuery);
-$appointmentsStmt->bind_param("i", $patientId);
+$appointmentsStmt->bind_param("i", $patientIds);
 $appointmentsStmt->execute();
 $appointmentsResult = $appointmentsStmt->get_result();
 
@@ -473,7 +473,7 @@ while ($row = $appointmentsResult->fetch_assoc()) {
                                 </div>
                             </div>
                             <div class="flex space-x-2">
-                                <a href="view_patient.php?id=<?php echo $patientId; ?>"
+                                <a href="view_patient.php?id=<?php echo $patientIds; ?>"
                                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     <i class="fas fa-eye mr-2"></i> View Mode
                                 </a>
