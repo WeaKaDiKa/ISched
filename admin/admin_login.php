@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Check login attempts and verify password
-        $stmt = $conn->prepare("SELECT id, admin_id, type, password, name, attemptleft FROM admin_logins WHERE admin_id = ?");
+        $stmt = $conn->prepare("SELECT id, admin_id, type, password, name, attemptleft, profile_photo FROM admin_logins WHERE admin_id = ?");
         $stmt->bind_param("s", $login_id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -100,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_role'] = $user['type'];
+        $_SESSION['profile_photo'] = !empty($user['profile_photo']) ? $user['profile_photo'] : 'assets/photo/default_avatar.png';
 
         // Handle Remember Me functionality
         if ($remember_me) {
@@ -209,13 +210,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" name="rememberMe" id="rememberMe" class="mr-2">
                             <span class="text-gray-700">Remember me</span>
                         </label>
-                        <a href="forgotpassword.php" class="text-blue-600 hover:underline">Forgot password?</a>
+                        <a href="../forgotpassword.php" class="text-blue-600 hover:underline">Forgot password?</a>
                     </div>
                     <button type="submit"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-sm transition">Login</button>
-                    <button type="button" onclick="window.location.href='admin_signup.php'"
-                        class="w-full mt-3 bg-gray-200 text-gray-800 font-semibold py-2 rounded-lg shadow-sm transition cursor-pointer">Not
-                        registered? Signup</button>
                 </form>
             </div>
         </div>

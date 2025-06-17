@@ -18,6 +18,19 @@ if ($columnsResult->num_rows == 0) {
     $conn->query("ALTER TABLE patients ADD COLUMN otp_expires DATETIME NULL");
 }
 
+// Check if otp and otp_expires columns exist in the admin_logins table
+$columnsResult = $conn->query("SHOW COLUMNS FROM admin_logins LIKE 'otp'");
+if ($columnsResult->num_rows == 0) {
+    // Add otp column if it doesn't exist
+    $conn->query("ALTER TABLE admin_logins ADD COLUMN otp VARCHAR(6) NULL");
+}
+
+$columnsResult = $conn->query("SHOW COLUMNS FROM admin_logins LIKE 'otp_expires'");
+if ($columnsResult->num_rows == 0) {
+    // Add otp_expires column if it doesn't exist
+    $conn->query("ALTER TABLE admin_logins ADD COLUMN otp_expires DATETIME NULL");
+}
+
 // Initialize or get the current step
 if (!isset($_SESSION['password_reset_step'])) {
     $_SESSION['password_reset_step'] = 1;
@@ -31,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = "Invalid email format.";
         } else {
-            // Check if email exists
+            // Check if email exists in patients table
             $stmt = $conn->prepare("SELECT id, first_name, last_name FROM patients WHERE email = ?");
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -41,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $result->fetch_assoc();
                 $_SESSION['reset_user_id'] = $user['id'];
                 $_SESSION['reset_email'] = $email;
+                $_SESSION['account_type'] = 'patient';
 
                 // Generate and send OTP
                 $otp = rand(100000, 999999);
@@ -68,7 +82,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = "Failed to generate OTP.";
                 }
             } else {
-                $error = "Email not found in our records.";
+                // Check if email exists in admin_logins table
+                $stmt = $conn->prepare("SELECT id, name FROM admin_logins WHERE email = ?");
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows === 1) {
+                    $admin = $result->fetch_assoc();
+                    $_SESSION['reset_user_id'] = $admin['id'];
+                    $_SESSION['reset_email'] = $email;
+                    $_SESSION['account_type'] = 'admin';
+
+                    // Generate and send OTP
+                    $otp = rand(100000, 999999);
+                    $otp_expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+                    $stmt = $conn->prepare("UPDATE admin_logins SET otp = ?, otp_expires = ? WHERE id = ?");
+                    $stmt->bind_param("ssi", $otp, $otp_expires, $admin['id']);
+
+                    if ($stmt->execute()) {
+                        // Send OTP email
+                        $recipientEmail = $email;
+                        $recipientName = $admin['name'];
+                        $subject = 'Password Reset OTP';
+                        $messageBody = "Your OTP code for password reset is: $otp\n\n" .
+                            "This code will expire in 10 minutes.\n\n" .
+                            "Best regards,\nM&A Oida Dental Clinic";
+
+                        if (phpmailsend($recipientEmail, $recipientName, $subject, $messageBody)) {
+                            $_SESSION['password_reset_step'] = 2;
+                            $success = "OTP has been sent to your email.";
+                        } else {
+                            $error = "Failed to send OTP email. Please try again.";
+                        }
+                    } else {
+                        $error = "Failed to generate OTP.";
+                    }
+                } else {
+                    $error = "Email not found in our records.";
+                }
             }
         }
     }
@@ -76,8 +129,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (isset($_POST['verify_otp']) && $_SESSION['password_reset_step'] == 2) {
         $otp = $_POST['otp'];
         $user_id = $_SESSION['reset_user_id'];
+        $account_type = $_SESSION['account_type'];
 
-        $stmt = $conn->prepare("SELECT otp, otp_expires FROM patients WHERE id = ? AND otp = ?");
+        // Check OTP based on account type
+        if ($account_type === 'patient') {
+            $stmt = $conn->prepare("SELECT otp, otp_expires FROM patients WHERE id = ? AND otp = ?");
+        } else {
+            $stmt = $conn->prepare("SELECT otp, otp_expires FROM admin_logins WHERE id = ? AND otp = ?");
+        }
+        
         $stmt->bind_param("is", $user_id, $otp);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -86,13 +146,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $row = $result->fetch_assoc();
             if (strtotime($row['otp_expires']) > time()) {
                 // OTP verified successfully
-
-                // Proceed to password reset step
                 $_SESSION['password_reset_step'] = 3;
                 $success = "OTP verified successfully. Please set your new password.";
 
                 // Clear the OTP after verification for security
-                $clearOtpStmt = $conn->prepare("UPDATE patients SET otp = NULL, otp_expires = NULL WHERE id = ?");
+                if ($account_type === 'patient') {
+                    $clearOtpStmt = $conn->prepare("UPDATE patients SET otp = NULL, otp_expires = NULL WHERE id = ?");
+                } else {
+                    $clearOtpStmt = $conn->prepare("UPDATE admin_logins SET otp = NULL, otp_expires = NULL WHERE id = ?");
+                }
                 $clearOtpStmt->bind_param("i", $user_id);
                 $clearOtpStmt->execute();
             } else {
@@ -108,13 +170,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_password = $_POST['new_password'];
         $confirm_password = $_POST['confirm_password'];
         $user_id = $_SESSION['reset_user_id'];
+        $account_type = $_SESSION['account_type'];
 
         if ($new_password === $confirm_password) {
             if (strlen($new_password) < 8) {
                 $error = "New password must be at least 8 characters long.";
             } else {
                 $new_password_hash = password_hash($new_password, PASSWORD_DEFAULT);
-                $stmt = $conn->prepare("UPDATE patients SET password_hash = ?, otp = NULL, otp_expires = NULL, attemptleft = 3 WHERE id = ?");
+                
+                if ($account_type === 'patient') {
+                    $stmt = $conn->prepare("UPDATE patients SET password_hash = ?, otp = NULL, otp_expires = NULL, attemptleft = 3 WHERE id = ?");
+                } else {
+                    $stmt = $conn->prepare("UPDATE admin_logins SET password = ?, otp = NULL, otp_expires = NULL WHERE id = ?");
+                }
+                
                 $stmt->bind_param("si", $new_password_hash, $user_id);
 
                 if ($stmt->execute()) {
@@ -122,9 +191,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     unset($_SESSION['password_reset_step']);
                     unset($_SESSION['reset_user_id']);
                     unset($_SESSION['reset_email']);
+                    unset($_SESSION['account_type']);
 
                     $success = "Password has been reset successfully!";
-                    header("Location: login.php?msg=password_reset");
+                    // Redirect based on account type
+                    if ($account_type === 'patient') {
+                        header("Location: login.php?msg=password_reset");
+                    } else {
+                        header("Location: admin/admin_login.php?msg=password_reset");
+                    }
                     exit();
                 } else {
                     $error = "Failed to reset password.";

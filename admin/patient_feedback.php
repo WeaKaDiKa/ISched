@@ -229,6 +229,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                 <th class="px-4 py-2">Feedback</th>
                                 <th class="px-4 py-2">Services</th>
                                 <th class="px-4 py-2">Date</th>
+                                <th class="px-4 py-2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -236,7 +237,9 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 
                             $conn->query("UPDATE reviews SET is_seen = 1 WHERE is_seen = 0");
 
-                            $sql = "SELECT * FROM reviews ORDER BY rating DESC, date DESC";
+                            $sql = "SELECT * FROM reviews ORDER BY 
+                                CASE WHEN LOWER(TRIM(name)) = 'anonymous' THEN 1 ELSE 0 END,
+                                date DESC";
                             $result = $conn->query($sql);
 
                     
@@ -260,6 +263,13 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
                                     </td>
                                     <td class="px-4 py-2 text-gray-500">
                                         <?= date('Y-m-d', strtotime($row['date'])) ?>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <a href="?delete=<?= $row['id'] ?>" 
+                                           onclick="return confirm('Are you sure you want to delete this review?')"
+                                           class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
