@@ -117,19 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $barangay = filter_input(INPUT_POST, 'barangay', FILTER_VALIDATE_INT);
     $zip_code = htmlspecialchars($_POST['zip_code'] ?? '');
 
-    $date_of_birth_input = htmlspecialchars($_POST['date_of_birth'] ?? '');
-    $date_of_birth = '';
-
-    if (!empty($date_of_birth_input)) {
-        $date_obj = DateTime::createFromFormat('d-m-Y', $date_of_birth_input);
-        if ($date_obj) {
-            $date_of_birth = $date_obj->format('Y-m-d');
-        } else {
-            $error = "Invalid date format. Please use DD-MM-YYYY format";
-        }
-    }
-    $gender = htmlspecialchars($_POST['gender'] ?? '');
-
     // Basic validation
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Please enter a valid email address";
@@ -182,9 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         province = ?, 
         city = ?,
         barangay = ?, 
-        zip_code = ?,
-        date_of_birth = ?,
-        gender = ?";
+        zip_code = ?";
 
         if ($profile_picture) {
             $update_sql .= ", profile_picture = ?";
@@ -196,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($profile_picture) {
             $stmt->bind_param(
-                "ssiiiissssi",
+                "ssiiiissi",
                 $email,
                 $phone_number,
                 $region,
@@ -204,14 +189,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $city,
                 $barangay,
                 $zip_code,
-                $date_of_birth,
-                $gender,
+
                 $profile_picture,
                 $user_id
             );
         } else {
             $stmt->bind_param(
-                "ssiiiisssi",
+                "ssiiiisi",
                 $email,
                 $phone_number,
                 $region,
@@ -219,8 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $city,
                 $barangay,
                 $zip_code,
-                $date_of_birth,
-                $gender,
+              
                 $user_id
             );
         }
@@ -307,16 +290,16 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
                                         value="<?php echo htmlspecialchars($user['phone_number']); ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="dob" class="form-label">Date of Birth:</label>
+                                    <label for="dob" class="form-label">Birthday:</label>
                                     <div class="input-group">
                                         <input type="text" id="dob" name="date_of_birth" class="form-control"
-                                            value="<?php echo htmlspecialchars($formatted_dob); ?>">
+                                            value="<?php echo htmlspecialchars($formatted_dob); ?>" disabled>
                                         <span class="input-group-text">📅</span>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="gender" class="form-label">Gender:</label>
-                                    <select id="gender" name="gender" class="form-select">
+                                    <label for="gender" class="form-label">Sex:</label>
+                                    <select id="gender" name="gender" class="form-select" disabled>
                                         <option value="Male" <?= $user['gender'] === 'Male' ? 'selected' : '' ?>>Male
                                         </option>
                                         <option value="Female" <?= $user['gender'] === 'Female' ? 'selected' : '' ?>>Female

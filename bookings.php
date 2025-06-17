@@ -270,7 +270,7 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
 
                     <div class="services-grid mb-3">
                         <?php foreach ($services as $service): ?>
-                            <div class="service-card <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'selected' : ''; ?>"
+                            <div class="service-card mx-md-3 mx-5 <?php echo (isset($postData['services']) && is_array($postData['services']) && in_array($service['name'], $postData['services'])) ? 'selected' : ''; ?>"
                                 data-service-name="<?php echo htmlspecialchars($service['name']); ?>"
                                 data-service-price="<?php echo $service['price']; ?>">
                                 <div class="d-flex align-items-center justify-content-between">
@@ -385,13 +385,13 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
 
             <!-- Section 3: Payment Details -->
             <section id="section3" class="form-section">
-                <h2>Payment Details</h2>
-
+                <!--        <h2>Payment Details</h2> -->
+                <h2>Additional Notes (Optional)</h2>
                 <div class="payment-section">
                     <div class="payment-details">
-                        <h3>Payment (Estimated Price)</h3>
+                        <!--       <h3 class="d-none">Payment (Estimated Price)</h3> -->
 
-                        <div id="payment-services-list" class="selected-services-list">
+                        <div id="payment-services-list" class="selected-services-list d-none">
                             <?php if (!empty($_SESSION['selected_services']) && is_array($_SESSION['selected_services'])): ?>
                                 <?php
                                 $total = 0;
@@ -423,7 +423,7 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
                         <input type="hidden" name="total_price" value="<?php echo isset($total) ? $total : 0; ?>">
 
                         <div class="notes-section">
-                            <h3>Additional Notes (Optional)</h3>
+
                             <textarea name="additional_notes"
                                 placeholder="Any special requests or information we should know?"></textarea>
                         </div>
@@ -612,7 +612,8 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
                         </div>
                     </div>
 
-                    <div class="summary-pdf-box" style="background-color: #8fbaf3; color: #fff; border-radius: 8px; padding: 18px 0; text-align: center; font-size: 1.3rem;">
+                    <div class="summary-pdf-box"
+                        style="background-color: #8fbaf3; color: #fff; border-radius: 8px; padding: 18px 0; text-align: center; font-size: 1.3rem;">
                         Click Submit Appointment Button To Confirm The Appointment
                     </div>
 
@@ -797,7 +798,7 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
     </script>
 
     <!-- Medical History Yes/No Toggle Script -->
-  <!--   <script>
+    <!--   <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Map of radio button names to their detail row selectors
             const medicalDetailsMapping = {

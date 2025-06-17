@@ -115,10 +115,10 @@ if (isset($_SESSION['user_id'])) {
     <div class="modal-dialog modal-dialog-centered">
 
       <div class="modal-content  p-2">
-        <div class="justify-content-end d-flex w-100">
+        <div class="justify-content-end d-flex w-100 pb-0">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-header justify-content-between d-flex">
+        <div class="modal-header justify-content-between d-flex m-0 p-0">
           <h3 class="modal-title" id="serviceModalLabel">Service Details</h3>
 
         </div>
