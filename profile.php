@@ -47,7 +47,7 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
   <?php require_once 'includes/head.php' ?>
   <style>
     /* Password Change Modal Styles */
-/*     .modal {
+    /*     .modal {
       display: none;
       position: fixed;
       z-index: 1000;
@@ -143,159 +143,163 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
         <h1 class="profile-title mb-4">My Profile</h1>
 
         <div class="profile-content">
-     
-            <div class="profile-pic-section d-flex flex-column flex-md-row align-items-center mb-4">
-              <div class="profile-pic-container me-md-4 mb-3 mb-md-0">
-                <img src="<?= get_profile_image_url($user_id) ?>" alt="Profile Picture"
-                  class="profile-pic rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+
+          <div class="profile-pic-section d-flex flex-column flex-md-row align-items-center mb-4">
+            <div class="profile-pic-container me-md-4 mb-3 mb-md-0">
+              <img src="<?= get_profile_image_url($user_id) ?>" alt="Profile Picture" class="profile-pic rounded-circle"
+                style="width: 150px; height: 150px; object-fit: cover;">
+            </div>
+            <div class="profile-name-header text-center text-md-start">
+              <h2 class="mb-2">
+                <?= htmlspecialchars(trim("{$user['first_name']} {$user['middle_name']} {$user['last_name']}")) ?>
+              </h2>
+              <a href="edit_profile.php" class="edit-profile-btn btn btn-outline-primary">Edit Profile</a>
+            </div>
+          </div>
+
+          <div class="profile-info row">
+            <div class="info-column col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label">First Name:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['first_name']) ?>" readonly>
               </div>
-              <div class="profile-name-header text-center text-md-start">
-                <h2 class="mb-2">
-                  <?= htmlspecialchars(trim("{$user['first_name']} {$user['middle_name']} {$user['last_name']}")) ?>
-                </h2>
-                <a href="edit_profile.php" class="edit-profile-btn btn btn-outline-primary">Edit Profile</a>
+              <div class="form-group mb-3">
+                <label class="form-label">Middle Name:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['middle_name'] ?: 'N/A') ?>"
+                  readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Last Name:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['last_name']) ?>" readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Email Address:</label>
+                <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Phone Number:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['phone_number']) ?>" readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Date of Birth:</label>
+                <input type="text" class="form-control" value="<?= $formatted_dob ?>" readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Gender:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['gender']) ?>" readonly>
               </div>
             </div>
 
-            <div class="profile-info row">
-              <div class="info-column col-md-6">
-                <div class="form-group mb-3">
-                  <label class="form-label">First Name:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['first_name']) ?>" readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Middle Name:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['middle_name'] ?: 'N/A') ?>"
-                    readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Last Name:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['last_name']) ?>" readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Email Address:</label>
-                  <input type="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Phone Number:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['phone_number']) ?>"
-                    readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Date of Birth:</label>
-                  <input type="text" class="form-control" value="<?= $formatted_dob ?>" readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Gender:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['gender']) ?>" readonly>
-                </div>
+            <div class="info-column col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label">Region:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['region_name'] ?? '') ?>"
+                  readonly>
               </div>
-
-              <div class="info-column col-md-6">
-                <div class="form-group mb-3">
-                  <label class="form-label">Region:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['region_name'] ?? '') ?>"
-                    readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Province:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['province_name'] ?? '') ?>"
-                    readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">City/Municipality:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['city_name'] ?? '') ?>"
-                    readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Barangay:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['barangay_name'] ?? '') ?>"
-                    readonly>
-                </div>
-                <div class="form-group mb-3">
-                  <label class="form-label">Zip Code:</label>
-                  <input type="text" class="form-control" value="<?= htmlspecialchars($user['zip_code']) ?>" readonly>
-                </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Province:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['province_name'] ?? '') ?>"
+                  readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">City/Municipality:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['city_name'] ?? '') ?>"
+                  readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Barangay:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['barangay_name'] ?? '') ?>"
+                  readonly>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Zip Code:</label>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($user['zip_code']) ?>" readonly>
               </div>
             </div>
+          </div>
 
-            <div class="action-buttons d-flex flex-wrap gap-2 mt-4">
-              <button class="edit-password-btn btn btn-warning" id="editPasswordBtn">Edit Password</button>
-              <button class="logout-btn btn btn-danger" id="logoutBtn">Logout</button>
-              <form action="logout.php" method="POST" id="logoutForm" class="d-none">
-                <!-- Hidden form that will be submitted when confirmed -->
-              </form>
-            </div>
-         
+          <div class="action-buttons d-flex flex-wrap gap-2 mt-4">
+            <button class="edit-password-btn btn btn-warning" id="editPasswordBtn">Edit Password</button>
+            <!--              <button class="logout-btn btn btn-danger" id="logoutBtn">Logout</button> -->
+            <form action="logout.php" method="POST" id="logoutForm" class="d-none">
+              <!-- Hidden form that will be submitted when confirmed -->
+            </form>
+          </div>
+
         </div>
       </div>
     </div>
 
   </div>
-  <!-- Password Change Modal -->
-  <div id="passwordModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Change Password</h2>
+  <!-- Bootstrap 5 Modal -->
+  <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <?php if (isset($_GET['error']) && $_GET['error'] == 'incorrect'): ?>
+            <div class="alert alert-danger">Current Password is not correct</div>
+          <?php endif; ?>
+
+          <form id="passwordForm" action="update_password.php" method="POST">
+            <div class="mb-3">
+              <label for="current_password" class="form-label">Current Password</label>
+              <input type="password" class="form-control bg-warning bg-opacity-10" id="current_password"
+                name="current_password" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="new_password" class="form-label">New Password</label>
+              <input type="password" class="form-control bg-warning bg-opacity-10" id="new_password" name="new_password"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirm_password" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control bg-warning bg-opacity-10" id="confirm_password"
+                name="confirm_password" required>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
       </div>
-
-      <?php if (isset($_GET['error']) && $_GET['error'] == 'incorrect'): ?>
-        <div class="error-message">Current Password is not correct</div>
-      <?php endif; ?>
-
-      <form id="passwordForm" action="update_password.php" method="POST">
-        <div class="form-group">
-          <label for="current_password">Current Password</label>
-          <input type="password" id="current_password" name="current_password" required
-            style="background-color: #FFF9E6; border: 1px solid #ccc;">
-        </div>
-
-        <div class="form-group">
-          <label for="new_password">New Password</label>
-          <input type="password" id="new_password" name="new_password" required
-            style="background-color: #FFF9E6; border: 1px solid #ccc;">
-        </div>
-
-        <div class="form-group">
-          <label for="confirm_password">Confirm Password</label>
-          <input type="password" id="confirm_password" name="confirm_password" required
-            style="background-color: #FFF9E6; border: 1px solid #ccc;">
-        </div>
-
-        <button type="submit" class="submit-btn">Submit</button>
-      </form>
     </div>
   </div>
 
   <script>
-    // Get the modal
-    const modal = document.getElementById('passwordModal');
-    const editPasswordBtn = document.getElementById('editPasswordBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const logoutForm = document.getElementById('logoutForm');
+    // Initialize modal with Bootstrap's JavaScript
+    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
 
-    // When the user clicks the button, open the modal
-    editPasswordBtn.onclick = function () {
-      modal.style.display = 'flex';
-    }
-
-    // When the user clicks anywhere outside of the modal content, close it
-    window.onclick = function (event) {
-      if (event.target == modal) {
-        modal.style.display = 'none';
-      }
-    }
+    // Trigger modal when edit button is clicked
+    document.getElementById('editPasswordBtn').addEventListener('click', function () {
+      passwordModal.show();
+    });
 
     // Check for URL parameters on page load
-    window.onload = function () {
+    window.addEventListener('DOMContentLoaded', function () {
       <?php if (isset($_GET['error']) && isset($_GET['message'])): ?>
         showErrorModal('<?php echo htmlspecialchars($_GET['message']); ?>');
       <?php endif; ?>
 
       <?php if (isset($_GET['success']) && $_GET['success'] == 'password_updated'): ?>
         showSuccessModal('Password updated successfully!');
+        // Optionally show the password modal if you want
+        // passwordModal.show();
       <?php endif; ?>
-    }
+
+      // Auto-show modal if there's a password error
+      <?php if (isset($_GET['error']) && $_GET['error'] == 'incorrect'): ?>
+        passwordModal.show();
+      <?php endif; ?>
+    });
 
     // Form validation
     document.getElementById('passwordForm').addEventListener('submit', function (e) {
@@ -308,6 +312,12 @@ $formatted_dob = date('d-m-Y', strtotime($user['date_of_birth']));
       }
     });
 
+    // Check for URL parameters on page load
+    window.onload = function () {
+      <?php if (isset($_GET['error']) && isset($_GET['message'])): ?>
+        showErrorModal('<?php echo htmlspecialchars($_GET['message']); ?>');
+      <?php endif; ?>
+    }
     // Error Modal Function
     function showErrorModal(message) {
       // Create modal elements

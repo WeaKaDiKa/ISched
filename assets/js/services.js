@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const modal      = document.getElementById('serviceModal');
-    const closeBtn   = modal.querySelector('.close');
-    const bookBtn    = modal.querySelector('.modal-book-btn');
+
     const items      = document.querySelectorAll('.service-item');
     
   
@@ -48,34 +47,4 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   
-    // close modal
-    closeBtn.addEventListener('click', () => modal.style.display = 'none');
-    window.addEventListener('click', e => {
-      if (e.target === modal) modal.style.display = 'none';
-    });
-  
-    // Book Now inside modal - handled in services.php
-    // We're not adding an event listener here to avoid conflicts
-    // The event listener is now in services.php
-    
-    // Add close functionality for login modal
-    const loginModal = document.getElementById('loginModal');
-    const loginCloseBtn = loginModal.querySelector('.close');
-    
-    // Close login modal when clicking the X
-    loginCloseBtn.addEventListener('click', () => {
-      loginModal.style.display = 'none';
-    });
-    
-    // Close login modal when clicking outside of it
-    window.addEventListener('click', e => {
-      if (e.target === loginModal) {
-        loginModal.style.display = 'none';
-      }
-    });
-    
-    // Close function for login modal
-    window.closeLoginModal = function() {
-      loginModal.style.display = 'none';
-    };
   });

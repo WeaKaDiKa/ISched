@@ -32,9 +32,11 @@ if ($date < $currentDate) {
         $all_slots[$formatted_time] = $formatted_time;
     }
     $response['all_slots'] = $all_slots;
-    $current_time = date('H:i:s');
+    $current_time = date('H:i:s'); 
+    $cutoff_time = strtotime($current_time) + (2 * 60 * 60);
+
     foreach ($all_slots as $key => $value) {
-        if (strtotime($key) < strtotime($current_time)) {
+        if (strtotime($key) < $cutoff_time) {
             unset($all_slots[$key]);
         }
     }

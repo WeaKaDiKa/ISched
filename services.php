@@ -99,7 +99,8 @@ if (isset($_SESSION['user_id'])) {
             $exactName = 'Periapical X-ray';
           }
           ?>
-          <div class="service-item" data-exact-service-name="<?= htmlspecialchars($exactName) ?>">
+          <div class="service-item" data-exact-service-name="<?= htmlspecialchars($exactName) ?>" data-bs-toggle="modal"
+            data-bs-target="#serviceModal">
             <p><?= htmlspecialchars($svc[0]) ?></p>
             <img src="assets/photos/clinics/<?= $svc[1] ?>" alt="<?= htmlspecialchars($svc[0]) ?>">
           </div>
@@ -108,18 +109,31 @@ if (isset($_SESSION['user_id'])) {
     </section>
   </main>
 
-  <!-- Service Modal -->
-  <div id="serviceModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <img id="modalImage" src="" alt="Service Image" class="modal-image">
-      <div class="modal-description">
-        <h2 id="modalTitle"></h2>
-        <p id="modalDescription"></p>
-        <button class="modal-book-btn" id="bookNowBtn">Book Now</button>
+
+  <!-- Bootstrap 5 Service Modal -->
+  <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+
+      <div class="modal-content  p-2">
+        <div class="justify-content-end d-flex w-100">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-header justify-content-between d-flex">
+          <h3 class="modal-title" id="serviceModalLabel">Service Details</h3>
+
+        </div>
+        <div class="modal-body text-center">
+          <img id="modalImage" src="" alt="Service Image" class="img-fluid rounded mb-4" style="max-height: 200px;">
+          <div class="modal-description">
+            <h3 id="modalTitle" class="fs-4"></h3>
+            <p id="modalDescription" class="text-muted"></p>
+            <button class="btn btn-primary btn-lg w-100" id="bookNowBtn">Book Now</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- Login Notification Modal -->
   <div id="loginModal" class="modal">
@@ -173,17 +187,7 @@ if (isset($_SESSION['user_id'])) {
       }
     }
 
-    // Function to close the login modal
-    function closeLoginModal() {
-      loginModal.style.display = 'none';
-    }
 
-    // Close login modal when clicking outside of it
-    window.addEventListener('click', function (event) {
-      if (event.target === loginModal) {
-        closeLoginModal();
-      }
-    });
   </script>
 
   <!-- Notification functionality is now handled by notifications.js -->

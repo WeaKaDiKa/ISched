@@ -253,12 +253,12 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
 
             <!-- Section 1: Services Selection -->
             <div id="section1" class="form-section <?php echo $current_section === 'services' ? 'active' : ''; ?>">
-                <h2>Select Your Services</h2>
+                <h2>Services</h2>
 
                 <div class="services-header">
                     <div class="services-title">Select Dental Services</div>
                     <div class="services-subtitle">Click on any service card below to select it. Select at least one
-                        dental service for your appointment.</div>
+                        dental service for your appointment. Maximum of three services can be selected</div>
                 </div>
 
                 <?php if (isset($errors['services'])): ?>

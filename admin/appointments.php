@@ -223,30 +223,42 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 </div>
 
                 <div class="flex flex-col md:flex-row mb-6">
-
-                    <button type="button" onclick="showSection('pending')" id="pending-btn"
-                        class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
-                        <i class="fas fa-clock mr-2"></i>Pending
-                    </button>
-                    <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
-                        class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
-                        <i class="fas fa-calendar-check mr-2"></i>Upcoming
-                    </button>
-                    <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
-                        class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
-                        <i class="fas fa-calendar-alt mr-2"></i>Rescheduled
-                    </button>
-                    <button type="button" onclick="showSection('completed')" id="completed-btn"
-                        class="action-button bg-green-600 hover:bg-green-700 text-white font-semibold md:mr-4">
-                        <i class="fa-solid fa-circle-check mr-2"></i>Completed
-                    </button>
-                    <button type="button" onclick="showSection('canceled')" id="canceled-btn"
-                        class="action-button bg-red-700 hover:bg-red-800 text-white font-semibold">
-                        <i class="fas fa-times-circle mr-2"></i>Canceled
-                    </button>
-
+                    <?php if ($_SESSION['user_role'] !== 'dentist'): ?>
+                        <button type="button" onclick="showSection('pending')" id="pending-btn"
+                            class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
+                            <i class="fas fa-clock mr-2"></i>Pending
+                        </button>
+                        <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
+                            class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
+                            <i class="fas fa-calendar-check mr-2"></i>Upcoming
+                        </button>
+                        <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
+                            class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
+                            <i class="fas fa-calendar-alt mr-2"></i>Rescheduled
+                        </button>
+                        <button type="button" onclick="showSection('completed')" id="completed-btn"
+                            class="action-button bg-green-600 hover:bg-green-700 text-white font-semibold md:mr-4">
+                            <i class="fa-solid fa-circle-check mr-2"></i>Completed
+                        </button>
+                        <button type="button" onclick="showSection('canceled')" id="canceled-btn"
+                            class="action-button bg-red-700 hover:bg-red-800 text-white font-semibold">
+                            <i class="fas fa-times-circle mr-2"></i>Canceled
+                        </button>
+                    <?php else: ?>
+                        <button type="button" onclick="showSection('pending')" id="pending-btn"
+                            class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
+                            <i class="fas fa-clock mr-2"></i>Pending
+                        </button>
+                        <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
+                            class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
+                            <i class="fas fa-calendar-check mr-2"></i>Upcoming
+                        </button>
+                        <button type="button" onclick="showSection('completed')" id="completed-btn"
+                            class="action-button bg-green-600 hover:bg-green-700 text-white font-semibold">
+                            <i class="fa-solid fa-circle-check mr-2"></i>Completed
+                        </button>
+                    <?php endif; ?>
                 </div>
-
                 <div class="my-4 w-full overflow-x-scroll">
                     <div id="pending-section" class="w-full block">
                         <div class="appointments-table-container p-2">
