@@ -7,6 +7,9 @@ if (session_status() == PHP_SESSION_NONE) {
 // Include database connection
 require_once('db.php');
 
+// Include TCPDF from your specific path
+require_once('admin/tcpdf/tcpdf.php');
+
 // Check if reference ID is provided
 if (!isset($_GET['ref']) || empty($_GET['ref'])) {
     die('Reference ID is required');
@@ -20,10 +23,9 @@ $appointmentId = intval($appointmentId);
 
 // Fetch appointment details from database
 $stmt = $conn->prepare("SELECT a.*, p.first_name, p.last_name, p.email, p.phone_number
-                         FROM appointments a 
-                         LEFT JOIN patients p ON a.patient_id = p.id 
-                         WHERE a.id = ?");
-
+                       FROM appointments a 
+                       LEFT JOIN patients p ON a.patient_id = p.id 
+                       WHERE a.id = ?");
 $stmt->bind_param("i", $appointmentId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -34,165 +36,112 @@ if ($result->num_rows === 0) {
 
 $appointment = $result->fetch_assoc();
 
-// Generate the reference number in the same format as in bookings.php
+// Generate the reference number
 $formattedReferenceNumber = 'OIDA-' . str_pad($appointmentId, 8, '0', STR_PAD_LEFT);
 
 // Format date
 $appointmentDate = date('F j, Y', strtotime($appointment['appointment_date']));
 
-
 // Format services
 $services = explode(', ', $appointment['services']);
-$servicesList = '';
-foreach ($services as $service) {
-    $servicesList .= '<li>' . htmlspecialchars(trim($service)) . '</li>';
+
+// Create new PDF document
+$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+// Set document information
+$pdf->SetCreator('Oida Dental Clinic');
+$pdf->SetAuthor('Oida Dental Clinic');
+$pdf->SetTitle('Appointment Confirmation - ' . $formattedReferenceNumber);
+$pdf->SetSubject('Appointment Confirmation');
+
+// Set margins
+$pdf->SetMargins(15, 15, 15);
+$pdf->SetHeaderMargin(10);
+$pdf->SetFooterMargin(10);
+
+// Add a page
+$pdf->AddPage();
+
+// Add logo
+$logoPath = 'path/to/your/logo.png'; // Set your logo path
+if (file_exists($logoPath)) {
+    $pdf->Image($logoPath, 15, 10, 30, 0, 'PNG');
 }
 
-// Set headers for download
-header('Content-Type: text/html');
-header('Content-Disposition: attachment; filename=Appointment_' . $formattedReferenceNumber . '.html');
-header('Cache-Control: max-age=0');
+// Set font for title
+$pdf->SetFont('helvetica', 'B', 16);
+$pdf->SetY(40);
+$pdf->Cell(0, 10, 'Appointment Booking Confirmation', 0, 1, 'C');
 
-// Output HTML content
-echo '<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Appointment Booking - ' . htmlspecialchars($formattedReferenceNumber) . '</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
-        }
-        h1 {
-            color: #4CAF50;
-            font-size: 24px;
-            margin: 10px 0;
-        }
-        .reference {
-            background-color: #f1f8e9;
-            border: 1px solid #c5e1a5;
-            border-radius: 5px;
-            padding: 10px;
-            text-align: center;
-            margin: 15px 0;
-            font-size: 16px;
-        }
-        .section {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .section h2 {
-            color: #2196F3;
-            font-size: 18px;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        .info-row {
-            margin-bottom: 8px;
-        }
-        .info-label {
-            font-weight: bold;
-            display: inline-block;
-            width: 150px;
-        }
-        .notes {
-            background-color: #fff8e1;
-            border-left: 4px solid #ffc107;
-            padding: 10px;
-            margin-top: 15px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-        }
-        @media print {
-            body {
-                padding: 0;
-                margin: 15mm;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Appointment Booking Confirmation</h1>
-    </div>
-    
-    <div class="reference">
-        <strong>Reference Number:</strong> ' . htmlspecialchars($formattedReferenceNumber) . '
-    </div>
-    
-    <div class="section">
-        <h2>Patient Information</h2>
-        <div class="info-row">
-            <span class="info-label">Name:</span>
-            <span>' . htmlspecialchars($appointment['first_name'] . ' ' . $appointment['last_name']) . '</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Email:</span>
-            <span>' . htmlspecialchars($appointment['email']) . '</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Phone Number:</span>
-            <span>' . htmlspecialchars($appointment['phone_number']) . '</span>
-        </div>
-    </div>
-    
-    <div class="section">
-        <h2>Appointment Details</h2>
-        <div class="info-row">
-            <span class="info-label">Date:</span>
-            <span>' . htmlspecialchars($appointmentDate) . '</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Time:</span>
-            <span>' . htmlspecialchars($appointment['appointment_time']) . '</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Clinic Branch:</span>
-            <span>North Fairview Branch</span>
-        </div>
+// Reference number
+$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFillColor(241, 248, 233);
+$pdf->Cell(0, 10, 'Reference Number: ' . $formattedReferenceNumber, 0, 1, 'C', 1);
 
-        <div class="info-row">
-            <span class="info-label">Status:</span>
-            <span>' . htmlspecialchars($appointment['status']) . '</span>
-        </div>
-    </div>
-    
-    <div class="section">
-        <h2>Services</h2>
-        <ul>
-            ' . $servicesList . '
-        </ul>
-    </div>
-    
-    <div class="notes">
-        <h2>Important Notes</h2>
-        <ul>
-            <li>Please arrive 15 minutes before your scheduled appointment time.</li>
-            <li>Bring any previous dental records or X-rays if available.</li>
-            <li>If you need to cancel or reschedule, please do so at least 24 hours in advance.</li>
-            <li>For any questions, please contact us at (02) 8-123-4567 or email at info@oidadental.com</li>
-        </ul>
-    </div>
-    
-    <div class="footer">
-        <p>Thank you for choosing M&A Oida Dental Clinic for your dental care needs.</p>
-        <p>This is a computer-generated document and requires no signature.</p>
-    </div>
-</body>
-</html>';
+// Patient Information
+$pdf->SetFont('helvetica', 'B', 14);
+$pdf->Cell(0, 10, 'Patient Information', 0, 1);
+$pdf->SetFont('helvetica', '', 12);
+
+$pdf->Cell(40, 7, 'Name:', 0, 0);
+$pdf->Cell(0, 7, $appointment['first_name'] . ' ' . $appointment['last_name'], 0, 1);
+
+$pdf->Cell(40, 7, 'Email:', 0, 0);
+$pdf->Cell(0, 7, $appointment['email'], 0, 1);
+
+$pdf->Cell(40, 7, 'Phone Number:', 0, 0);
+$pdf->Cell(0, 7, $appointment['phone_number'], 0, 1);
+
+// Appointment Details
+$pdf->SetFont('helvetica', 'B', 14);
+$pdf->Cell(0, 10, 'Appointment Details', 0, 1, 'L');
+$pdf->SetFont('helvetica', '', 12);
+
+$pdf->Cell(40, 7, 'Date:', 0, 0);
+$pdf->Cell(0, 7, $appointmentDate, 0, 1);
+
+$pdf->Cell(40, 7, 'Time:', 0, 0);
+$pdf->Cell(0, 7, $appointment['appointment_time'], 0, 1);
+
+$pdf->Cell(40, 7, 'Clinic Branch:', 0, 0);
+$pdf->Cell(0, 7, 'North Fairview Branch', 0, 1);
+
+$pdf->Cell(40, 7, 'Status:', 0, 0);
+$pdf->Cell(0, 7, $appointment['status'], 0, 1);
+
+// Services
+$pdf->SetFont('helvetica', 'B', 14);
+$pdf->Cell(0, 10, 'Services', 0, 1);
+$pdf->SetFont('helvetica', '', 12);
+
+foreach ($services as $service) {
+    $pdf->Cell(5, 7, '', 0, 0);
+    $pdf->Cell(0, 7, '• ' . trim($service), 0, 1);
+}
+
+// Important Notes
+$pdf->SetFont('helvetica', 'B', 14);
+$pdf->Cell(0, 10, 'Important Notes', 0, 1);
+$pdf->SetFont('helvetica', '', 12);
+
+$notes = [
+    'Please arrive 15 minutes before your scheduled appointment time.',
+    'Bring any previous dental records or X-rays if available.',
+    'If you need to cancel or reschedule, please do so at least 24 hours in advance.',
+    'For any questions, please contact us at (02) 8-123-4567 or email at info@oidadental.com'
+];
+
+foreach ($notes as $note) {
+    $pdf->Cell(5, 7, '', 0, 0);
+    $pdf->Cell(0, 7, '• ' . $note, 0, 1);
+}
+
+// Footer
+$pdf->SetY(-40);
+$pdf->SetFont('helvetica', 'I', 10);
+$pdf->Cell(0, 7, 'Thank you for choosing M&A Oida Dental Clinic for your dental care needs.', 0, 1, 'C');
+$pdf->Cell(0, 7, 'This is a computer-generated document and requires no signature.', 0, 1, 'C');
+
+// Output PDF
+$pdf->Output('Appointment_' . $formattedReferenceNumber . '.pdf', 'D');
+exit;

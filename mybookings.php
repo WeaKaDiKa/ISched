@@ -247,6 +247,20 @@ $userData = $userResult->fetch_assoc();
             color: white;
             font-weight: 600;
         }
+
+        .star-rating .star.active {
+            color: #FFD700 !important;
+        }
+
+        .star-rating .star.hover {
+            color: #FFD700 !important;
+        }
+
+        .star {
+            font-size: 3rem;
+            /* adjust as needed */
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -418,13 +432,20 @@ $userData = $userResult->fetch_assoc();
                                 </div>
                             <?php endif; ?>
 
+                            <!-- Review Button (in the card footer) -->
                             <?php if ($booking['status'] === 'completed'): ?>
                                 <div class="card-footer d-flex gap-2">
-                                    <a href="reviews.php?appointment_id=<?= $booking['id'] ?>" class="btn btn-primary btn-sm">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#reviewModal" data-appointment-id="<?= $booking['id'] ?>"
+                                        data-date="<?= date('F j, Y', strtotime($booking['appointment_date'])) ?>"
+                                        data-time="<?= htmlspecialchars($booking['appointment_time']) ?>"
+                                        data-services="<?= htmlspecialchars($booking['services']) ?>">
                                         Write a Review
-                                    </a>
+                                    </button>
+
                                 </div>
                             <?php endif; ?>
+
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
@@ -440,6 +461,220 @@ $userData = $userResult->fetch_assoc();
         </div>
     </div>
 
+
+    <!-- Review Modal (Bootstrap version) -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewModalLabel">Add a Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+
+                    <!-- Booking Details -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Date:</dt>
+                                <dd class="col-sm-8" id="modalAppointmentDate"></dd>
+                                <dt class="col-sm-4">Time:</dt>
+                                <dd class="col-sm-8" id="modalAppointmentTime"></dd>
+                                <dt class="col-sm-4">Branch:</dt>
+                                <dd class="col-sm-8">North Fairview Branch</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Service Type -->
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold">Services Received</label>
+                        <div id="serviceButtons" class="d-flex flex-wrap gap-2">
+                            <!-- Services will be added here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold">Your Rating</label>
+                        <div class="star-rating">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <span class="star text-2xl cursor-pointer text-gray-300" data-value="<?= $i ?>">★</span>
+                            <?php endfor; ?>
+                        </div>
+                        <div class="rating-text text-muted small mt-1">Select your rating</div>
+                        <input type="hidden" id="selectedRating" value="">
+                    </div>
+
+                    <!-- Feedback -->
+                    <div class="form-group mb-4">
+                        <label for="reviewText" class="font-weight-bold">Your Feedback</label>
+                        <textarea id="reviewText" rows="4" maxlength="500" class="form-control"
+                            placeholder="Tell us about your experience..."></textarea>
+                        <div id="wordCount" class="text-muted small text-right mt-1">0 / 500 characters</div>
+                    </div>
+
+                    <!-- Anonymous Toggle -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="anonToggle">
+                        <label class="form-check-label" for="anonToggle">Review anonymously</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="submitReview" class="btn btn-primary">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize modal with booking data
+            $('#reviewModal').on('show.bs.modal', function (event) {
+                const button = $(event.relatedTarget);
+                const modal = $(this);
+
+                // Set appointment details
+                modal.find('#modalAppointmentDate').text(button.data('date'));
+                modal.find('#modalAppointmentTime').text(button.data('time'));
+
+                // Process services
+                const services = button.data('services').split(', ');
+                const serviceButtons = modal.find('#serviceButtons');
+                serviceButtons.empty();
+
+                services.forEach(service => {
+                    if (service.trim()) {
+                        serviceButtons.append(`
+                    <button type="button" class="btn btn-outline-primary btn-sm service-btn" 
+                            data-service="${service.trim()}">
+                        ${service.trim()}
+                    </button>
+                `);
+                    }
+                });
+
+                // Store appointment ID
+                modal.data('appointment-id', button.data('appointment-id'));
+
+                // Reset form
+                modal.find('.star').removeClass('text-warning').addClass('text-secondary');
+                modal.find('.rating-text').text('Select your rating');
+                modal.find('#selectedRating').val('');
+                modal.find('#reviewText').val('');
+                modal.find('#wordCount').text('0 / 500 characters');
+                modal.find('#anonToggle').prop('checked', false);
+            });
+
+            // Service button selection
+            $(document).on('click', '.service-btn', function () {
+                $(this).toggleClass('btn-primary btn-outline-primary');
+            });
+
+            // Star rating functionality
+            $('.star').hover(
+                function () {
+                    const value = $(this).data('value');
+                    $('.star').each(function () {
+                        $(this).toggleClass('text-warning text-secondary', $(this).data('value') <= value);
+                    });
+                },
+                function () {
+                    const selectedValue = $('#selectedRating').val();
+                    if (!selectedValue) {
+                        $('.star').removeClass('text-warning').addClass('text-secondary');
+                    }
+                }
+            );
+
+            $('.star').click(function () {
+                const value = $(this).data('value');
+                $('#selectedRating').val(value);
+                $('.rating-text').text(`You rated: ${value} star${value > 1 ? 's' : ''}`);
+                $('.star').each(function () {
+                    $(this).toggleClass('text-warning text-secondary', $(this).data('value') <= value);
+                });
+            });
+
+            // Word count for feedback
+            $('#reviewText').on('input', function () {
+                const count = $(this).val().length;
+                $('#wordCount').text(`${count} / 500 characters`);
+            });
+
+            // Submit review
+            $('#submitReview').click(function () {
+                const modal = $('#reviewModal');
+                const selectedServices = [];
+
+                modal.find('.service-btn.btn-primary').each(function () {
+                    selectedServices.push($(this).data('service'));
+                });
+
+                const rating = $('#selectedRating').val();
+                const text = $('#reviewText').val();
+                const isAnonymous = $('#anonToggle').is(':checked');
+
+                // Prepare the data object
+                const reviewData = {
+                    rating: rating,
+                    text: text,
+                    services: selectedServices,
+                    anon: isAnonymous
+                };
+
+                console.log("Request payload:", reviewData);
+
+                $.ajax({
+                    url: 'submit_review.php',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(reviewData),
+                    dataType: 'json',
+                    success: function (response, status, xhr) {
+                        console.group("AJAX Success Response");
+                        console.log("Status:", status);
+                        console.log("HTTP Status:", xhr.status);
+                        console.log("Raw Response:", xhr.responseText);
+                        console.log("Parsed Response:", response);
+                        console.groupEnd();
+
+                        if (response.success) {
+                            alert('Thank you for your review!');
+                            modal.modal('hide');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + (response.error || 'Failed to submit review'));
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.group("AJAX Error Response");
+                        console.error("Status:", status);
+                        console.error("HTTP Status:", xhr.status);
+                        console.error("Error:", error);
+                        console.error("Raw Response:", xhr.responseText);
+                        try {
+                            const parsedResponse = JSON.parse(xhr.responseText);
+                            console.error("Parsed Error Response:", parsedResponse);
+                        } catch (e) {
+                            console.error("Failed to parse error response:", e);
+                        }
+                        console.groupEnd();
+
+                        let errorMsg = 'An error occurred';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMsg = response.error || errorMsg;
+                        } catch (e) { }
+                        alert(errorMsg + ': ' + error);
+                    }
+                });
+            });
+        });
+    </script>
     <!-- Appointment Details Modal -->
 
     <div id="appointmentDetailsOverlay" class="modal-overlay" style="display:none;">
@@ -490,7 +725,7 @@ $userData = $userResult->fetch_assoc();
         cancelForm.addEventListener('submit', function () {
             cancelModal.hide();
         });
-  
+
     </script>
     <script>
         function showAppointmentDetails(bookingId, patientName, services, date, time, status) {

@@ -146,6 +146,12 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
         .action-button {
             padding: 5px;
         }
+
+        .action-button.active span {
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-thickness: 2px;
+        }
     </style>
     <script>
         // Move variable declarations to the top
@@ -227,36 +233,37 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                     <?php if ($_SESSION['user_role'] !== 'dentist'): ?>
                         <button type="button" onclick="showSection('pending')" id="pending-btn"
                             class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
-                            <i class="fas fa-clock mr-2"></i>Pending
+                            <i class="fas fa-clock mr-2"></i><span>Pending</span>
                         </button>
                         <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
                             class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
-                            <i class="fas fa-calendar-check mr-2"></i>Upcoming
+                            <i class="fas fa-calendar-check mr-2"></i><span>Upcoming</span>
                         </button>
                         <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
                             class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
-                            <i class="fas fa-calendar-alt mr-2"></i>Rescheduled
+                            <i class="fas fa-calendar-alt mr-2"></i><span>Rescheduled</span>
                         </button>
                         <button type="button" onclick="showSection('completed')" id="completed-btn"
                             class="action-button bg-green-600 hover:bg-green-700 text-white font-semibold md:mr-4">
-                            <i class="fa-solid fa-circle-check mr-2"></i>Completed
+                            <i class="fa-solid fa-circle-check mr-2"></i><span>Completed</span>
                         </button>
                         <button type="button" onclick="showSection('canceled')" id="canceled-btn"
                             class="action-button bg-red-700 hover:bg-red-800 text-white font-semibold">
-                            <i class="fas fa-times-circle mr-2"></i>Canceled
+                            <i class="fas fa-times-circle mr-2"></i><span>Canceled</span>
                         </button>
                     <?php else: ?>
-                        <button type="button" onclick="showSection('pending')" id="pending-btn"
-                            class="action-button bg-yellow-400 hover:bg-yellow-500 text-white font-semibold md:mr-4">
-                            <i class="fas fa-clock mr-2"></i>Pending
-                        </button>
+
                         <button type="button" onclick="showSection('upcoming')" id="upcoming-btn"
                             class="action-button bg-green-700 hover:bg-green-800 text-white font-semibold md:mr-4">
-                            <i class="fas fa-calendar-check mr-2"></i>Upcoming
+                            <i class="fas fa-calendar-check mr-2"></i><span>Upcoming</span>
+                        </button>
+                        <button type="button" onclick="showSection('rescheduled')" id="rescheduled-btn"
+                            class="action-button bg-blue-800 hover:bg-blue-900 text-white font-semibold md:mr-4">
+                            <i class="fas fa-calendar-alt mr-2"></i><span>Rescheduled</span>
                         </button>
                         <button type="button" onclick="showSection('completed')" id="completed-btn"
                             class="action-button bg-green-600 hover:bg-green-700 text-white font-semibold">
-                            <i class="fa-solid fa-circle-check mr-2"></i>Completed
+                            <i class="fa-solid fa-circle-check mr-2"></i><span>Completed</span>
                         </button>
                     <?php endif; ?>
                 </div>
@@ -343,6 +350,12 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                             class="fas fa-check"></i></button>
 
                                                     <button
+                                                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded px-2 py-1 mr-1"
+                                                        type="button" title="Decline"
+                                                        onclick="showConfirmModal('decline', '<?= htmlspecialchars($patientName) ?>', '<?= htmlspecialchars($date) ?>', '<?= htmlspecialchars($time) ?>', '<?= htmlspecialchars($ref) ?>', '<?= htmlspecialchars($service) ?>')"><i
+                                                            class="fas fa-times"></i></button>
+
+                                                    <button
                                                         class="bg-blue-700 text-white text-xs font-semibold rounded px-3 py-1"
                                                         type="button" title="Details"
                                                         onclick="showDetailsModal('<?= htmlspecialchars($ref) ?>','<?= htmlspecialchars($patientName) ?>','<?= htmlspecialchars($service) ?>','<?= htmlspecialchars($date) ?>','<?= htmlspecialchars($time) ?>','<?= htmlspecialchars($row['status'] ?? 'pending') ?>')">
@@ -365,6 +378,12 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                 });
                             </script>
 
+                        </div>
+                        <div class="mt-4 text-left">
+                            <button onclick="generateReport('pending')"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
+                                <i class="fas fa-file-pdf mr-2"></i> Generate Report
+                            </button>
                         </div>
                     </div>
 
@@ -389,17 +408,31 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                         <th
                                             class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
                                             Time</th>
+                                        <th
+                                            class="border-r border-gray-300 font-semibold text-left px-4 py-2 whitespace-nowrap">
+                                            Dentist</th>
                                         <th class="font-semibold text-left px-4 py-2 whitespace-nowrap">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
                                     // Fetch upcoming appointments
-                                    $sql = "SELECT a.*, p.first_name, p.middle_name, p.last_name 
-        FROM appointments a 
-        LEFT JOIN patients p ON a.patient_id = p.id 
-        WHERE a.status IN ('booked') 
-        ORDER BY a.appointment_date ASC, a.appointment_time ASC";
+                                    $sql = "SELECT     a.*, 
+    p.first_name, 
+    p.middle_name, 
+    p.last_name, 
+    CONCAT(al.first_name, ' ', al.last_name) AS dentistname
+FROM 
+    appointments a 
+LEFT JOIN 
+    patients p ON a.patient_id = p.id 
+LEFT JOIN 
+    admin_logins al ON a.dental_id = al.id
+WHERE 
+    a.status IN ('booked')
+ORDER BY 
+    a.appointment_date ASC, 
+    a.appointment_time ASC";
                                     $result = $conn->query($sql);
 
                                     if ($result && $result->num_rows > 0):
@@ -426,6 +459,9 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                                 <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
                                                     <?php echo htmlspecialchars($time); ?>
                                                 </td>
+                                                <td class="border-r border-gray-300 px-4 py-2 whitespace-nowrap">
+                                                    <?php echo htmlspecialchars($row['dentistname']); ?>
+                                                </td>
                                                 <td class="px-4 py-2 whitespace-nowrap flex items-center space-x-2">
                                                     <button
                                                         class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded px-2 py-1"
@@ -447,6 +483,10 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                 </tbody>
                             </table>
                         </div>
+                        <button onclick="generateReport('upcoming')"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i> Generate Report
+                        </button>
                     </div>
                     <script>
                         $(document).ready(function () {
@@ -536,6 +576,10 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                             </script>
 
                         </div>
+                        <button onclick="generateReport('rescheduled')"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i> Generate Report
+                        </button>
                     </div>
 
                     <div id="completed-section" class="w-full" style="display:none;">
@@ -614,6 +658,10 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                 });
                             </script>
                         </div>
+                        <button onclick="generateReport('completed')"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i> Generate Report
+                        </button>
                     </div>
 
                     <div id="canceled-section" class="w-full" style="display:none;">
@@ -702,10 +750,55 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                                 });
                             </script>
                         </div>
+                        <button onclick="generateReport('cancelled')"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i> Generate Report
+                        </button>
                     </div>
                 </div>
             </section>
+            <script>
+                function generateReport(type) {
+                    const btn = event.target;
+                    const originalHtml = btn.innerHTML;
 
+                    // Show loading state
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
+                    btn.disabled = true;
+
+               
+
+                    fetch(`generate_report.php?type=${type}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.blob();
+                        })
+                        .then(blob => {
+                            if (blob.size === 0) throw new Error('Empty PDF generated');
+
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${type.charAt(0).toUpperCase() + type.slice(1)}_Appointments_${new Date().toISOString().slice(0, 10)}.pdf`;
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Cleanup
+                            setTimeout(() => {
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                            }, 100);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to generate report: ' + error.message);
+                        })
+                        .finally(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.disabled = false;
+                        });
+                }
+            </script>
         </main>
     </div>
     <!-- Appointment Details Modal -->
@@ -719,7 +812,6 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
             <h2 id="modalTitle" class="text-xl font-bold mb-4">Confirm Approval of Appointment</h2>
@@ -730,6 +822,19 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
                 <span id="appointmentDate" class="font-semibold"></span> at
                 <span id="appointmentTime" class="font-semibold"></span>?
             </p>
+
+            <!-- Dentist Dropdown (Hidden by Default) -->
+            <div id="dentistDropdownContainer" class="mb-4 hidden">
+                <label for="dentistSelect" class="block text-sm font-medium text-gray-700 mb-1">
+                    Assign Dentist:
+                </label>
+                <select id="dentistSelect"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <!-- Options will be dynamically loaded via JavaScript -->
+                    <option value="">Select a dentist</option>
+                </select>
+            </div>
+
             <div class="flex justify-end space-x-4">
                 <button onclick="hideConfirmModal()"
                     class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors">
@@ -841,11 +946,19 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             // Show selected section
             document.getElementById(section + '-section').style.display = '';
 
-            // Highlight active button
+            // Remove active state from all buttons
             ['pending', 'upcoming', 'rescheduled', 'completed', 'canceled'].forEach(function (tab) {
-                document.getElementById(tab + '-btn').classList.remove('opacity-60');
+                const btn = document.getElementById(tab + '-btn');
+                if (btn) {
+                    btn.classList.remove('opacity-60', 'active'); // Remove both opacity & active class
+                }
             });
-            document.getElementById(section + '-btn').classList.add('opacity-60');
+
+            // Add active state to clicked button
+            const activeBtn = document.getElementById(section + '-btn');
+            if (activeBtn) {
+                activeBtn.classList.add('opacity-60', 'active'); // Add opacity & active class
+            }
         }
         // Default: show pending
         showSection('pending');
@@ -881,28 +994,68 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             const appointmentDate = document.getElementById('appointmentDate');
             const appointmentTime = document.getElementById('appointmentTime');
             const submitButton = document.getElementById('submitButton');
+            const dentistDropdownContainer = document.getElementById('dentistDropdownContainer');
+            const dentistSelect = document.getElementById('dentistSelect');
+
+            dentistDropdownContainer.classList.add('hidden');
 
             if (action === 'approve') {
                 modalTitle.textContent = 'Confirm Approval of Appointment';
                 actionText.textContent = 'approve';
                 actionText.className = 'font-semibold text-green-600';
                 submitButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors';
-            } else if (action === 'completed') {
+
+                dentistDropdownContainer.classList.remove('hidden');
+                populateDentistDropdown();
+            }
+            else if (action === 'completed') {
                 modalTitle.textContent = 'Confirm Completion of Appointment';
                 actionText.textContent = 'complete';
                 actionText.className = 'font-semibold text-green-600';
                 submitButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors';
-            } else {
+            }
+            else {
                 modalTitle.textContent = 'Confirm Decline of Appointment';
                 actionText.textContent = 'decline';
                 actionText.className = 'font-semibold text-red-600';
                 submitButton.className = 'px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors';
             }
+
+            // Set appointment details
             patientName.textContent = patient;
             appointmentDate.textContent = date;
             appointmentTime.textContent = time;
+
+            // Show modal
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+        }
+
+        // Optional: Fetch dentists dynamically
+        function populateDentistDropdown() {
+            const dentistSelect = document.getElementById('dentistSelect');
+            dentistSelect.innerHTML = '<option value="">Select a dentist</option>';
+
+            // Fetch dentists via AJAX
+            fetch('get_dentists.php') // Replace with your backend endpoint
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(dentists => {
+                    dentists.forEach(dentist => {
+                        const option = document.createElement('option');
+                        option.value = dentist.id;
+                        option.textContent = `${dentist.fname} ${dentist.lname}`;
+                        dentistSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching dentists:', error);
+                    dentistSelect.innerHTML = '<option value="">Error loading dentists</option>';
+                });
         }
         function hideConfirmModal() {
             const modal = document.getElementById('confirmModal');
@@ -924,14 +1077,27 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             modal.classList.remove('flex');
         }
         function handleConfirm() {
-            hideConfirmModal();
+            const dentistSelect = document.getElementById('dentistSelect');
+            const selectedDentistId = dentistSelect ? dentistSelect.value : null;
+
+            if (currentAction === 'approve' && !selectedDentistId) {
+                alert('Please select a dentist.');
+                return;
+            }
+
+
             if (currentAction === 'decline') {
                 setTimeout(() => { showReasonModal(); }, 300);
-            } else {
+            } else if (currentAction === 'approve') {
                 // Approve: send AJAX to backend
+                updateAppointmentStatus(currentAction, selectedDentistId);
+            } else {
                 updateAppointmentStatus(currentAction);
             }
+            hideConfirmModal();
         }
+
+
         function handleReasonSubmit() {
             const reasonText = document.getElementById('reasonText');
             currentReason = reasonText.value.trim();
@@ -941,7 +1107,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             }
             hideReasonModal();
             // Decline: send AJAX to backend
-            updateAppointmentStatus('decline', currentReason, currentBookingRef, currentPatient, currentDate, currentTime);
+            updateAppointmentStatus('decline', currentReason, currentBookingRef);
         }
         function showSuccessModal() {
             const modal = document.getElementById('successModalA');
@@ -983,7 +1149,7 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             // Optionally reload the page to update the table
             location.reload();
         }
-        function updateAppointmentStatus(action, reason = '', bookingRef = '', patientName = '', date = '', time = '') {
+        function updateAppointmentStatus(action, dentistid = 0, reason = '', bookingRef = '', patientName = '', date = '', time = '') {
             // Use passed bookingRef if available, otherwise use global currentBookingRef
             const finalBookingRef = bookingRef || currentBookingRef;
             const finalPatientName = patientName || currentPatient;
@@ -1011,19 +1177,33 @@ echo "<!-- Pending appointments count: $pendingAppointments -->";
             formData.append('appointment_id', appointmentId);
             if (action === 'decline') {
                 formData.append('reason', reason);
+            } else if (action === 'approve') {
+                formData.append('dentistid', dentistid);
             }
             fetch('appointment_actions.php', {
                 method: 'POST',
                 body: formData
             })
-                .then(response => response.json())
-
+                .then(response => {
+                    // First, get the raw text response
+                    return response.text().then(text => {
+                        console.log('Raw response:', text); // Log raw output
+                        try {
+                            // Try parsing as JSON (if expected)
+                            return JSON.parse(text);
+                        } catch (e) {
+                            // If not JSON, return raw text
+                            console.error('Failed to parse JSON:', e);
+                            return { success: false, message: text };
+                        }
+                    });
+                })
                 .then(data => {
-                    console.log(data)
+                    console.log('Parsed data:', data); // Log parsed data
                     if (data.success) {
                         showSuccessModal();
                     } else {
-                        alert('Error: ' + data.message);
+                        alert('Error: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(error => {

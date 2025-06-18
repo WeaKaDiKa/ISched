@@ -11,10 +11,10 @@ $username = "root";
 $password = ""; 
 $dbname = "dental_clinic";
 
-// $servername = "127.0.0.1";
-// $username = "u375599221_roottt"; 
-// $password = "!RC2&C>u[FqgkR=2"; 
-// $dbname = "u375599221_dental_clinic";
+$servername = "127.0.0.1";
+$username = "u375599221_roottt"; 
+$password = "!RC2&C>u[FqgkR=2"; 
+$dbname = "u375599221_dental_clinic";
 
 
 $port = 3318;

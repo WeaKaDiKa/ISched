@@ -205,6 +205,19 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
         .download-btn:hover {
             background-color: #0b7dda;
         }
+
+        .service-card {
+            transition: transform 0.2s;
+        }
+
+        .service-card:active {
+            transform: scale(0.98);
+        }
+
+        .service-card.selected {
+            background-color: #f0f8ff;
+            border-left: 4px solid #3b82f6;
+        }
     </style>
     <!-- Pass PHP data to JavaScript -->
     <script>
@@ -296,6 +309,39 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <script>
+                        // Combined solution
+                        document.querySelectorAll('.service-card').forEach(card => {
+                            let touchStartTime;
+                            const delay = 150; // 150ms seems optimal for most users
+
+                            card.addEventListener('touchstart', () => {
+                                touchStartTime = new Date().getTime();
+                                card.style.transition = 'transform 0.1s';
+                                card.style.transform = 'scale(0.98)';
+                            });
+
+                            card.addEventListener('touchend', (e) => {
+                                card.style.transform = '';
+                                const touchDuration = new Date().getTime() - touchStartTime;
+
+                                if (touchDuration < delay) {
+                                    const checkbox = card.querySelector('.service-checkbox');
+                                    checkbox.checked = !checkbox.checked;
+                                    card.classList.toggle('selected', checkbox.checked);
+
+                                    // Trigger change event if needed
+                                    const event = new Event('change');
+                                    checkbox.dispatchEvent(event);
+                                }
+                            });
+
+                            // Prevent long-touch from selecting text
+                            card.addEventListener('touchmove', () => {
+                                card.style.transform = '';
+                            });
+                        });
+                    </script>
                     <hr class="my-1">
                     <div class="selected-services-panel">
                         <div class="selected-services-header">

@@ -75,22 +75,15 @@ h1 {
   margin-bottom: 20px;
 }
 
-.edit-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
+.button-container {
+
   cursor: pointer;
   position: absolute; /* Position relative to review-item */
   top: 15px; /* Adjust position as needed */
   right: 15px; /* Adjust position as needed */
-  font-size: 0.8em;
+
 }
 
-.edit-button:hover {
-  background-color: #0056b3;
-}
 
 .back-button {
     display: inline-block;

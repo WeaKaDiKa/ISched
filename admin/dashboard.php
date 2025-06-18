@@ -237,9 +237,142 @@ if ($admin_id) {
                                 style="min-width:260px;" />
                         </div>
                     </section>
+
+                    <div
+                        class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">Appointments Overview</h3>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                Total: <?php echo $appointmentCount; ?>
+                            </span>
+                        </div>
+                        <?php
+                        // For counting all appointments (past and future) in current period
+                        $weeklyAppointments = $conn->query("SELECT COUNT(*) FROM appointments 
+                                   WHERE status != 'cancelled'
+                                   AND YEARWEEK(appointment_date, 1) = YEARWEEK(CURDATE(), 1)")->fetch_row()[0];
+
+                        $monthlyAppointments = $conn->query("SELECT COUNT(*) FROM appointments 
+                                    WHERE status != 'cancelled'
+                                    AND MONTH(appointment_date) = MONTH(CURDATE()) 
+                                    AND YEAR(appointment_date) = YEAR(CURDATE())")->fetch_row()[0];
+
+                        $yearlyAppointments = $conn->query("SELECT COUNT(*) FROM appointments 
+                                   WHERE status != 'cancelled'
+                                   AND YEAR(appointment_date) = YEAR(CURDATE())")->fetch_row()[0];
+                        ?>
+                        <!-- Time Period Stats -->
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <!-- Weekly -->
+                            <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                <div class="text-2xl font-bold text-blue-700"><?php echo $weeklyAppointments; ?></div>
+                                <div class="text-xs text-blue-600 font-medium mt-1">THIS WEEK</div>
+
+                            </div>
+
+                            <!-- Monthly -->
+                            <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                <div class="text-2xl font-bold text-blue-700"><?php echo $monthlyAppointments; ?></div>
+                                <div class="text-xs text-blue-600 font-medium mt-1">THIS MONTH</div>
+
+                            </div>
+
+                            <!-- Yearly -->
+                            <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                <div class="text-2xl font-bold text-blue-700"><?php echo $yearlyAppointments; ?></div>
+                                <div class="text-xs text-blue-600 font-medium mt-1">THIS YEAR</div>
+
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Appointments -->
+                        <div class="border-t border-gray-200 pt-4">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">UPCOMING APPOINTMENTS</h4>
+                            <div class="space-y-3">
+                                <?php
+
+                                $sql = "SELECT a.*, 
+        p.first_name, 
+        p.middle_name, 
+        p.last_name, 
+        CONCAT(al.first_name, ' ', al.last_name) AS dentistname
+        FROM appointments a 
+        LEFT JOIN patients p ON a.patient_id = p.id 
+        LEFT JOIN admin_logins al ON a.dental_id = al.id
+        WHERE a.status IN ('booked')
+        ORDER BY a.appointment_date ASC, a.appointment_time ASC";
+                                $result = $conn->query($sql);
+                                if ($result && $result->num_rows > 0) {
+                                    $count = 0;
+                                    $today = date('Y-m-d');
+                                    $oneWeekLater = date('Y-m-d', strtotime('+1 week'));
+
+                                    while ($row = $result->fetch_assoc()) {
+                                        if ($count >= 3)
+                                            break;
+
+                                        $appointmentDate = $row['appointment_date'];
+
+                                        // Only show appointments within the next week
+                                        if ($appointmentDate >= $today && $appointmentDate <= $oneWeekLater) {
+                                            $count++;
+                                            $patientName = htmlspecialchars(trim($row['first_name'] . ' ' . ($row['middle_name'] ? $row['middle_name'] . ' ' : '') . $row['last_name']));
+                                            $dentistName = htmlspecialchars($row['dentistname'] ?? 'Not assigned');
+                                            $service = htmlspecialchars($row['services'] ?? 'General Consultation');
+                                            $time = !empty($row['appointment_time']) ? date('g:i A', strtotime($row['appointment_time'])) : 'Time not set';
+
+                                            // Format date display
+                                            if ($appointmentDate == $today) {
+                                                $dateDisplay = 'Today';
+                                            } elseif ($appointmentDate == date('Y-m-d', strtotime('+1 day'))) {
+                                                $dateDisplay = 'Tomorrow';
+                                            } else {
+                                                $dateDisplay = date('D, M j', strtotime($appointmentDate));
+                                            }
+                                            ?>
+                                            <div
+                                                class="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                                <div
+                                                    class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-tooth text-blue-600"></i>
+                                                </div>
+                                                <div class="ml-3 flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate"><?php echo $service; ?>
+                                                    </p>
+                                                    <div class="flex justify-between flex-wrap">
+                                                        <p class="text-xs text-gray-500"><?php echo $patientName; ?></p>
+                                                        <p class="text-xs text-gray-500">Dr. <?php echo $dentistName; ?></p>
+                                                        <p class="text-xs font-medium text-blue-600 w-full mt-1">
+                                                            <?php echo $dateDisplay . ', ' . $time; ?>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php
+                                        }
+                                    }
+
+                                    if ($count === 0) {
+                                        echo '<p class="text-sm text-gray-500 text-center py-4">No upcoming appointments this week</p>';
+                                    }
+                                } else {
+                                    echo '<p class="text-sm text-gray-500 text-center py-4">No booked appointments found</p>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+
+                        <a href="appointments.php"
+                            class="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View all appointments
+                            <i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                    </div>
+
+
                     <!-- End Dashboard Header Section -->
                     <!-- Chart Section -->
-                    <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                    <div class="bg-white rounded-xl shadow-md p-6 mt-6" style="display:none;">
                         <!-- Year navigation -->
                         <div class="flex items-center justify-end mb-2 space-x-2">
                             <a href="?year=<?php echo $prevYear; ?>"

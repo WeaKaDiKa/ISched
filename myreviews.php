@@ -225,8 +225,13 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             <div class="text-muted review-service">
                                 <strong>Service:</strong> <?= implode(', ', json_decode($review['services'], true)) ?>
                             </div>
-                            <button class="edit-button btn btn-sm btn-primary mt-2"
-                                data-review-id="<?= $review['id'] ?>">Edit</button>
+                            <div class="d-flex button-container">
+                                <button class="edit-button btn btn-sm btn-primary mt-2 me-3"
+                                    data-review-id="<?= $review['id'] ?>">Edit</button>
+                                <button class="delete-button btn btn-sm btn-warning mt-2"
+                                    data-review-id="<?= $review['id'] ?>">Delete</button>
+                            </div>
+
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -273,9 +278,63 @@ $user_reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
     </div>
+    <!-- Confirmation Modal -->
+    <div id="deleteConfirmationModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this review? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        $(document).ready(function () {
+            let reviewIdToDelete = null;
 
+            // When delete button is clicked
+            $('.delete-button').click(function () {
+                reviewIdToDelete = $(this).data('review-id');
+                $('#deleteConfirmationModal').modal('show');
+            });
 
+            // When confirm delete is clicked
+            $('#confirmDelete').click(function () {
+                if (reviewIdToDelete) {
+                    $.ajax({
+                        url: 'delete_review.php',
+                        type: 'POST',
+                        data: { id: reviewIdToDelete },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.success) {
+                                // Show success message and refresh the page
+                                $('#deleteConfirmationModal').modal('hide');
+                                alert('Review deleted successfully');
+                                location.reload(); // Refresh the page
+                            } else {
+                                alert('Error: ' + response.message);
+                                $('#deleteConfirmationModal').modal('hide');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert('An error occurred: ' + error);
+                            $('#deleteConfirmationModal').modal('hide');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize Bootstrap modal

@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $appointment_id = $_POST['appointment_id'] ?? '';
+    $dentistid = $_POST['dentistid'] ?? '';
     try {
         if ($action && $appointment_id) {
             // Get patient ID for the appointment
@@ -17,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $patientId = $appointmentData['patient_id'] ?? 0;
 
             if ($action === 'approve') {
-                $sql = "UPDATE appointments SET status = 'booked' WHERE id = ?";
+                $sql = "UPDATE appointments SET status = 'booked', dental_id = ? WHERE id = ?";
 
                 // Add notification for the user if patient ID is valid
                 if ($patientId > 0) {
@@ -27,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
                     $patientInfoStmt = $conn->prepare("SELECT email, CONCAT(first_name, ' ', last_name) AS name FROM patients WHERE id = ?");
-                    $patientInfoStmt->bind_param('i', $patientId);
+                    $patientInfoStmt->bind_param('i', $patientId, );
                     $patientInfoStmt->execute();
                     $patientInfoResult = $patientInfoStmt->get_result();
                     $patientInfo = $patientInfoResult->fetch_assoc();
@@ -162,8 +163,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 exit;
             }
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('i', $appointment_id);
+
+            if ($action == 'approve') {
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('ii', $dentistid, $appointment_id);
+            } else {
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('i', $appointment_id);
+            }
             if ($stmt->execute()) {
                 $emailStatus = ' Email sent to patient.';
                 // Email is now sent directly when patient info is retrieved
