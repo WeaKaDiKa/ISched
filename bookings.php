@@ -385,13 +385,13 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
 
             <!-- Section 3: Payment Details -->
             <section id="section3" class="form-section">
-                <!--        <h2>Payment Details</h2> -->
-                <h2>Additional Notes (Optional)</h2>
+                <h2>Payment Details</h2>
+
                 <div class="payment-section">
                     <div class="payment-details">
-                        <!--       <h3 class="d-none">Payment (Estimated Price)</h3> -->
+                        <h3 class="">Payment (Starting Price)</h3>
 
-                        <div id="payment-services-list" class="selected-services-list d-none">
+                        <div id="payment-services-list" class="selected-services-list">
                             <?php if (!empty($_SESSION['selected_services']) && is_array($_SESSION['selected_services'])): ?>
                                 <?php
                                 $total = 0;
@@ -423,7 +423,7 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
                         <input type="hidden" name="total_price" value="<?php echo isset($total) ? $total : 0; ?>">
 
                         <div class="notes-section">
-
+                            <h2>Additional Notes (Optional)</h2>
                             <textarea name="additional_notes"
                                 placeholder="Any special requests or information we should know?"></textarea>
                         </div>
@@ -1031,7 +1031,7 @@ $total = calculateTotal($postData['services'] ?? [], $servicePrices);
                         serviceItem.className = 'selected-service-item d-flex justify-content-between';
                         serviceItem.innerHTML = `
                             <div class="selected-service-name">${serviceName}</div>
-                            <div class="selected-service-price">₱${servicePrice}</div>
+                    
                         `;
                         selectedServicesList.appendChild(serviceItem);
                     });
