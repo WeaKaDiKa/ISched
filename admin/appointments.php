@@ -766,7 +766,7 @@ ORDER BY
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
                     btn.disabled = true;
 
-               
+
 
                     fetch(`generate_report.php?type=${type}`)
                         .then(response => {
@@ -961,7 +961,14 @@ ORDER BY
             }
         }
         // Default: show pending
-        showSection('pending');
+
+
+        <?php if ($_SESSION['user_role'] == 'admin'): ?>
+            showSection('pending');
+        <?php else: ?>
+            showSection('upcoming');
+        <?php endif; ?>
+
 
         function showDetailsModal(bookingId, patientName, service, date, time, status) {
             document.getElementById('detailsContent').innerHTML = `

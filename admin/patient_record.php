@@ -106,7 +106,7 @@ $patients = $patientModel->getAllPatients();
                                             <div
                                                 class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                                                 <?php if (!empty($patient['profile_picture'])): ?>
-                                                    <img src="<?php echo htmlspecialchars($patient['profile_picture']); ?>"
+                                                    <img src="../assets/images/profiles/<?php echo htmlspecialchars($patient['profile_picture']); ?>"
                                                         alt="Profile" class="h-10 w-10 rounded-full">
                                                 <?php else: ?>
                                                     <i class="fas fa-user text-gray-400"></i>

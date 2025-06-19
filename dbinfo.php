@@ -1,6 +1,6 @@
 <?php
 $servername = "127.0.0.1";
-$username = "u375599221_roottt"; 
+$username = "u375599221_roott"; 
 $password = "!RC2&C>u[FqgkR=2"; 
 $dbname = "u375599221_dental_clinic";
 

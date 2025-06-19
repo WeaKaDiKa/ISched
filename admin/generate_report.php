@@ -4,7 +4,7 @@ require_once('db.php');
 require_once('tcpdf/tcpdf.php');
 
 $type = isset($_GET['type']) ? strtolower($_GET['type']) : 'pending';
-$valid_types = ['pending', 'upcoming', 'rescheduled', 'completed', 'cancelled'];
+$valid_types = ['pending', 'upcoming', 'rescheduled', 'completed', 'canceled', 'cancelled'];
 
 if (!in_array($type, $valid_types)) {
     header('Content-Type: application/json');
