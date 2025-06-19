@@ -18,7 +18,7 @@ $dbname = "u375599221_dental_clinic";
 
 
 $port = 3318;
-// $port = 3306;
+$port = 3306;
 
 $domain = "https://.net";
 
