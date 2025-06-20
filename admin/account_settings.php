@@ -159,44 +159,11 @@ if ($admin_id) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
-      body, html, .text-sm, .text-base, .text-lg, .text-xl, .text-2xl, .text-3xl, .text-gray-700, .text-gray-900, .text-blue-900 {
-        font-family: 'Inter', sans-serif !important;
-      }
+    
       .icon-circle {
         @apply w-12 h-12 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl transition-all duration-200 ease-in-out shadow-sm;
       }
-      .sidebar-icon {
-        @apply transition-all duration-200 ease-in-out;
-      }
-      .sidebar-icon.active .icon-circle,
-      .sidebar-icon:focus .icon-circle,
-      .sidebar-icon:hover .icon-circle {
-        @apply bg-blue-100 text-blue-700 shadow-lg scale-110;
-      }
-      #sidebar {
-        transition: width 0.3s, min-width 0.3s, padding 0.3s;
-      }
-      #sidebar.collapsed {
-        width: 4.5rem !important;
-        min-width: 0 !important;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-      }
-      #sidebar.collapsed .sidebar-label,
-      #sidebar.collapsed .text-center,
-      #sidebar.collapsed .text-xs,
-      #sidebar.collapsed nav span,
-      #sidebar.collapsed .mt-auto,
-      #sidebar.collapsed .flex.flex-col.items-center.mb-8 > h3,
-      #sidebar.collapsed .flex.flex-col.items-center.mb-8 > p {
-          display: none !important;
-      }
-      #sidebar.collapsed .flex.flex-col.items-center.mb-8 {
-          align-items: flex-start !important;
-      }
-      #sidebar.collapsed img.w-24 {
-          margin-bottom: 0 !important;
-      }
+
       .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
